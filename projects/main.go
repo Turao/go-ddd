@@ -28,6 +28,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	migrator, err := repository.NewMigrator(db, "file://migrations")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := migrator.Up(); err != nil {
+		log.Fatal(err)
+	}
+
 	repo, err := repository.NewRepository(db)
 	if err != nil {
 		log.Fatal(err)
