@@ -7,8 +7,8 @@ import (
 )
 
 type UpdateProjectRequest struct {
-	ID    string
-	Title string
+	ID    string `json:"id"`
+	Title string `json:"title"`
 }
 
 type UpdateProjectHandler struct {
@@ -22,12 +22,12 @@ func NewUpdateProjectCommandHandler(repo project.WriteRepository) *UpdateProject
 }
 
 func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectRequest) error {
-	p := project.Project{
-		ID:    req.ID,
-		Title: req.Title,
+	p, err := project.NewProject(req.ID, req.Title)
+	if err != nil {
+		return err
 	}
 
-	if err := h.repo.Update(ctx, p); err != nil {
+	if err := h.repo.Update(ctx, *p); err != nil {
 		return err
 	}
 

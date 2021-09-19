@@ -13,13 +13,13 @@ type Project struct {
 	Title string
 }
 
-func NewProject(title string) (*Project, error) {
+func NewProject(id ProjectID, title string) (*Project, error) {
 	if err := validateTitle(title); err != nil {
 		return nil, err
 	}
 
 	return &Project{
-		ID:    uuid.NewString(),
+		ID:    id,
 		Title: title,
 	}, nil
 }
@@ -29,4 +29,8 @@ func validateTitle(title string) error {
 		return errors.New("title must not be empty")
 	}
 	return nil
+}
+
+func From(title string) (*Project, error) {
+	return NewProject(uuid.NewString(), title)
 }

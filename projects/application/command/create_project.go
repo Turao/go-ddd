@@ -7,7 +7,7 @@ import (
 )
 
 type CreateProjectRequest struct {
-	Title string
+	Title string `json:"title"`
 }
 
 type CreateProjectHandler struct {
@@ -21,7 +21,7 @@ func NewCreateProjectCommandHandler(repo project.WriteRepository) *CreateProject
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req CreateProjectRequest) error {
-	p, err := project.NewProject(req.Title)
+	p, err := project.From(req.Title)
 	if err != nil {
 		return err
 	}

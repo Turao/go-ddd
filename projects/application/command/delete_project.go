@@ -7,7 +7,7 @@ import (
 )
 
 type DeleteProjectRequest struct {
-	Title string
+	Title string `json:"title"`
 }
 
 type DeleteProjectHandler struct {
@@ -21,7 +21,7 @@ func NewDeleteProjectCommandHandler(repo project.WriteRepository) *DeleteProject
 }
 
 func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectRequest) error {
-	p, err := project.NewProject(req.Title)
+	p, err := project.From(req.Title)
 	if err != nil {
 		return err
 	}

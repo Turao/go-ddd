@@ -7,12 +7,12 @@ import (
 )
 
 type FindProjectRequest struct {
-	ID string
+	ID string `json:"id"`
 }
 
 type FindProjectResponse struct {
-	ID    string
-	Title string
+	ID    string `json:"id"`
+	Title string `json:"title"`
 }
 
 type FindProjectHandler struct {
