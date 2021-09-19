@@ -17,5 +17,5 @@ type Commands struct {
 }
 
 type Queries struct {
-	FindProject query.FindProjectHandler
+	FindProject *query.FindProjectHandler
 }

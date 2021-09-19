@@ -40,7 +40,7 @@ func main() {
 			DeleteProject: command.NewDeleteProjectCommandHandler(repo),
 		},
 		Queries: application.Queries{
-			FindProject: *query.NewFindProjectCommandHandler(repo),
+			FindProject: query.NewFindProjectCommandHandler(repo),
 		},
 	}
 
