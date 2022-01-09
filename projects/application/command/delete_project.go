@@ -6,27 +6,29 @@ import (
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
-type DeleteProjectRequest struct {
+type DeleteProjectCommand struct {
 	Title string `json:"title"`
 }
 
 type DeleteProjectHandler struct {
-	repo project.WriteRepository
+	repo project.Repository
 }
 
-func NewDeleteProjectCommandHandler(repo project.WriteRepository) *DeleteProjectHandler {
+func NewDeleteProjectCommandHandler(repo project.Repository) *DeleteProjectHandler {
 	return &DeleteProjectHandler{
 		repo: repo,
 	}
 }
 
-func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectRequest) error {
+func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectCommand) error {
 	p, err := project.From(req.Title)
 	if err != nil {
 		return err
 	}
 
-	if err := h.repo.Delete(ctx, p.ID); err != nil {
+	p.Delete()
+
+	if err := h.repo.Save(ctx, *p); err != nil {
 		return err
 	}
 

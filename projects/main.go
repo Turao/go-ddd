@@ -49,13 +49,13 @@ func main() {
 			DeleteProject: command.NewDeleteProjectCommandHandler(repo),
 		},
 		Queries: application.Queries{
-			FindProject: query.NewFindProjectCommandHandler(repo),
+			FindProject: query.NewFindProjectQueryHandler(repo),
 		},
 	}
 
 	app.Commands.CreateProject.Handle(
 		context.Background(),
-		command.CreateProjectRequest{
+		command.CreateProjectCommand{
 			Title: "my-title",
 		})
 }

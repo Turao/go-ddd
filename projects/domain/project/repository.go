@@ -2,14 +2,7 @@ package project
 
 import "context"
 
-
-
-type WriteRepository interface {
-	Create(ctx context.Context, p Project) error
-	Update(ctx context.Context, p Project) error
-	Delete(ctx context.Context, id ProjectID) error
-}
-
-type ReadRepository interface {
+type Repository interface {
+	Save(ctx context.Context, p Project) error
 	FindProjectByID(ctx context.Context, id ProjectID) (*Project, error)
 }

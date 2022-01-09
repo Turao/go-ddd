@@ -2,32 +2,47 @@ package command
 
 import (
 	"context"
+	"errors"
 
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
-type UpdateProjectRequest struct {
+type UpdateProjectCommand struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 }
 
 type UpdateProjectHandler struct {
-	repo project.WriteRepository
+	repo project.Repository
 }
 
-func NewUpdateProjectCommandHandler(repo project.WriteRepository) *UpdateProjectHandler {
+func NewUpdateProjectCommandHandler(repo project.Repository) *UpdateProjectHandler {
 	return &UpdateProjectHandler{
 		repo: repo,
 	}
 }
 
-func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectRequest) error {
-	p, err := project.NewProject(req.ID, req.Title)
+func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectCommand) error {
+	found, err := h.repo.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	if err := h.repo.Update(ctx, *p); err != nil {
+	if found == nil {
+		return errors.New("project does not exist")
+	}
+
+	updated, err := project.NewProject(
+		found.ID,
+		req.Title,
+		found.Active,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if err := h.repo.Save(ctx, *updated); err != nil {
 		return err
 	}
 

@@ -6,7 +6,7 @@ import (
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
-type FindProjectRequest struct {
+type FindProjectQuery struct {
 	ID string `json:"id"`
 }
 
@@ -16,16 +16,16 @@ type FindProjectResponse struct {
 }
 
 type FindProjectHandler struct {
-	repo project.ReadRepository
+	repo project.Repository
 }
 
-func NewFindProjectCommandHandler(repo project.ReadRepository) *FindProjectHandler {
+func NewFindProjectQueryHandler(repo project.Repository) *FindProjectHandler {
 	return &FindProjectHandler{
 		repo: repo,
 	}
 }
 
-func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectRequest) (*FindProjectResponse, error) {
+func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (*FindProjectResponse, error) {
 	p, err := h.repo.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return nil, err

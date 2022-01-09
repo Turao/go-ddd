@@ -17,7 +17,20 @@ func NewRepository(db *sql.DB) (*repo, error) {
 	}, nil
 }
 
-func (r *repo) Create(ctx context.Context, p project.Project) error {
+func (r *repo) Save(ctx context.Context, p project.Project) error {
+	found, err := r.FindProjectByID(ctx, p.ID)
+	if err != nil {
+		return err
+	}
+
+	if found == nil {
+		return r.insert(ctx, p)
+	}
+
+	return r.update(ctx, p)
+}
+
+func (r *repo) insert(ctx context.Context, p project.Project) error {
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
@@ -25,9 +38,10 @@ func (r *repo) Create(ctx context.Context, p project.Project) error {
 
 	_, err = tx.ExecContext(
 		ctx,
-		"INSERT INTO projects VALUES ($1, $2)",
+		"INSERT INTO projects VALUES ($1, $2, $3)",
 		p.ID,
 		p.Title,
+		p.Active,
 	)
 	if err != nil {
 		return err
@@ -40,7 +54,7 @@ func (r *repo) Create(ctx context.Context, p project.Project) error {
 	return nil
 }
 
-func (r *repo) Update(ctx context.Context, p project.Project) error {
+func (r *repo) update(ctx context.Context, p project.Project) error {
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
@@ -48,31 +62,10 @@ func (r *repo) Update(ctx context.Context, p project.Project) error {
 
 	_, err = tx.ExecContext(
 		ctx,
-		"UPDATE projects SET title = $1 WHERE id = $2",
+		"UPDATE projects SET title = $1, active = $2 WHERE id = $3",
 		p.Title,
+		p.Active,
 		p.ID,
-	)
-	if err != nil {
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *repo) Delete(ctx context.Context, id project.ProjectID) error {
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.ExecContext(
-		ctx,
-		"DELETE FROM projects WHERE id = $1",
-		id,
 	)
 	if err != nil {
 		return err
@@ -91,11 +84,14 @@ func (r *repo) FindProjectByID(ctx context.Context, id project.ProjectID) (*proj
 		ctx,
 		"SELECT * FROM projects WHERE id = $1",
 		id,
-	).Scan(&p.ID, &p.Title)
+	).Scan(&p.ID, &p.Title, &p.Active)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	return nil, nil
+	return &p, nil
 }
