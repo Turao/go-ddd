@@ -6,7 +6,7 @@ import (
 )
 
 func TestPush(t *testing.T) {
-	e, err := NewEvent("testing")
+	e, err := NewBaseEvent("testing")
 	if err != nil {
 		t.Error(err)
 	}
@@ -27,7 +27,7 @@ func TestPush(t *testing.T) {
 }
 
 func TestTake(t *testing.T) {
-	e, err := NewEvent("testing")
+	e, err := NewBaseEvent("testing")
 	if err != nil {
 		t.Error(err)
 	}
@@ -54,7 +54,7 @@ func TestTake(t *testing.T) {
 }
 
 func TestTakeMoreThanPossible(t *testing.T) {
-	e, err := NewEvent("testing")
+	e, err := NewBaseEvent("testing")
 	if err != nil {
 		t.Error(err)
 	}
