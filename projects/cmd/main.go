@@ -53,9 +53,24 @@ func main() {
 		},
 	}
 
-	app.Commands.CreateProject.Handle(
+	err = app.Commands.CreateProject.Handle(
 		context.Background(),
 		command.CreateProjectCommand{
 			Title: "my-title",
 		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Commands.UpdateProject.Handle(
+		context.Background(),
+		command.UpdateProjectCommand{
+			ID:    "00000000-0000-0000-0000-000000000000",
+			Title: "my-title",
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
