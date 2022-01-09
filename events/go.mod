@@ -1,4 +1,4 @@
-module github.com/turao/events
+module github.com/turao/go-ddd/events
 
 go 1.17
 

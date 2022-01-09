@@ -1,4 +1,4 @@
-module github.com/turao/go-ddd/projects
+module github.com/turao/projects
 
 go 1.17
 
