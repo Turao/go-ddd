@@ -1,6 +1,7 @@
 package events
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +14,10 @@ type baseEvent struct {
 }
 
 func NewBaseEvent(name string) (*baseEvent, error) {
+	if name == "" {
+		return nil, errors.New("event name must not be empty")
+	}
+
 	return &baseEvent{
 		id:        uuid.NewString(),
 		name:      name,

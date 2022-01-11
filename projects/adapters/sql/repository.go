@@ -40,7 +40,7 @@ func (r *repo) insert(ctx context.Context, p project.Project) error {
 		ctx,
 		"INSERT INTO projects VALUES ($1, $2, $3)",
 		p.ID,
-		p.Title,
+		p.Name,
 		p.Active,
 	)
 	if err != nil {
@@ -62,8 +62,8 @@ func (r *repo) update(ctx context.Context, p project.Project) error {
 
 	_, err = tx.ExecContext(
 		ctx,
-		"UPDATE projects SET title = $1, active = $2 WHERE id = $3",
-		p.Title,
+		"UPDATE projects SET name = $1, active = $2 WHERE id = $3",
+		p.Name,
 		p.Active,
 		p.ID,
 	)
@@ -84,7 +84,7 @@ func (r *repo) FindProjectByID(ctx context.Context, id project.ProjectID) (*proj
 		ctx,
 		"SELECT * FROM projects WHERE id = $1",
 		id,
-	).Scan(&p.ID, &p.Title, &p.Active)
+	).Scan(&p.ID, &p.Name, &p.Active)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

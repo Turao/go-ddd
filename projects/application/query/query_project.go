@@ -11,8 +11,8 @@ type FindProjectQuery struct {
 }
 
 type FindProjectResponse struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type FindProjectHandler struct {
@@ -32,7 +32,7 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (
 	}
 
 	return &FindProjectResponse{
-		ID:    p.ID,
-		Title: p.Title,
+		ID:   p.ID,
+		Name: p.Name,
 	}, nil
 }

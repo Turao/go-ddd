@@ -9,32 +9,41 @@ import (
 type ProjectID = string
 
 type Project struct {
-	ID    ProjectID
-	Title string
+	ID   ProjectID
+	Name string
 
 	Active bool
 }
 
-func From(title string) (*Project, error) {
-	return NewProject(uuid.NewString(), title, true)
+func From(name string) (*Project, error) {
+	return NewProject(uuid.NewString(), name, true)
 }
 
-func NewProject(id ProjectID, title string, active bool) (*Project, error) {
-	if err := validateTitle(title); err != nil {
+func NewProject(id ProjectID, name string, active bool) (*Project, error) {
+	if err := validateName(name); err != nil {
 		return nil, err
 	}
 
 	return &Project{
 		ID:     id,
-		Title:  title,
+		Name:   name,
 		Active: active,
 	}, nil
 }
 
-func validateTitle(title string) error {
-	if title == "" {
-		return errors.New("title must not be empty")
+func validateName(name string) error {
+	if name == "" {
+		return errors.New("name must not be empty")
 	}
+	return nil
+}
+
+func (p *Project) SetName(name string) error {
+	if err := validateName(name); err != nil {
+		return err
+	}
+
+	p.Name = name
 	return nil
 }
 
