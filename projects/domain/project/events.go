@@ -8,20 +8,29 @@ import (
 )
 
 type ProjectAggregate struct {
-	Project *Project
+	Project *Project `json:"project"`
 }
 
-func (pa *ProjectAggregate) Handle(e events.DomainEvent) error {
+func (pa *ProjectAggregate) HandleEvents(es []events.DomainEvent) error {
+	for _, e := range es {
+		if err := pa.HandleEvent(e); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
-		p, err := NewProject(event.AggregateID(), event.name, true)
+		p, err := NewProject(event.AggregateID(), event.projectName, true)
 		if err != nil {
 			return err
 		}
 		pa.Project = p
 		return nil
 	case ProjectUpdatedEvent:
-		pa.Project.SetName(event.name)
+		pa.Project.SetName(event.projectName)
 		return nil
 	case ProjectDeletedEvent:
 		pa.Project.Delete()
@@ -33,49 +42,49 @@ func (pa *ProjectAggregate) Handle(e events.DomainEvent) error {
 
 // -- Events --
 type ProjectCreatedEvent struct {
-	events.DomainEvent
-	name string
+	events.DomainEvent `json:"domainEvent"`
+	projectName        string `json:"projectName"`
 }
 
-func NewProjectCreatedEvent(id ProjectID, name string) (*ProjectCreatedEvent, error) {
+func NewProjectCreatedEvent(id ProjectID, projectName string) (*ProjectCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.created", id)
 	if err != nil {
 		return nil, err
 	}
 
-	if name == "" {
-		return nil, errors.New("name must not be empty")
+	if projectName == "" {
+		return nil, errors.New("project name must not be empty")
 	}
 
 	return &ProjectCreatedEvent{
 		domainEvent,
-		name,
+		projectName,
 	}, nil
 }
 
 type ProjectUpdatedEvent struct {
-	events.DomainEvent
-	name string
+	events.DomainEvent `json:"domainEvent"`
+	projectName        string `json:"projectName"`
 }
 
-func NewProjectUpdatedEvent(id ProjectID, name string) (*ProjectUpdatedEvent, error) {
+func NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.updated", id)
 	if err != nil {
 		return nil, err
 	}
 
-	if name == "" {
-		return nil, errors.New("name must not be empty")
+	if projectName == "" {
+		return nil, errors.New("project name must not be empty")
 	}
 
 	return &ProjectUpdatedEvent{
 		domainEvent,
-		name,
+		projectName,
 	}, nil
 }
 
 type ProjectDeletedEvent struct {
-	events.DomainEvent
+	events.DomainEvent `json:"domainEvent"`
 }
 
 func NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {

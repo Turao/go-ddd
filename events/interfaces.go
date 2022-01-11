@@ -1,8 +1,6 @@
 package events
 
-import (
-	"time"
-)
+import "time"
 
 type EventID = string
 
@@ -10,4 +8,13 @@ type Event interface {
 	ID() EventID
 	Name() string
 	OccuredAt() time.Time
+}
+
+// ----
+
+type AggregateID = string
+
+type DomainEvent interface {
+	Event
+	AggregateID() AggregateID
 }

@@ -9,10 +9,10 @@ import (
 type ProjectID = string
 
 type Project struct {
-	ID   ProjectID
-	Name string
+	ID   ProjectID `json:"id"`
+	Name string    `json:"name"`
 
-	Active bool
+	Active bool `json:"active"`
 }
 
 func From(name string) (*Project, error) {

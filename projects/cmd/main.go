@@ -2,10 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/turao/go-ddd/events"
 	repository "github.com/turao/go-ddd/projects/adapters/sql"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
@@ -82,20 +84,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = agg.Handle(*createEvent)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	deleteEvent, err := project.NewProjectDeletedEvent(id)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = agg.Handle(*deleteEvent)
+	err = agg.HandleEvents([]events.DomainEvent{
+		*createEvent,
+		*deleteEvent,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println(agg)
+	d, err := json.MarshalIndent(createEvent, "", "  ")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println(string(d))
 }

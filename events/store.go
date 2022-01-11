@@ -1,6 +1,8 @@
 package events
 
-import "context"
+import (
+	"context"
+)
 
 type EventStore interface {
 	Push(ctx context.Context, event Event) error

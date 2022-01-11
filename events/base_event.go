@@ -1,6 +1,7 @@
 package events
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type baseEvent struct {
-	id        EventID
+	id        string
 	name      string
 	occuredAt time.Time
 }
@@ -25,7 +26,7 @@ func NewBaseEvent(name string) (*baseEvent, error) {
 	}, nil
 }
 
-func (e *baseEvent) ID() EventID {
+func (e *baseEvent) ID() string {
 	return e.id
 }
 
@@ -35,4 +36,20 @@ func (e *baseEvent) Name() string {
 
 func (e *baseEvent) OccuredAt() time.Time {
 	return e.occuredAt
+}
+
+func (e *baseEvent) MarshalJSON() ([]byte, error) {
+	d, err := json.Marshal(struct {
+		ID        string    `json:"id"`
+		Name      string    `json:"name"`
+		OccuredAt time.Time `json:"occurredAt"`
+	}{
+		ID:        e.id,
+		Name:      e.name,
+		OccuredAt: e.occuredAt,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return d, err
 }
