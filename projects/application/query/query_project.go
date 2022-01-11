@@ -33,9 +33,7 @@ func NewFindProjectQueryHandler(repo project.Repository, es events.EventStore) *
 
 func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (*FindProjectResponse, error) {
 	var p project.ProjectAggregate
-	// todo: Move filtering (by AggregateID) to eventStore. Add
-	// todo: Add "takeAll" method. Take N does not make much sense
-	evts := h.eventStore.Take(context.Background(), 10000000)
+	evts := h.eventStore.FilterByAggregateID(req.ID)
 	for _, evt := range evts {
 		log.Println(reflect.TypeOf(evt))
 

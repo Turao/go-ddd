@@ -91,6 +91,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	evts := eventStore.Events()
+	for _, evt := range evts {
+		d, err := json.MarshalIndent(evt, "", " ")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(string(d))
+	}
+
 	res, err := app.Queries.FindProject.Handle(
 		context.Background(),
 		query.FindProjectQuery{
@@ -106,14 +115,5 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Println(string(d))
-
-	evts := eventStore.Take(context.Background(), 1000)
-	for _, evt := range evts {
-		d, err := json.MarshalIndent(evt, "", " ")
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println(string(d))
-	}
 
 }
