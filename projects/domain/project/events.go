@@ -20,7 +20,7 @@ func (pev *projectEventHandler) Handle(e events.DomainEvent) error {
 		pev.project = p
 		return nil
 	case ProjectUpdatedEvent:
-		pev.project.Name = event.name // event has already been validated
+		pev.project.SetName(event.name)
 		return nil
 	case ProjectDeletedEvent:
 		pev.project.Delete()
