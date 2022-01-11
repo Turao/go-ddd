@@ -43,7 +43,7 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 // -- Events --
 type ProjectCreatedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
-	projectName        string `json:"projectName"`
+	projectName        string
 }
 
 func NewProjectCreatedEvent(id ProjectID, projectName string) (*ProjectCreatedEvent, error) {
@@ -64,7 +64,7 @@ func NewProjectCreatedEvent(id ProjectID, projectName string) (*ProjectCreatedEv
 
 type ProjectUpdatedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
-	projectName        string `json:"projectName"`
+	projectName        string
 }
 
 func NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {

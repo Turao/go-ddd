@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	repository "github.com/turao/go-ddd/projects/adapters/sql"
-	"github.com/turao/go-ddd/projects/domain/project"
+	"github.com/turao/go-ddd/projects/application"
+	"github.com/turao/go-ddd/projects/application/command"
+	"github.com/turao/go-ddd/projects/application/query"
 )
 
 func main() {
@@ -37,70 +39,65 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// repo, err := repository.NewRepository(db)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// app := application.App{
-	// 	Commands: application.Commands{
-	// 		CreateProject: command.NewCreateProjectCommandHandler(repo),
-	// 		UpdateProject: command.NewUpdateProjectCommandHandler(repo),
-	// 		DeleteProject: command.NewDeleteProjectCommandHandler(repo),
-	// 	},
-	// 	Queries: application.Queries{
-	// 		FindProject: query.NewFindProjectQueryHandler(repo),
-	// 	},
-	// }
-
-	// err = app.Commands.CreateProject.Handle(
-	// 	context.Background(),
-	// 	command.CreateProjectCommand{
-	// 		Title: "my-title",
-	// 	})
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// err = app.Commands.UpdateProject.Handle(
-	// 	context.Background(),
-	// 	command.UpdateProjectCommand{
-	// 		ID:    "00000000-0000-0000-0000-000000000000",
-	// 		Title: "my-title",
-	// 	})
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	agg := &project.ProjectAggregate{
-		Project: nil,
-	}
-
-	id := uuid.NewString()
-	createEvent, err := project.NewProjectCreatedEvent(id, "my-project")
+	repo, err := repository.NewRepository(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	deleteEvent, err := project.NewProjectDeletedEvent(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = agg.HandleEvents([]events.DomainEvent{
-		*createEvent,
-		*deleteEvent,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	d, err := json.MarshalIndent(createEvent, "", "  ")
+	eventStore, err := events.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Println(string(d))
+	app := application.App{
+		Commands: application.Commands{
+			CreateProject: command.NewCreateProjectCommandHandler(repo, eventStore),
+			UpdateProject: command.NewUpdateProjectCommandHandler(repo, eventStore),
+			DeleteProject: command.NewDeleteProjectCommandHandler(repo, eventStore),
+		},
+		Queries: application.Queries{
+			FindProject: query.NewFindProjectQueryHandler(repo),
+		},
+	}
+
+	err = app.Commands.CreateProject.Handle(
+		context.Background(),
+		command.CreateProjectCommand{
+			Name: "my-project",
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Commands.UpdateProject.Handle(
+		context.Background(),
+		command.UpdateProjectCommand{
+			ID:   "00000000-0000-0000-0000-000000000000",
+			Name: "my-project-updated",
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Commands.DeleteProject.Handle(
+		context.Background(),
+		command.DeleteProjectCommand{
+			ID: "00000000-0000-0000-0000-000000000000",
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	evts := eventStore.Take(context.Background(), 1000)
+	for _, evt := range evts {
+		d, err := json.MarshalIndent(evt, "", " ")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(string(d))
+	}
+
 }

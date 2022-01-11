@@ -3,32 +3,32 @@ package command
 import (
 	"context"
 
+	"github.com/google/uuid"
+	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
 type CreateProjectCommand struct {
-	Title string `json:"title"`
+	Name string `json:"name"`
 }
 
 type CreateProjectHandler struct {
-	repo project.Repository
+	repo       project.Repository
+	eventStore events.EventStore
 }
 
-func NewCreateProjectCommandHandler(repo project.Repository) *CreateProjectHandler {
+func NewCreateProjectCommandHandler(repo project.Repository, es events.EventStore) *CreateProjectHandler {
 	return &CreateProjectHandler{
-		repo: repo,
+		repo:       repo,
+		eventStore: es,
 	}
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req CreateProjectCommand) error {
-	p, err := project.From(req.Title)
+	evt, err := project.NewProjectCreatedEvent(uuid.NewString(), req.Name)
 	if err != nil {
 		return err
 	}
 
-	if err := h.repo.Save(ctx, *p); err != nil {
-		return err
-	}
-
-	return nil
+	return h.eventStore.Push(context.Background(), evt)
 }

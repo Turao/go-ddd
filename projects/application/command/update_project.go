@@ -2,49 +2,33 @@ package command
 
 import (
 	"context"
-	"errors"
 
+	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
 type UpdateProjectCommand struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type UpdateProjectHandler struct {
-	repo project.Repository
+	repo       project.Repository
+	eventStore events.EventStore
 }
 
-func NewUpdateProjectCommandHandler(repo project.Repository) *UpdateProjectHandler {
+func NewUpdateProjectCommandHandler(repo project.Repository, es events.EventStore) *UpdateProjectHandler {
 	return &UpdateProjectHandler{
-		repo: repo,
+		repo:       repo,
+		eventStore: es,
 	}
 }
 
 func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectCommand) error {
-	found, err := h.repo.FindProjectByID(ctx, req.ID)
+	evt, err := project.NewProjectUpdatedEvent(req.ID, req.Name)
 	if err != nil {
 		return err
 	}
 
-	if found == nil {
-		return errors.New("project does not exist")
-	}
-
-	updated, err := project.NewProject(
-		found.ID,
-		req.Title,
-		found.Active,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	if err := h.repo.Save(ctx, *updated); err != nil {
-		return err
-	}
-
-	return nil
+	return h.eventStore.Push(context.Background(), evt)
 }
