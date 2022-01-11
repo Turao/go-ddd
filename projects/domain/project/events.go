@@ -30,9 +30,15 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 		pa.Project = p
 		return nil
 	case ProjectUpdatedEvent:
+		if pa.Project == nil {
+			return errors.New("project does not exist")
+		}
 		pa.Project.SetName(event.projectName)
 		return nil
 	case ProjectDeletedEvent:
+		if pa.Project == nil {
+			return errors.New("project does not exist")
+		}
 		pa.Project.Delete()
 		return nil
 	default:

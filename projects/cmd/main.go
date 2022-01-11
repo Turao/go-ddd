@@ -56,7 +56,7 @@ func main() {
 			DeleteProject: command.NewDeleteProjectCommandHandler(repo, eventStore),
 		},
 		Queries: application.Queries{
-			FindProject: query.NewFindProjectQueryHandler(repo),
+			FindProject: query.NewFindProjectQueryHandler(repo, eventStore),
 		},
 	}
 
@@ -90,6 +90,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	res, err := app.Queries.FindProject.Handle(
+		context.Background(),
+		query.FindProjectQuery{
+			ID: "00000000-0000-0000-0000-000000000000",
+		},
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	d, err := json.MarshalIndent(res, "", " ")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(d))
 
 	evts := eventStore.Take(context.Background(), 1000)
 	for _, evt := range evts {

@@ -30,5 +30,5 @@ func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectComm
 		return err
 	}
 
-	return h.eventStore.Push(context.Background(), evt)
+	return h.eventStore.Push(context.Background(), *evt)
 }

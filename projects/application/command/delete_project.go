@@ -29,5 +29,5 @@ func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectComm
 		return err
 	}
 
-	return h.eventStore.Push(context.Background(), evt)
+	return h.eventStore.Push(context.Background(), *evt)
 }
