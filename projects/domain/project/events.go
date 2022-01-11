@@ -2,31 +2,32 @@ package project
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/turao/go-ddd/events"
 )
 
-type projectEventHandler struct {
-	project *Project
+type ProjectAggregate struct {
+	Project *Project
 }
 
-func (pev *projectEventHandler) Handle(e events.DomainEvent) error {
+func (pa *ProjectAggregate) Handle(e events.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
 		p, err := NewProject(event.AggregateID(), event.name, true)
 		if err != nil {
 			return err
 		}
-		pev.project = p
+		pa.Project = p
 		return nil
 	case ProjectUpdatedEvent:
-		pev.project.SetName(event.name)
+		pa.Project.SetName(event.name)
 		return nil
 	case ProjectDeletedEvent:
-		pev.project.Delete()
+		pa.Project.Delete()
 		return nil
 	default:
-		return nil
+		return fmt.Errorf("unable to handle domain event %s", e)
 	}
 }
 
@@ -36,7 +37,7 @@ type ProjectCreatedEvent struct {
 	name string
 }
 
-func NewProjectCreatedEvent(id ProjectID, name string) (events.DomainEvent, error) {
+func NewProjectCreatedEvent(id ProjectID, name string) (*ProjectCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.created", id)
 	if err != nil {
 		return nil, err
@@ -57,7 +58,7 @@ type ProjectUpdatedEvent struct {
 	name string
 }
 
-func NewProjectUpdatedEvent(id ProjectID, name string) (events.DomainEvent, error) {
+func NewProjectUpdatedEvent(id ProjectID, name string) (*ProjectUpdatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.updated", id)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func NewProjectUpdatedEvent(id ProjectID, name string) (events.DomainEvent, erro
 		return nil, errors.New("name must not be empty")
 	}
 
-	return &ProjectCreatedEvent{
+	return &ProjectUpdatedEvent{
 		domainEvent,
 		name,
 	}, nil
@@ -77,7 +78,7 @@ type ProjectDeletedEvent struct {
 	events.DomainEvent
 }
 
-func NewProjectDeletedEvent(id ProjectID) (events.DomainEvent, error) {
+func NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.deleted", id)
 	if err != nil {
 		return nil, err
