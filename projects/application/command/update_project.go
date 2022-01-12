@@ -13,13 +13,11 @@ type UpdateProjectCommand struct {
 }
 
 type UpdateProjectHandler struct {
-	repo       project.Repository
 	eventStore events.EventStore
 }
 
-func NewUpdateProjectCommandHandler(repo project.Repository, es events.EventStore) *UpdateProjectHandler {
+func NewUpdateProjectCommandHandler(es events.EventStore) *UpdateProjectHandler {
 	return &UpdateProjectHandler{
-		repo:       repo,
 		eventStore: es,
 	}
 }
@@ -30,5 +28,5 @@ func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectComm
 		return err
 	}
 
-	return h.eventStore.Push(*evt)
+	return h.eventStore.Push(context.Background(), *evt)
 }

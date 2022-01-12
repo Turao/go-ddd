@@ -27,23 +27,23 @@ func NewDomainEvent(name string, aggregateID string) (*domainEvent, error) {
 	}, nil
 }
 
-func (de *domainEvent) ID() string {
+func (de domainEvent) ID() string {
 	return de.baseEvent.id
 }
 
-func (de *domainEvent) Name() string {
+func (de domainEvent) Name() string {
 	return de.baseEvent.name
 }
 
-func (de *domainEvent) OccuredAt() time.Time {
+func (de domainEvent) OccuredAt() time.Time {
 	return de.baseEvent.occuredAt
 }
 
-func (de *domainEvent) AggregateID() string {
+func (de domainEvent) AggregateID() string {
 	return de.aggregateID
 }
 
-func (de *domainEvent) MarshalJSON() ([]byte, error) {
+func (de domainEvent) MarshalJSON() ([]byte, error) {
 	d, err := json.Marshal(struct {
 		ID          string    `json:"id"`
 		Name        string    `json:"name"`

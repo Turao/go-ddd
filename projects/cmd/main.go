@@ -2,47 +2,16 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/turao/go-ddd/events"
-	repository "github.com/turao/go-ddd/projects/adapters/sql"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/application/command"
 	"github.com/turao/go-ddd/projects/application/query"
 )
 
 func main() {
-	db, err := sql.Open(
-		"postgres",
-		fmt.Sprintf(
-			"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-			"localhost",
-			5432,
-			"postgres",
-			"postgres",
-			"postgres",
-		),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	migrator, err := repository.NewMigrator(db, "file://projects/migrations")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := migrator.Up(); err != nil {
-		log.Fatal(err)
-	}
-
-	repo, err := repository.NewRepository(db)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	eventStore, err := events.NewInMemoryStore()
 	if err != nil {
@@ -51,12 +20,12 @@ func main() {
 
 	app := application.App{
 		Commands: application.Commands{
-			CreateProject: command.NewCreateProjectCommandHandler(repo, eventStore),
-			UpdateProject: command.NewUpdateProjectCommandHandler(repo, eventStore),
-			DeleteProject: command.NewDeleteProjectCommandHandler(repo, eventStore),
+			CreateProject: command.NewCreateProjectCommandHandler(eventStore),
+			UpdateProject: command.NewUpdateProjectCommandHandler(eventStore),
+			DeleteProject: command.NewDeleteProjectCommandHandler(eventStore),
 		},
 		Queries: application.Queries{
-			FindProject: query.NewFindProjectQueryHandler(repo, eventStore),
+			FindProject: query.NewFindProjectQueryHandler(eventStore),
 		},
 	}
 
@@ -91,7 +60,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	evts := eventStore.Events()
+	evts, err := eventStore.Events(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	for _, evt := range evts {
 		d, err := json.MarshalIndent(evt, "", " ")
 		if err != nil {

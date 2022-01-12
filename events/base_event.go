@@ -26,19 +26,19 @@ func NewBaseEvent(name string) (*baseEvent, error) {
 	}, nil
 }
 
-func (e *baseEvent) ID() string {
+func (e baseEvent) ID() string {
 	return e.id
 }
 
-func (e *baseEvent) Name() string {
+func (e baseEvent) Name() string {
 	return e.name
 }
 
-func (e *baseEvent) OccuredAt() time.Time {
+func (e baseEvent) OccuredAt() time.Time {
 	return e.occuredAt
 }
 
-func (e *baseEvent) MarshalJSON() ([]byte, error) {
+func (e baseEvent) MarshalJSON() ([]byte, error) {
 	d, err := json.Marshal(struct {
 		ID        string    `json:"id"`
 		Name      string    `json:"name"`

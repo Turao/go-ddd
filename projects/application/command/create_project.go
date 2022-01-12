@@ -13,13 +13,11 @@ type CreateProjectCommand struct {
 }
 
 type CreateProjectHandler struct {
-	repo       project.Repository
 	eventStore events.EventStore
 }
 
-func NewCreateProjectCommandHandler(repo project.Repository, es events.EventStore) *CreateProjectHandler {
+func NewCreateProjectCommandHandler(es events.EventStore) *CreateProjectHandler {
 	return &CreateProjectHandler{
-		repo:       repo,
 		eventStore: es,
 	}
 }
@@ -30,5 +28,5 @@ func (h *CreateProjectHandler) Handle(ctx context.Context, req CreateProjectComm
 		return err
 	}
 
-	return h.eventStore.Push(*evt)
+	return h.eventStore.Push(context.Background(), *evt)
 }

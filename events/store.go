@@ -1,9 +1,10 @@
 package events
 
+import "context"
+
 type EventStore interface {
-	Push(event Event) error
-	Events() []Event
-	FilterByAggregateID(aggregateID string) []Event
+	Push(ctx context.Context, evt Event) error
+	Events(ctx context.Context) ([]Event, error)
 }
 
 // -- in memory implementation --
@@ -18,22 +19,11 @@ func NewInMemoryStore() (*inMemoryStore, error) {
 	}, nil
 }
 
-func (ims *inMemoryStore) Push(event Event) error {
-	ims.evts = append(ims.evts, event)
+func (ims *inMemoryStore) Push(ctx context.Context, evt Event) error {
+	ims.evts = append(ims.evts, evt)
 	return nil
 }
 
-func (ims *inMemoryStore) Events() []Event {
-	return ims.evts
-}
-
-func (ims *inMemoryStore) FilterByAggregateID(aggregateID string) []Event {
-	var filtered []Event
-	for _, evt := range ims.evts {
-		if evt.(DomainEvent).AggregateID() == aggregateID {
-			filtered = append(filtered, evt)
-		}
-	}
-
-	return filtered
+func (ims inMemoryStore) Events(ctx context.Context) ([]Event, error) {
+	return ims.evts, nil
 }

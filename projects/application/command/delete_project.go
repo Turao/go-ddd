@@ -12,13 +12,11 @@ type DeleteProjectCommand struct {
 }
 
 type DeleteProjectHandler struct {
-	repo       project.Repository
 	eventStore events.EventStore
 }
 
-func NewDeleteProjectCommandHandler(repo project.Repository, es events.EventStore) *DeleteProjectHandler {
+func NewDeleteProjectCommandHandler(es events.EventStore) *DeleteProjectHandler {
 	return &DeleteProjectHandler{
-		repo:       repo,
 		eventStore: es,
 	}
 }
@@ -29,5 +27,5 @@ func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectComm
 		return err
 	}
 
-	return h.eventStore.Push(*evt)
+	return h.eventStore.Push(context.Background(), *evt)
 }

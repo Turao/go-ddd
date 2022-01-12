@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"errors"
 	"log"
 	"reflect"
 
@@ -20,20 +21,24 @@ type FindProjectResponse struct {
 }
 
 type FindProjectHandler struct {
-	repo       project.Repository
 	eventStore events.EventStore
 }
 
-func NewFindProjectQueryHandler(repo project.Repository, es events.EventStore) *FindProjectHandler {
+func NewFindProjectQueryHandler(es events.EventStore) *FindProjectHandler {
 	return &FindProjectHandler{
-		repo:       repo,
 		eventStore: es,
 	}
 }
 
 func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (*FindProjectResponse, error) {
 	var p project.ProjectAggregate
-	evts := h.eventStore.FilterByAggregateID(req.ID)
+	evts, err := h.eventStore.Events(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("events", evts)
+
 	for _, evt := range evts {
 		log.Println(reflect.TypeOf(evt))
 
@@ -44,6 +49,11 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (
 			}
 		}
 	}
+
+	if p.Project == nil {
+		return nil, errors.New("cannot reconstruct project from events")
+	}
+
 	return &FindProjectResponse{
 		ID:     p.Project.ID,
 		Name:   p.Project.Name,

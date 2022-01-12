@@ -1,11 +1,12 @@
 package events
 
 import (
+	"context"
 	"testing"
 )
 
 func TestPush(t *testing.T) {
-	e, err := NewBaseEvent("testing")
+	e, err := NewDomainEvent("testing", "aggregate-id")
 	if err != nil {
 		t.Error(err)
 	}
@@ -15,7 +16,7 @@ func TestPush(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = es.Push(e)
+	err = es.Push(context.Background(), e)
 	if err != nil {
 		t.Error(e)
 	}
