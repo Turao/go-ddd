@@ -4,12 +4,9 @@ import (
 	"context"
 
 	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
-
-type DeleteProjectCommand struct {
-	ID project.ProjectID `json:"id"`
-}
 
 type DeleteProjectHandler struct {
 	eventStore events.EventStore
@@ -21,7 +18,7 @@ func NewDeleteProjectCommandHandler(es events.EventStore) *DeleteProjectHandler 
 	}
 }
 
-func (h *DeleteProjectHandler) Handle(ctx context.Context, req DeleteProjectCommand) error {
+func (h *DeleteProjectHandler) Handle(ctx context.Context, req application.DeleteProjectCommand) error {
 	evt, err := project.NewProjectDeletedEvent(req.ID)
 	if err != nil {
 		return err

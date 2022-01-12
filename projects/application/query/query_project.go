@@ -7,18 +7,9 @@ import (
 	"reflect"
 
 	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
-
-type FindProjectQuery struct {
-	ID string `json:"id"`
-}
-
-type FindProjectResponse struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
-}
 
 type FindProjectHandler struct {
 	eventStore events.EventStore
@@ -30,7 +21,7 @@ func NewFindProjectQueryHandler(es events.EventStore) *FindProjectHandler {
 	}
 }
 
-func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (*FindProjectResponse, error) {
+func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindProjectQuery) (*application.FindProjectResponse, error) {
 	var p project.ProjectAggregate
 	evts, err := h.eventStore.Events(context.Background())
 	if err != nil {
@@ -54,7 +45,7 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req FindProjectQuery) (
 		return nil, errors.New("cannot reconstruct project from events")
 	}
 
-	return &FindProjectResponse{
+	return &application.FindProjectResponse{
 		ID:     p.Project.ID,
 		Name:   p.Project.Name,
 		Active: p.Project.Active,

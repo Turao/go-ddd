@@ -4,13 +4,9 @@ import (
 	"context"
 
 	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
-
-type UpdateProjectCommand struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
 
 type UpdateProjectHandler struct {
 	eventStore events.EventStore
@@ -22,7 +18,7 @@ func NewUpdateProjectCommandHandler(es events.EventStore) *UpdateProjectHandler 
 	}
 }
 
-func (h *UpdateProjectHandler) Handle(ctx context.Context, req UpdateProjectCommand) error {
+func (h *UpdateProjectHandler) Handle(ctx context.Context, req application.UpdateProjectCommand) error {
 	evt, err := project.NewProjectUpdatedEvent(req.ID, req.Name)
 	if err != nil {
 		return err

@@ -31,7 +31,7 @@ func main() {
 
 	err = app.Commands.CreateProject.Handle(
 		context.Background(),
-		command.CreateProjectCommand{
+		application.CreateProjectCommand{
 			Name: "my-project",
 		})
 
@@ -41,7 +41,7 @@ func main() {
 
 	err = app.Commands.UpdateProject.Handle(
 		context.Background(),
-		command.UpdateProjectCommand{
+		application.UpdateProjectCommand{
 			ID:   "00000000-0000-0000-0000-000000000000",
 			Name: "my-project-updated",
 		})
@@ -52,7 +52,7 @@ func main() {
 
 	err = app.Commands.DeleteProject.Handle(
 		context.Background(),
-		command.DeleteProjectCommand{
+		application.DeleteProjectCommand{
 			ID: "00000000-0000-0000-0000-000000000000",
 		})
 
@@ -75,7 +75,7 @@ func main() {
 
 	res, err := app.Queries.FindProject.Handle(
 		context.Background(),
-		query.FindProjectQuery{
+		application.FindProjectQuery{
 			ID: "00000000-0000-0000-0000-000000000000",
 		},
 	)
