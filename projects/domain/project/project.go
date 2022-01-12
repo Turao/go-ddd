@@ -38,7 +38,7 @@ func validateName(name string) error {
 	return nil
 }
 
-func (p *Project) SetName(name string) error {
+func (p *Project) Rename(name string) error {
 	if err := validateName(name); err != nil {
 		return err
 	}
