@@ -80,3 +80,20 @@ func NewTaskAddedEvent(id ProjectID, taskID task.TaskID) (*TaskAddedEvent, error
 		TaskID:      taskID,
 	}, nil
 }
+
+type TaskRemovedEvent struct {
+	events.DomainEvent `json:"domainEvent"`
+	TaskID             task.TaskID `json:"taskId"`
+}
+
+func NewTaskRemovedEvent(id ProjectID, taskID task.TaskID) (*TaskRemovedEvent, error) {
+	domainEvent, err := events.NewDomainEvent("task.removed", id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &TaskRemovedEvent{
+		DomainEvent: domainEvent,
+		TaskID:      taskID,
+	}, nil
+}

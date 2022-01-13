@@ -41,6 +41,12 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 			return err
 		}
 		return nil
+	case TaskRemovedEvent:
+		err := pa.Project.RemoveTask(event.TaskID)
+		if err != nil {
+			return err
+		}
+		return nil
 	case ProjectDeletedEvent:
 		if pa.Project == nil {
 			return errors.New("project does not exist")

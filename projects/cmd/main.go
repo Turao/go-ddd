@@ -20,10 +20,11 @@ func main() {
 
 	app := application.App{
 		Commands: application.Commands{
-			CreateProject:  command.NewCreateProjectCommandHandler(eventStore),
-			UpdateProject:  command.NewUpdateProjectCommandHandler(eventStore),
-			DeleteProject:  command.NewDeleteProjectCommandHandler(eventStore),
-			AddTaskCommand: command.NewAddTaskCommandHandler(eventStore),
+			CreateProject:     command.NewCreateProjectCommandHandler(eventStore),
+			UpdateProject:     command.NewUpdateProjectCommandHandler(eventStore),
+			DeleteProject:     command.NewDeleteProjectCommandHandler(eventStore),
+			AddTaskCommand:    command.NewAddTaskCommandHandler(eventStore),
+			RemoveTaskCommand: command.NewRemoveTaskCommandHandler(eventStore),
 		},
 		Queries: application.Queries{
 			FindProject: query.NewFindProjectQueryHandler(eventStore),
@@ -64,6 +65,17 @@ func main() {
 	err = app.Commands.AddTaskCommand.Handle(
 		context.Background(),
 		application.AddTaskCommand{
+			ID:     "00000000-0000-0000-0000-000000000000",
+			TaskID: "11111111-1111-1111-1111-111111111111",
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.Commands.RemoveTaskCommand.Handle(
+		context.Background(),
+		application.RemoveTaskCommand{
 			ID:     "00000000-0000-0000-0000-000000000000",
 			TaskID: "11111111-1111-1111-1111-111111111111",
 		})

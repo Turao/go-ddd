@@ -12,10 +12,11 @@ type App struct {
 }
 
 type Commands struct {
-	CreateProject  CreateProjectHandler
-	UpdateProject  UpdateProjectHandler
-	DeleteProject  DeleteProjectHandler
-	AddTaskCommand AddTaskCommandHandler
+	CreateProject     CreateProjectHandler
+	UpdateProject     UpdateProjectHandler
+	DeleteProject     DeleteProjectHandler
+	AddTaskCommand    AddTaskCommandHandler
+	RemoveTaskCommand RemoveTaskCommandHandler
 }
 
 type Queries struct {
@@ -55,6 +56,15 @@ type AddTaskCommand struct {
 
 type AddTaskCommandHandler interface {
 	Handle(ctx context.Context, req AddTaskCommand) error
+}
+
+type RemoveTaskCommand struct {
+	ID     string `json:"id"`
+	TaskID string `json:"taskId"`
+}
+
+type RemoveTaskCommandHandler interface {
+	Handle(ctx context.Context, req RemoveTaskCommand) error
 }
 
 // -- Queries --
