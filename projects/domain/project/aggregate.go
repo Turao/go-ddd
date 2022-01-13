@@ -23,7 +23,7 @@ func (pa *ProjectAggregate) HandleEvents(es []events.DomainEvent) error {
 func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
-		p, err := NewProject(event.AggregateID(), event.projectName, true)
+		p, err := NewProject(event.AggregateID(), event.ProjectName, true)
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,13 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 		if pa.Project == nil {
 			return errors.New("project does not exist")
 		}
-		pa.Project.Rename(event.projectName)
+		pa.Project.Rename(event.ProjectName)
+		return nil
+	case TaskAddedEvent:
+		err := pa.Project.AddTask(event.TaskID)
+		if err != nil {
+			return err
+		}
 		return nil
 	case ProjectDeletedEvent:
 		if pa.Project == nil {

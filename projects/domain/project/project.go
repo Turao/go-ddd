@@ -3,23 +3,29 @@ package project
 import (
 	"errors"
 
-	"github.com/google/uuid"
+	task "github.com/turao/go-ddd/tasks/domain"
 )
 
 type ProjectID = string
 
+var (
+	ErrInvalidProjectID   = errors.New("invalid project id")
+	ErrInvalidProjectName = errors.New("invalid project name")
+)
+
 type Project struct {
-	ID   ProjectID `json:"id"`
-	Name string    `json:"name"`
+	ID    ProjectID `json:"id"`
+	Name  string    `json:"name"`
+	Tasks map[task.TaskID]task.TaskID
 
 	Active bool `json:"active"`
 }
 
-func From(name string) (*Project, error) {
-	return NewProject(uuid.NewString(), name, true)
-}
-
 func NewProject(id ProjectID, name string, active bool) (*Project, error) {
+	if id == "" {
+		return nil, ErrInvalidProjectID
+	}
+
 	if err := validateName(name); err != nil {
 		return nil, err
 	}
@@ -33,7 +39,7 @@ func NewProject(id ProjectID, name string, active bool) (*Project, error) {
 
 func validateName(name string) error {
 	if name == "" {
-		return errors.New("name must not be empty")
+		return ErrInvalidProjectName
 	}
 	return nil
 }
@@ -49,4 +55,17 @@ func (p *Project) Rename(name string) error {
 
 func (p *Project) Delete() {
 	p.Active = false
+}
+
+func (p *Project) AddTask(taskID task.TaskID) error {
+	_, found := p.Tasks[taskID]
+	if !found {
+		p.Tasks[taskID] = taskID
+	}
+	return nil
+}
+
+func (p *Project) RemoveTask(taskID task.TaskID) error {
+	delete(p.Tasks, taskID)
+	return nil
 }
