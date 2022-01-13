@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
@@ -20,7 +19,7 @@ func NewCreateProjectCommandHandler(es events.EventStore) *CreateProjectHandler 
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req application.CreateProjectCommand) error {
-	evt, err := project.NewProjectCreatedEvent(uuid.NewString(), req.Name)
+	evt, err := project.NewProjectCreatedEvent("00000000-0000-0000-0000-000000000000", req.Name)
 	if err != nil {
 		return err
 	}

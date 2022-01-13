@@ -14,9 +14,9 @@ var (
 )
 
 type Project struct {
-	ID    ProjectID `json:"id"`
-	Name  string    `json:"name"`
-	Tasks map[task.TaskID]task.TaskID
+	ID    ProjectID                   `json:"id"`
+	Name  string                      `json:"name"`
+	Tasks map[task.TaskID]task.TaskID `json:"tasks"`
 
 	Active bool `json:"active"`
 }
@@ -34,6 +34,7 @@ func NewProject(id ProjectID, name string, active bool) (*Project, error) {
 		ID:     id,
 		Name:   name,
 		Active: active,
+		Tasks:  make(map[string]string),
 	}, nil
 }
 

@@ -74,9 +74,11 @@ type FindProjectQuery struct {
 }
 
 type FindProjectResponse struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Tasks []string `json:"tasks"`
+
+	Active bool `json:"active"`
 }
 
 type FindProjectQueryHandler interface {

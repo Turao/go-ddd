@@ -45,9 +45,15 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindPro
 		return nil, errors.New("cannot reconstruct project from events")
 	}
 
+	tasks := make([]string, 0)
+	for t := range p.Project.Tasks {
+		tasks = append(tasks, t)
+	}
+
 	return &application.FindProjectResponse{
 		ID:     p.Project.ID,
 		Name:   p.Project.Name,
+		Tasks:  tasks,
 		Active: p.Project.Active,
 	}, nil
 }
