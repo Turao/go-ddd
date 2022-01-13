@@ -5,7 +5,7 @@ import "errors"
 type TaskID = string
 
 type Task struct {
-	ID TaskID
+	ID TaskID `json:"id"`
 }
 
 var (

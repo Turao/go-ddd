@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/events"
-	task "github.com/turao/go-ddd/tasks/domain"
+	task "github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type ProjectCreatedEvent struct {

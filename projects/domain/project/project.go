@@ -3,7 +3,7 @@ package project
 import (
 	"errors"
 
-	task "github.com/turao/go-ddd/tasks/domain"
+	task "github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type ProjectID = string
