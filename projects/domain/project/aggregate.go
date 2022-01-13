@@ -11,16 +11,7 @@ type ProjectAggregate struct {
 	Project *Project `json:"project"`
 }
 
-func (pa *ProjectAggregate) HandleEvents(es []events.DomainEvent) error {
-	for _, e := range es {
-		if err := pa.HandleEvent(e); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
+func (pa ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
 		p, err := NewProject(event.AggregateID(), event.ProjectName, true)
