@@ -12,11 +12,9 @@ type App struct {
 }
 
 type Commands struct {
-	CreateProject     CreateProjectHandler
-	UpdateProject     UpdateProjectHandler
-	DeleteProject     DeleteProjectHandler
-	AddTaskCommand    AddTaskCommandHandler
-	RemoveTaskCommand RemoveTaskCommandHandler
+	CreateProject CreateProjectHandler
+	UpdateProject UpdateProjectHandler
+	DeleteProject DeleteProjectHandler
 }
 
 type Queries struct {
@@ -74,9 +72,8 @@ type FindProjectQuery struct {
 }
 
 type FindProjectResponse struct {
-	ID    string   `json:"id"`
-	Name  string   `json:"name"`
-	Tasks []string `json:"tasks"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 
 	Active bool `json:"active"`
 }

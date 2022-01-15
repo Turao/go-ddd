@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/events"
-	task "github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type ProjectCreatedEvent struct {
@@ -61,39 +60,5 @@ func NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
 
 	return &ProjectDeletedEvent{
 		domainEvent,
-	}, nil
-}
-
-type TaskAddedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	TaskID             task.TaskID `json:"taskId"`
-}
-
-func NewTaskAddedEvent(id ProjectID, taskID task.TaskID) (*TaskAddedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.added", id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &TaskAddedEvent{
-		DomainEvent: domainEvent,
-		TaskID:      taskID,
-	}, nil
-}
-
-type TaskRemovedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	TaskID             task.TaskID `json:"taskId"`
-}
-
-func NewTaskRemovedEvent(id ProjectID, taskID task.TaskID) (*TaskRemovedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.removed", id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &TaskRemovedEvent{
-		DomainEvent: domainEvent,
-		TaskID:      taskID,
 	}, nil
 }
