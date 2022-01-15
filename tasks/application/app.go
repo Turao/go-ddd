@@ -9,9 +9,13 @@ type App struct {
 	Queries  Queries
 }
 
-type Commands struct{}
+type Commands struct {
+	CreateTaskCommand CreateTaskCommandHandler
+}
 
-type Queries struct{}
+type Queries struct {
+	TasksByProjectQuery TasksByProjectQueryHandler
+}
 
 // -- Commands --
 type CreateTaskCommand struct {
@@ -22,6 +26,17 @@ type CreateTaskCommand struct {
 
 type CreateTaskCommandHandler interface {
 	Handle(ctx context.Context, req CreateTaskCommand) error
+}
+type TasksByProjectQuery struct {
+	ProjectID string `json:"projectId"`
+}
+
+type TasksByProjectResponse struct {
+	ProjectID string `json:"projectId"`
+}
+
+type TasksByProjectQueryHandler interface {
+	Handle(ctx context.Context, req TasksByProjectQuery) (*TasksByProjectResponse, error)
 }
 
 // -- Queriess --

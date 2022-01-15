@@ -14,8 +14,10 @@ type Task struct {
 }
 
 var (
-	ErrInvalidTaskID    = errors.New("invalid task id")
-	ErrInvalidProjectID = errors.New("invalid project id")
+	ErrInvalidTaskID      = errors.New("invalid task id")
+	ErrInvalidProjectID   = errors.New("invalid project id")
+	ErrInvalidTitle       = errors.New("invalid title")
+	ErrInvalidDescription = errors.New("invalid description")
 )
 
 func NewTask(id TaskID, projectId project.ProjectID) (*Task, error) {

@@ -2,21 +2,30 @@ package command
 
 import (
 	"context"
+	"log"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
+	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type CreateTaskCommandHandler struct {
 	eventStore events.EventStore
 }
 
-func NewCreateTaskCommandHandler(es events.EventStore) (*CreateTaskCommandHandler, error) {
+func NewCreateTaskCommandHandler(es events.EventStore) *CreateTaskCommandHandler {
 	return &CreateTaskCommandHandler{
 		eventStore: es,
-	}, nil
+	}
 }
 
 func (cth *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
-	return nil
+	log.Println("creating task", req)
+	evt, err := task.NewTaskCreatedEvent(uuid.NewString(), req.ID, req.Title, req.Description)
+	if err != nil {
+		return err
+	}
+
+	return cth.eventStore.Push(ctx, evt)
 }
