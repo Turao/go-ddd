@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 )
 
@@ -35,4 +36,8 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
+}
+
+func CreateProject(name string) (*Project, error) {
+	return NewProject(uuid.NewString(), name, true)
 }

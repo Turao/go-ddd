@@ -19,7 +19,12 @@ func NewCreateProjectCommandHandler(es events.EventStore) *CreateProjectHandler 
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req application.CreateProjectCommand) error {
-	evt, err := project.NewProjectCreatedEvent("00000000-0000-0000-0000-000000000000", req.Name)
+	p, err := project.CreateProject(req.Name)
+	if err != nil {
+		return err
+	}
+
+	evt, err := project.NewProjectCreatedEvent(p.ID, p.Name)
 	if err != nil {
 		return err
 	}

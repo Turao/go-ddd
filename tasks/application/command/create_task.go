@@ -2,9 +2,7 @@ package command
 
 import (
 	"context"
-	"log"
 
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -21,8 +19,12 @@ func NewCreateTaskCommandHandler(es events.EventStore) *CreateTaskCommandHandler
 }
 
 func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
-	log.Println("creating task", req)
-	evt, err := task.NewTaskCreatedEvent(uuid.NewString(), req.ProjectID, req.Title, req.Description)
+	t, err := task.CreateTask(req.ProjectID, req.Title, req.Description)
+	if err != nil {
+		return err
+	}
+
+	evt, err := task.NewTaskCreatedEvent(t.ID, t.ProjectID, t.Title, t.Description)
 	if err != nil {
 		return err
 	}
