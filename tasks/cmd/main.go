@@ -30,7 +30,7 @@ func main() {
 	err = app.Commands.CreateTaskCommand.Handle(
 		context.Background(),
 		application.CreateTaskCommand{
-			ID:          "taskId",
+			ProjectID:   "projectId",
 			Title:       "task-title",
 			Description: "task-description",
 		},
@@ -42,7 +42,7 @@ func main() {
 	err = app.Commands.CreateTaskCommand.Handle(
 		context.Background(),
 		application.CreateTaskCommand{
-			ID:          "taskId",
+			ProjectID:   "projectId",
 			Title:       "task-title",
 			Description: "task-description",
 		},
@@ -62,4 +62,20 @@ func main() {
 		}
 		log.Println(string(d))
 	}
+
+	res, err := app.Queries.TasksByProjectQuery.Handle(
+		context.Background(),
+		application.TasksByProjectQuery{
+			ProjectID: "projectId",
+		},
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	d, err := json.MarshalIndent(res, "", " ")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(d))
 }

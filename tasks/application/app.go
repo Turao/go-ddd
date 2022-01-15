@@ -19,7 +19,7 @@ type Queries struct {
 
 // -- Commands --
 type CreateTaskCommand struct {
-	ID          string `json:"taskId"`
+	ProjectID   string `json:"projectId"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }

@@ -20,12 +20,12 @@ func NewCreateTaskCommandHandler(es events.EventStore) *CreateTaskCommandHandler
 	}
 }
 
-func (cth *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
+func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
 	log.Println("creating task", req)
-	evt, err := task.NewTaskCreatedEvent(uuid.NewString(), req.ID, req.Title, req.Description)
+	evt, err := task.NewTaskCreatedEvent(uuid.NewString(), req.ProjectID, req.Title, req.Description)
 	if err != nil {
 		return err
 	}
 
-	return cth.eventStore.Push(ctx, evt)
+	return h.eventStore.Push(ctx, *evt)
 }
