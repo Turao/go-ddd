@@ -18,7 +18,8 @@ type Commands struct {
 }
 
 type Queries struct {
-	FindProject FindProjectQueryHandler
+	FindProject  FindProjectQueryHandler
+	ListProjects ListProjectsQueryHandler
 }
 
 // -- Commands --
@@ -47,24 +48,6 @@ type UpdateProjectHandler interface {
 	Handle(ctx context.Context, req UpdateProjectCommand) error
 }
 
-type AddTaskCommand struct {
-	ID     string `json:"id"`
-	TaskID string `json:"taskId"`
-}
-
-type AddTaskCommandHandler interface {
-	Handle(ctx context.Context, req AddTaskCommand) error
-}
-
-type RemoveTaskCommand struct {
-	ID     string `json:"id"`
-	TaskID string `json:"taskId"`
-}
-
-type RemoveTaskCommandHandler interface {
-	Handle(ctx context.Context, req RemoveTaskCommand) error
-}
-
 // -- Queries --
 
 type FindProjectQuery struct {
@@ -80,4 +63,20 @@ type FindProjectResponse struct {
 
 type FindProjectQueryHandler interface {
 	Handle(ctx context.Context, req FindProjectQuery) (*FindProjectResponse, error)
+}
+
+type ListProjectsQuery struct{}
+
+type ListProjectsResponse struct {
+	Projects []Project `json:"projects"`
+}
+
+type Project struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Active bool   `json:"active"`
+}
+
+type ListProjectsQueryHandler interface {
+	Handle(ctx context.Context, req ListProjectsQuery) (*ListProjectsResponse, error)
 }
