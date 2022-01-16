@@ -50,6 +50,7 @@ func (p *Project) Rename(name string) error {
 	return nil
 }
 
-func (p *Project) Delete() {
+func (p *Project) Delete() error {
 	p.Active = false
+	return nil
 }

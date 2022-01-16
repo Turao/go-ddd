@@ -9,6 +9,7 @@ import (
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/application/command"
 	"github.com/turao/go-ddd/projects/application/query"
+	"github.com/turao/go-ddd/projects/infrastructure"
 )
 
 func main() {
@@ -18,11 +19,16 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	pr, err := infrastructure.NewProjectRepository()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	app := application.App{
 		Commands: application.Commands{
 			CreateProject: command.NewCreateProjectCommandHandler(eventStore),
 			UpdateProject: command.NewUpdateProjectCommandHandler(eventStore),
-			DeleteProject: command.NewDeleteProjectCommandHandler(eventStore),
+			DeleteProject: command.NewDeleteProjectCommandHandler(pr, eventStore),
 		},
 		Queries: application.Queries{
 			FindProject: query.NewFindProjectQueryHandler(eventStore),

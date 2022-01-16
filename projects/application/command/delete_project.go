@@ -9,20 +9,32 @@ import (
 )
 
 type DeleteProjectHandler struct {
+	repository project.Repository
 	eventStore events.EventStore
 }
 
-func NewDeleteProjectCommandHandler(es events.EventStore) *DeleteProjectHandler {
+func NewDeleteProjectCommandHandler(repository project.Repository, es events.EventStore) *DeleteProjectHandler {
 	return &DeleteProjectHandler{
+		repository: repository,
 		eventStore: es,
 	}
 }
 
 func (h *DeleteProjectHandler) Handle(ctx context.Context, req application.DeleteProjectCommand) error {
-	evt, err := project.NewProjectDeletedEvent(req.ID)
+	p, err := h.repository.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	return h.eventStore.Push(context.Background(), *evt)
+	pa, err := project.NewProjectAggregate(p, h.eventStore)
+	if err != nil {
+		return err
+	}
+
+	err = pa.DeleteProject()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -10,6 +11,15 @@ import (
 
 type ProjectAggregate struct {
 	Project *Project `json:"project"`
+
+	events events.EventStore
+}
+
+func NewProjectAggregate(p *Project, es events.EventStore) (*ProjectAggregate, error) {
+	return &ProjectAggregate{
+		Project: p,
+		events:  es,
+	}, nil
 }
 
 func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
@@ -38,6 +48,35 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	}
 }
 
-func CreateProject(name string) (*Project, error) {
-	return NewProject(uuid.NewString(), name, true)
+func (pa ProjectAggregate) CreateProject(name string) error {
+	p, err := NewProject(uuid.NewString(), name, true)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewProjectCreatedEvent(p.ID, p.Name)
+	if err != nil {
+		return err
+	}
+
+	err = pa.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pa *ProjectAggregate) DeleteProject() error {
+	err := pa.Project.Delete()
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewProjectDeletedEvent(pa.Project.ID)
+	if err != nil {
+		return err
+	}
+
+	return pa.events.Push(context.Background(), *evt)
 }

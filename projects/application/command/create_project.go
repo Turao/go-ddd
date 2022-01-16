@@ -19,15 +19,15 @@ func NewCreateProjectCommandHandler(es events.EventStore) *CreateProjectHandler 
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req application.CreateProjectCommand) error {
-	p, err := project.CreateProject(req.Name)
+	pa, err := project.NewProjectAggregate(nil, h.eventStore)
 	if err != nil {
 		return err
 	}
 
-	evt, err := project.NewProjectCreatedEvent(p.ID, p.Name)
+	err = pa.CreateProject(req.Name)
 	if err != nil {
 		return err
 	}
 
-	return h.eventStore.Push(context.Background(), *evt)
+	return nil
 }
