@@ -9,20 +9,37 @@ import (
 )
 
 type UpdateProjectHandler struct {
+	repository project.Repository
 	eventStore events.EventStore
 }
 
-func NewUpdateProjectCommandHandler(es events.EventStore) *UpdateProjectHandler {
+func NewUpdateProjectCommandHandler(repository project.Repository, es events.EventStore) *UpdateProjectHandler {
 	return &UpdateProjectHandler{
+		repository: repository,
 		eventStore: es,
 	}
 }
 
 func (h *UpdateProjectHandler) Handle(ctx context.Context, req application.UpdateProjectCommand) error {
-	evt, err := project.NewProjectUpdatedEvent(req.ID, req.Name)
+	p, err := h.repository.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return err
 	}
 
-	return h.eventStore.Push(context.Background(), *evt)
+	pa, err := project.NewProjectAggregate(p, h.eventStore)
+	if err != nil {
+		return err
+	}
+
+	err = pa.UpdateProject(req.Name)
+	if err != nil {
+		return err
+	}
+
+	err = h.repository.Save(ctx, *pa.Project)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

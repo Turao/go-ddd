@@ -48,11 +48,13 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	}
 }
 
-func (pa ProjectAggregate) CreateProject(name string) error {
+func (pa *ProjectAggregate) CreateProject(name string) error {
 	p, err := NewProject(uuid.NewString(), name, true)
 	if err != nil {
 		return err
 	}
+
+	pa.Project = p
 
 	evt, err := NewProjectCreatedEvent(p.ID, p.Name)
 	if err != nil {
@@ -74,6 +76,20 @@ func (pa *ProjectAggregate) DeleteProject() error {
 	}
 
 	evt, err := NewProjectDeletedEvent(pa.Project.ID)
+	if err != nil {
+		return err
+	}
+
+	return pa.events.Push(context.Background(), *evt)
+}
+
+func (pa *ProjectAggregate) UpdateProject(name string) error {
+	err := pa.Project.Rename(name)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewProjectUpdatedEvent(pa.Project.ID, name)
 	if err != nil {
 		return err
 	}

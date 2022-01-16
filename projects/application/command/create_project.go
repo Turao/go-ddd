@@ -9,11 +9,13 @@ import (
 )
 
 type CreateProjectHandler struct {
+	repository project.Repository
 	eventStore events.EventStore
 }
 
-func NewCreateProjectCommandHandler(es events.EventStore) *CreateProjectHandler {
+func NewCreateProjectCommandHandler(repository project.Repository, es events.EventStore) *CreateProjectHandler {
 	return &CreateProjectHandler{
+		repository: repository,
 		eventStore: es,
 	}
 }
@@ -25,6 +27,11 @@ func (h *CreateProjectHandler) Handle(ctx context.Context, req application.Creat
 	}
 
 	err = pa.CreateProject(req.Name)
+	if err != nil {
+		return err
+	}
+
+	err = h.repository.Save(ctx, *pa.Project)
 	if err != nil {
 		return err
 	}

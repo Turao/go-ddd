@@ -18,7 +18,9 @@ var (
 )
 
 func NewProjectRepository() (*ProjectRepository, error) {
-	return &ProjectRepository{}, nil
+	return &ProjectRepository{
+		projects: make(map[string]*project.Project),
+	}, nil
 }
 
 func (pr ProjectRepository) FindProjectByID(ctx context.Context, id project.ProjectID) (*project.Project, error) {
@@ -33,4 +35,12 @@ func (pr ProjectRepository) FindProjectByID(ctx context.Context, id project.Proj
 func (pr ProjectRepository) Save(ctx context.Context, p project.Project) error {
 	pr.projects[p.ID] = &p
 	return nil
+}
+
+func (pr ProjectRepository) FindAll(ctx context.Context) ([]*project.Project, error) {
+	var ps []*project.Project
+	for _, p := range pr.projects {
+		ps = append(ps, p)
+	}
+	return ps, nil
 }

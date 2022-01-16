@@ -26,8 +26,8 @@ func main() {
 
 	app := application.App{
 		Commands: application.Commands{
-			CreateProject: command.NewCreateProjectCommandHandler(eventStore),
-			UpdateProject: command.NewUpdateProjectCommandHandler(eventStore),
+			CreateProject: command.NewCreateProjectCommandHandler(pr, eventStore),
+			UpdateProject: command.NewUpdateProjectCommandHandler(pr, eventStore),
 			DeleteProject: command.NewDeleteProjectCommandHandler(pr, eventStore),
 		},
 		Queries: application.Queries{
@@ -43,6 +43,14 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	ps, err := pr.FindAll(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, p := range ps {
+		log.Println(p)
 	}
 
 	err = app.Commands.UpdateProject.Handle(
@@ -79,20 +87,20 @@ func main() {
 		log.Println(string(d))
 	}
 
-	res, err := app.Queries.FindProject.Handle(
-		context.Background(),
-		application.FindProjectQuery{
-			ID: "00000000-0000-0000-0000-000000000000",
-		},
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// res, err := app.Queries.FindProject.Handle(
+	// 	context.Background(),
+	// 	application.FindProjectQuery{
+	// 		ID: "00000000-0000-0000-0000-000000000000",
+	// 	},
+	// )
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	d, err := json.MarshalIndent(res, "", " ")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println(string(d))
+	// d, err := json.MarshalIndent(res, "", " ")
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// log.Println(string(d))
 
 }

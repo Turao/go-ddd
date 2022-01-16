@@ -36,5 +36,10 @@ func (h *DeleteProjectHandler) Handle(ctx context.Context, req application.Delet
 		return err
 	}
 
+	err = h.repository.Save(ctx, *pa.Project)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
