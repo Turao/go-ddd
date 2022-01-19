@@ -9,11 +9,13 @@ import (
 )
 
 type RegisterUserHandler struct {
+	repository user.Repository
 	eventStore events.EventStore
 }
 
-func NewRegisterUserHandler(es events.EventStore) (*RegisterUserHandler, error) {
+func NewRegisterUserHandler(repository user.Repository, es events.EventStore) (*RegisterUserHandler, error) {
 	return &RegisterUserHandler{
+		repository: repository,
 		eventStore: es,
 	}, nil
 }
@@ -25,6 +27,11 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 	}
 
 	err = ua.RegisterUser(req.Username)
+	if err != nil {
+		return err
+	}
+
+	err = h.repository.Save(ctx, *ua.User)
 	if err != nil {
 		return err
 	}

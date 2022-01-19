@@ -26,6 +26,8 @@ func (ua *UserAggregate) RegisterUser(name string) error {
 		return err
 	}
 
+	ua.User = u
+
 	evt, err := NewUserRegisteredEvent(u.ID, u.Name)
 	if err != nil {
 		return err
