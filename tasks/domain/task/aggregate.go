@@ -36,6 +36,8 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 		return ta.Task.AssignTo(event.AssignedTo)
 	case TaskUnassignedEvent:
 		return ta.Task.Unassign()
+	case DescriptionUpdatedEvent:
+		return ta.Task.UpdateDescription(event.Description)
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -88,6 +90,25 @@ func (ta TaskAggregate) Unassign() error {
 	}
 
 	evt, err := NewTaskUnassignedEvent(ta.Task.ID)
+	if err != nil {
+		return err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ta TaskAggregate) UpdateDescription(description string) error {
+	err := ta.Task.UpdateDescription(description)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewDescriptionUpdatedEvent(ta.Task.ID, description)
 	if err != nil {
 		return err
 	}

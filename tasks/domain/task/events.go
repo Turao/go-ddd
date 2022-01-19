@@ -80,3 +80,24 @@ func NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
 		DomainEvent: domainEvent,
 	}, nil
 }
+
+type DescriptionUpdatedEvent struct {
+	events.DomainEvent `json:"domainEvent"`
+	Description        string `json:"description"`
+}
+
+func NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error) {
+	domainEvent, err := events.NewDomainEvent("task.description.updated", id)
+	if err != nil {
+		return nil, err
+	}
+
+	if description == "" {
+		return nil, ErrInvalidDescription
+	}
+
+	return &DescriptionUpdatedEvent{
+		DomainEvent: domainEvent,
+		Description: description,
+	}, nil
+}

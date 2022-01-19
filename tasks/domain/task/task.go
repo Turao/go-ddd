@@ -61,3 +61,11 @@ func (t *Task) Unassign() error {
 	t.AssignedUser = nil
 	return nil
 }
+
+func (t *Task) UpdateDescription(description string) error {
+	if description == "" {
+		return ErrInvalidDescription
+	}
+	t.Description = description
+	return nil
+}

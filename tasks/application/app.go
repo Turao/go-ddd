@@ -10,9 +10,10 @@ type App struct {
 }
 
 type Commands struct {
-	CreateTaskCommand   CreateTaskCommandHandler
-	AssignToUserCommand AssignToUserCommandHandler
-	UnassignUserCommand UnassignUserCommandHandler
+	CreateTaskCommand        CreateTaskCommandHandler
+	AssignToUserCommand      AssignToUserCommandHandler
+	UnassignUserCommand      UnassignUserCommandHandler
+	UpdateDescriptionCommand UpdateDescriptionCommandHandler
 }
 
 type Queries struct {
@@ -45,6 +46,15 @@ type UnassignUserCommand struct {
 
 type UnassignUserCommandHandler interface {
 	Handle(ctx context.Context, req UnassignUserCommand) error
+}
+
+type UpdateDescriptionCommand struct {
+	TaskID      string `json:"taskId"`
+	Description string `json:"description"`
+}
+
+type UpdateDescriptionCommandHandler interface {
+	Handle(ctx context.Context, req UpdateDescriptionCommand) error
 }
 
 // --- Queries ---

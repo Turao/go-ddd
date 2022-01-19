@@ -7,4 +7,4 @@ Kind of trying to create a Project Manager (e.g. Jira) with DDD, CQRS, and Event
 - Project
   - Events: ProjectCreated, ProjectUpdated, ProjectDeleted
 - Task
-  - Events: TaskCreated, TaskAssigned, TaskUnassigned 
+  - Events: TaskCreated, TaskAssigned, TaskUnassigned, DescriptionUpdated

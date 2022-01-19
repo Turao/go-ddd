@@ -26,9 +26,10 @@ func main() {
 
 	app := &application.App{
 		Commands: application.Commands{
-			CreateTaskCommand:   command.NewCreateTaskCommandHandler(tr, eventStore),
-			AssignToUserCommand: command.NewAssignToUserCommandHandler(tr, eventStore),
-			UnassignUserCommand: command.NewUnassignUserCommandHandler(tr, eventStore),
+			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr, eventStore),
+			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, eventStore),
+			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore),
+			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(tr),
@@ -96,6 +97,17 @@ func main() {
 			context.Background(),
 			application.UnassignUserCommand{
 				TaskID: t.TaskID,
+			},
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		err = app.Commands.UpdateDescriptionCommand.Handle(
+			context.Background(),
+			application.UpdateDescriptionCommand{
+				TaskID:      t.TaskID,
+				Description: "this is the new description",
 			},
 		)
 		if err != nil {
