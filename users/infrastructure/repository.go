@@ -37,10 +37,10 @@ func (tr UserRepository) Save(ctx context.Context, p user.User) error {
 	return nil
 }
 
-// func (tr UserRepository) FindAll(ctx context.Context) ([]*user.User, error) {
-// 	var ps []*user.User
-// 	for _, p := range pr.users {
-// 		ps = append(ps, p)
-// 	}
-// 	return ps, nil
-// }
+func (ur UserRepository) FindAll(ctx context.Context) ([]*user.User, error) {
+	var us []*user.User
+	for _, p := range ur.users {
+		us = append(us, p)
+	}
+	return us, nil
+}
