@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/application/command"
@@ -39,7 +40,8 @@ func main() {
 	err = app.Commands.CreateProject.Handle(
 		context.Background(),
 		application.CreateProjectCommand{
-			Name: "my-project",
+			Name:      "my-project",
+			CreatedBy: uuid.NewString(),
 		})
 
 	if err != nil {

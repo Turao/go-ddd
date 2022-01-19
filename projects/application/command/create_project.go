@@ -26,7 +26,7 @@ func (h *CreateProjectHandler) Handle(ctx context.Context, req application.Creat
 		return err
 	}
 
-	err = pa.CreateProject(req.Name)
+	err = pa.CreateProject(req.Name, req.CreatedBy)
 	if err != nil {
 		return err
 	}

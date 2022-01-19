@@ -24,8 +24,9 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindPro
 	}
 
 	return &application.FindProjectResponse{
-		ID:     p.ID,
-		Name:   p.Name,
-		Active: p.Active,
+		ID:        p.ID,
+		Name:      p.Name,
+		CreatedBy: p.CreatedBy,
+		Active:    p.Active,
 	}, nil
 }

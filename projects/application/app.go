@@ -24,7 +24,8 @@ type Queries struct {
 
 // -- Commands --
 type CreateProjectCommand struct {
-	Name string `json:"name"`
+	Name      string `json:"name"`
+	CreatedBy string `json:"createdBy"`
 }
 
 type CreateProjectHandler interface {
@@ -55,8 +56,9 @@ type FindProjectQuery struct {
 }
 
 type FindProjectResponse struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	CreatedBy string `json:"createdBy"`
 
 	Active bool `json:"active"`
 }
@@ -72,9 +74,11 @@ type ListProjectsResponse struct {
 }
 
 type Project struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	CreatedBy string `json:"createdBy"`
+
+	Active bool `json:"active"`
 }
 
 type ListProjectsQueryHandler interface {

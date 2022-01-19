@@ -28,9 +28,10 @@ func (q ListProjectsQueryHandler) Handle(ctx context.Context, req application.Li
 	var psDTOs []application.Project
 	for _, p := range ps {
 		psDTOs = append(psDTOs, application.Project{
-			ID:     p.ID,
-			Name:   p.Name,
-			Active: p.Active,
+			ID:        p.ID,
+			Name:      p.Name,
+			CreatedBy: p.CreatedBy,
+			Active:    p.Active,
 		})
 	}
 	return &application.ListProjectsResponse{
