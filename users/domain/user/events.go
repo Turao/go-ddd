@@ -5,7 +5,7 @@ import "github.com/turao/go-ddd/events"
 type UserRegisteredEvent struct {
 	events.DomainEvent `json:"domainEvent"`
 
-	UserName string `json:"userName"`
+	Username string `json:"username"`
 }
 
 // var (
@@ -25,6 +25,6 @@ func NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error
 
 	return &UserRegisteredEvent{
 		DomainEvent: domainEvent,
-		UserName:    name,
+		Username:    name,
 	}, nil
 }
