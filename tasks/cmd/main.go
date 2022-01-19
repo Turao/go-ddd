@@ -70,19 +70,40 @@ func main() {
 	// 	log.Fatalln(err)
 	// }
 
-	evts, err := eventStore.Events(context.Background())
+	res, err := app.Queries.TasksByProjectQuery.Handle(
+		context.Background(),
+		application.TasksByProjectQuery{
+			ProjectID: "projectId",
+		},
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for _, evt := range evts {
-		d, err := json.MarshalIndent(evt, "", " ")
+
+	for _, t := range res.Tasks {
+		err := app.Commands.AssignToUserCommand.Handle(
+			context.Background(),
+			application.AssignToUserCommand{
+				TaskID: t.TaskID,
+				UserID: "mock-user-id",
+			},
+		)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		log.Println(string(d))
+
+		err = app.Commands.UnassignUserCommand.Handle(
+			context.Background(),
+			application.UnassignUserCommand{
+				TaskID: t.TaskID,
+			},
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
-	res, err := app.Queries.TasksByProjectQuery.Handle(
+	res, err = app.Queries.TasksByProjectQuery.Handle(
 		context.Background(),
 		application.TasksByProjectQuery{
 			ProjectID: "projectId",
@@ -97,4 +118,17 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Println(string(d))
+
+	// dump event store
+	evts, err := eventStore.Events(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, evt := range evts {
+		d, err := json.MarshalIndent(evt, "", " ")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(string(d))
+	}
 }
