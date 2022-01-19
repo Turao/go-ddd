@@ -58,6 +58,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// err = app.Commands.AssignToUserCommand.Handle(
+	// 	context.Background(),
+	// 	application.AssignToUserCommand{
+	// 		TaskID: "00000000-0000-0000-0000-000000000000",
+	// 		UserID: "user-id",
+	// 	},
+	// )
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
 	evts, err := eventStore.Events(context.Background())
 	if err != nil {
 		log.Fatalln(err)

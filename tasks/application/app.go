@@ -49,7 +49,8 @@ type TasksByProjectResponse struct {
 }
 
 type Task struct {
-	TaskID string `json:"taskId"`
+	TaskID     string `json:"taskId"`
+	AssignedTo string `json:"assignedTo"`
 }
 
 type TasksByProjectQueryHandler interface {

@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"log"
 
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -22,8 +21,6 @@ func (h TasksByProjectQueryHandler) Handle(
 	ctx context.Context,
 	req application.TasksByProjectQuery,
 ) (*application.TasksByProjectResponse, error) {
-	log.Println("querying tasks by project id", req)
-
 	ts, err := h.repository.FindByProjectID(ctx, req.ProjectID)
 	if err != nil {
 		return nil, err
@@ -31,8 +28,14 @@ func (h TasksByProjectQueryHandler) Handle(
 
 	tsDTO := make([]application.Task, 0)
 	for _, t := range ts {
+		assignedTo := ""
+		if t.AssignedUser != nil {
+			assignedTo = *t.AssignedUser
+		}
+
 		tsDTO = append(tsDTO, application.Task{
-			TaskID: t.ID,
+			TaskID:     t.ID,
+			AssignedTo: assignedTo,
 		})
 	}
 
