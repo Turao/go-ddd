@@ -12,11 +12,11 @@ type TaskCreatedEvent struct {
 	Description        string            `json:"description"`
 }
 
-var (
+// var (
 // ErrInvalidProjectID = errors.New("invalid project id")
 // ErrInvalidTitle       = errors.New("invalid title")
 // ErrInvalidDescription = errors.New("invalid description")
-)
+// )
 
 func NewTaskCreatedEvent(id TaskID, projectID project.ProjectID, title string, description string) (*TaskCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("task.created", id)
