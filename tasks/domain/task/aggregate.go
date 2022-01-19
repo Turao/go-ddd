@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -10,6 +11,15 @@ import (
 
 type TaskAggregate struct {
 	Task *Task
+
+	events events.EventStore
+}
+
+func NewTaskAggregate(es events.EventStore) (*TaskAggregate, error) {
+	return &TaskAggregate{
+		Task:   nil,
+		events: es,
+	}, nil
 }
 
 func (ta TaskAggregate) HandleEvent(e events.DomainEvent) error {
@@ -26,6 +36,21 @@ func (ta TaskAggregate) HandleEvent(e events.DomainEvent) error {
 	}
 }
 
-func CreateTask(projectID project.ProjectID, title string, description string) (*Task, error) {
-	return NewTask(uuid.NewString(), projectID, title, description)
+func (ta *TaskAggregate) CreateTask(projectID project.ProjectID, title string, description string) (*Task, error) {
+	t, err := NewTask(uuid.NewString(), projectID, title, description)
+	if err != nil {
+		return nil, err
+	}
+
+	evt, err := NewTaskCreatedEvent(t.ID, t.ProjectID, t.Title, t.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }
