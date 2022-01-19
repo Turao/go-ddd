@@ -12,14 +12,45 @@ Kind of trying to create a Project Manager (e.g. Jira)...
 
 ## Contexts
 
-- User
-  - Events: UserRegistered
-- Project
-  - Events: ProjectCreated, ProjectUpdated, ProjectDeleted
-- Task*
-  - Events: TaskCreated, TaskAssigned, TaskUnassigned, DescriptionUpdated
-- Billing
-  - Events: TBD
+#### User
+- Commands: 
+  - `RegisterUsed`
+- Queries: 
+  - `ListUsers`
+- Events: 
+  - `UserRegistered`
 
-\* Tasks should likely be part of Project's context (Projects often don't have that many tasks)... but (1) I don't care about strong consistency between Project and Task really that much (2) let's pretend users will create a lot of tasks for each project...
+#### Project
+- Commands: 
+  - `CreateProject`
+  - `UpdateProject`
+  - `DeleteProject`
+- Queries: 
+  - `FindProject` (by ID)
+  - `ListProjects`
+- Events: 
+  - `ProjectCreated`
+  - `ProjectUpdated`
+  - `ProjectDeleted`
 
+#### Task
+- Commands: 
+  - `CreateTask`
+  - `AssignToUser`
+  - `UnassignUser`
+  - `UpdateDescription`
+- Queries:
+  - `TasksByProject`
+- Events: 
+  - `TaskCreated`
+  - `TaskAssigned`
+  - `TaskUnassigned`
+  - `DescriptionUpdated`
+
+
+> Tasks should likely be part of Project's context (Projects often don't have that many tasks)... but (1) I don't care about strong consistency between Project and Task really that much (2) let's pretend users will create a lot of tasks for each project, so we need to move the collection to its own bounded context...
+
+#### Billing
+- Commands: TBD
+- Queries: TBD
+- Events: TBD
