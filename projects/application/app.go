@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"time"
 
 	"github.com/turao/go-ddd/projects/domain/project"
 )
@@ -56,9 +57,10 @@ type FindProjectQuery struct {
 }
 
 type FindProjectResponse struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedBy string `json:"createdBy"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedBy string    `json:"createdBy"`
+	CreatedAt time.Time `json:"createdAt"`
 
 	Active bool `json:"active"`
 }
@@ -74,9 +76,10 @@ type ListProjectsResponse struct {
 }
 
 type Project struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedBy string `json:"createdBy"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedBy string    `json:"createdBy"`
+	CreatedAt time.Time `json:"createdAt"`
 
 	Active bool `json:"active"`
 }

@@ -2,6 +2,7 @@ package project
 
 import (
 	"errors"
+	"time"
 
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/domain/user"
@@ -11,9 +12,10 @@ type ProjectCreatedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
 	ProjectName        string      `json:"projectName"`
 	CreatedBy          user.UserID `json:"createdBy"`
+	CreatedAt          time.Time   `json:"createdAt"`
 }
 
-func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy user.UserID) (*ProjectCreatedEvent, error) {
+func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy user.UserID, createdAt time.Time) (*ProjectCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("project.created", id)
 	if err != nil {
 		return nil, err
@@ -31,6 +33,7 @@ func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy user.Use
 		DomainEvent: domainEvent,
 		ProjectName: projectName,
 		CreatedBy:   createdBy,
+		CreatedAt:   createdAt,
 	}, nil
 }
 

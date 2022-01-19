@@ -27,6 +27,7 @@ func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindPro
 		ID:        p.ID,
 		Name:      p.Name,
 		CreatedBy: p.CreatedBy,
+		CreatedAt: p.CreatedAt,
 		Active:    p.Active,
 	}, nil
 }

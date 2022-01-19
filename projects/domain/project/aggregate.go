@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
@@ -26,7 +27,7 @@ func NewProjectAggregate(p *Project, es events.EventStore) (*ProjectAggregate, e
 func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
-		p, err := NewProject(event.AggregateID(), event.ProjectName, event.CreatedBy, true)
+		p, err := NewProject(event.AggregateID(), event.ProjectName, event.CreatedBy, event.CreatedAt, true)
 		if err != nil {
 			return err
 		}
@@ -50,14 +51,15 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 }
 
 func (pa *ProjectAggregate) CreateProject(name string, createdBy user.UserID) error {
-	p, err := NewProject(uuid.NewString(), name, createdBy, true)
+	now := time.Now()
+	p, err := NewProject(uuid.NewString(), name, createdBy, now, true)
 	if err != nil {
 		return err
 	}
 
 	pa.Project = p
 
-	evt, err := NewProjectCreatedEvent(p.ID, p.Name, createdBy)
+	evt, err := NewProjectCreatedEvent(p.ID, p.Name, createdBy, now)
 	if err != nil {
 		return err
 	}

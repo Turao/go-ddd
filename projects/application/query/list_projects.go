@@ -31,6 +31,7 @@ func (q ListProjectsQueryHandler) Handle(ctx context.Context, req application.Li
 			ID:        p.ID,
 			Name:      p.Name,
 			CreatedBy: p.CreatedBy,
+			CreatedAt: p.CreatedAt,
 			Active:    p.Active,
 		})
 	}

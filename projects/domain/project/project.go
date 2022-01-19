@@ -2,6 +2,7 @@ package project
 
 import (
 	"errors"
+	"time"
 
 	"github.com/turao/go-ddd/users/domain/user"
 )
@@ -19,11 +20,12 @@ type Project struct {
 	Name string    `json:"name"`
 
 	CreatedBy user.UserID `json:"createdBy"`
+	CreatedAt time.Time   `json:"createdAt"`
 
 	Active bool `json:"active"`
 }
 
-func NewProject(id ProjectID, name string, createdBy user.UserID, active bool) (*Project, error) {
+func NewProject(id ProjectID, name string, createdBy user.UserID, createdAt time.Time, active bool) (*Project, error) {
 	if id == "" {
 		return nil, ErrInvalidProjectID
 	}
@@ -40,6 +42,7 @@ func NewProject(id ProjectID, name string, createdBy user.UserID, active bool) (
 		ID:        id,
 		Name:      name,
 		CreatedBy: createdBy,
+		CreatedAt: createdAt,
 		Active:    active,
 	}, nil
 }
