@@ -9,11 +9,13 @@ import (
 )
 
 type CreateTaskCommandHandler struct {
+	repository task.Repository
 	eventStore events.EventStore
 }
 
-func NewCreateTaskCommandHandler(es events.EventStore) *CreateTaskCommandHandler {
+func NewCreateTaskCommandHandler(repository task.Repository, es events.EventStore) *CreateTaskCommandHandler {
 	return &CreateTaskCommandHandler{
+		repository: repository,
 		eventStore: es,
 	}
 }
@@ -29,5 +31,15 @@ func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.C
 		return err
 	}
 
-	return h.eventStore.Push(ctx, *evt)
+	err = h.eventStore.Push(ctx, *evt)
+	if err != nil {
+		return err
+	}
+
+	err = h.repository.Save(ctx, *t)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
