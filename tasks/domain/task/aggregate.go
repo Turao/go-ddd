@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/domain/project"
+	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type TaskAggregate struct {
@@ -15,9 +16,9 @@ type TaskAggregate struct {
 	events events.EventStore
 }
 
-func NewTaskAggregate(es events.EventStore) (*TaskAggregate, error) {
+func NewTaskAggregate(task *Task, es events.EventStore) (*TaskAggregate, error) {
 	return &TaskAggregate{
-		Task:   nil,
+		Task:   task,
 		events: es,
 	}, nil
 }
@@ -55,4 +56,23 @@ func (ta *TaskAggregate) CreateTask(projectID project.ProjectID, title string, d
 	}
 
 	return t, nil
+}
+
+func (ta TaskAggregate) AssignTo(assignedUserID user.UserID) error {
+	err := ta.Task.AssignTo(assignedUserID)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewTaskAssignedEvent(ta.Task.ID, assignedUserID)
+	if err != nil {
+		return err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -26,7 +26,8 @@ func main() {
 
 	app := &application.App{
 		Commands: application.Commands{
-			CreateTaskCommand: command.NewCreateTaskCommandHandler(tr, eventStore),
+			CreateTaskCommand:   command.NewCreateTaskCommandHandler(tr, eventStore),
+			AssignToUserCommand: command.NewAssignToUserCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(tr),

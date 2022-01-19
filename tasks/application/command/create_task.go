@@ -21,7 +21,7 @@ func NewCreateTaskCommandHandler(repository task.Repository, es events.EventStor
 }
 
 func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
-	ta, err := task.NewTaskAggregate(h.eventStore)
+	ta, err := task.NewTaskAggregate(nil, h.eventStore)
 	if err != nil {
 		return err
 	}

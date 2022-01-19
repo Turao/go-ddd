@@ -24,6 +24,14 @@ func NewTaskRepository() (*TaskRepository, error) {
 	}, nil
 }
 
+func (tr TaskRepository) FindByID(ctx context.Context, taskID task.TaskID) (*task.Task, error) {
+	t, found := tr.tasks[taskID]
+	if !found {
+		return nil, ErrNotFound
+	}
+	return t, nil
+}
+
 func (tr TaskRepository) FindByProjectID(ctx context.Context, projectID project.ProjectID) ([]*task.Task, error) {
 	ts := make([]*task.Task, 0)
 
