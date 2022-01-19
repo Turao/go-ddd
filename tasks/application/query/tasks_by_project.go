@@ -3,19 +3,18 @@ package query
 import (
 	"context"
 	"log"
-	"reflect"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
+	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type TasksByProjectQueryHandler struct {
-	eventStore events.EventStore
+	repository task.Repository
 }
 
-func NewTaskByProjectQueryHandler(es events.EventStore) *TasksByProjectQueryHandler {
+func NewTaskByProjectQueryHandler(repository task.Repository) *TasksByProjectQueryHandler {
 	return &TasksByProjectQueryHandler{
-		eventStore: es,
+		repository: repository,
 	}
 }
 
@@ -25,21 +24,20 @@ func (h TasksByProjectQueryHandler) Handle(
 ) (*application.TasksByProjectResponse, error) {
 	log.Println("querying tasks by project id", req)
 
-	evts, err := h.eventStore.Events(context.Background())
+	ts, err := h.repository.FindByProjectID(ctx, req.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("events", evts)
-
-	for _, evt := range evts {
-		log.Println(reflect.TypeOf(evt))
-
-		devt := evt.(events.DomainEvent)
-		if devt.AggregateID() == req.ProjectID {
-			log.Println(evt)
-		}
+	tsDTO := make([]application.Task, 0)
+	for _, t := range ts {
+		tsDTO = append(tsDTO, application.Task{
+			TaskID: t.ID,
+		})
 	}
 
-	return nil, nil
+	return &application.TasksByProjectResponse{
+		ProjectID: req.ProjectID,
+		Tasks:     tsDTO,
+	}, nil
 }

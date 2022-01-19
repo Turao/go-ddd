@@ -33,6 +33,11 @@ type TasksByProjectQuery struct {
 
 type TasksByProjectResponse struct {
 	ProjectID string `json:"projectId"`
+	Tasks     []Task `json:"tasks"`
+}
+
+type Task struct {
+	TaskID string `json:"taskId"`
 }
 
 type TasksByProjectQueryHandler interface {

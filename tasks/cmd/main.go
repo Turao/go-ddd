@@ -9,6 +9,7 @@ import (
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/application/command"
 	"github.com/turao/go-ddd/tasks/application/query"
+	"github.com/turao/go-ddd/tasks/infrastructure"
 )
 
 func main() {
@@ -18,12 +19,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	tr, err := infrastructure.NewTaskRepository()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	app := &application.App{
 		Commands: application.Commands{
 			CreateTaskCommand: command.NewCreateTaskCommandHandler(eventStore),
 		},
 		Queries: application.Queries{
-			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(eventStore),
+			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(tr),
 		},
 	}
 
