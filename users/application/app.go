@@ -8,6 +8,7 @@ type Application struct {
 }
 
 type Commands struct {
+	RegisterUserCommand RegisterUserCommandHandler
 }
 
 type Queries struct {

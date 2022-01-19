@@ -13,11 +13,11 @@ type RegisterUserHandler struct {
 	eventStore events.EventStore
 }
 
-func NewRegisterUserHandler(repository user.Repository, es events.EventStore) (*RegisterUserHandler, error) {
+func NewRegisterUserHandler(repository user.Repository, es events.EventStore) *RegisterUserHandler {
 	return &RegisterUserHandler{
 		repository: repository,
 		eventStore: es,
-	}, nil
+	}
 }
 
 func (h RegisterUserHandler) Handle(ctx context.Context, req application.RegisterUserCommand) error {
