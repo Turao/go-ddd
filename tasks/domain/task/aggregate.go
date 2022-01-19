@@ -42,6 +42,8 @@ func (ta *TaskAggregate) CreateTask(projectID project.ProjectID, title string, d
 		return nil, err
 	}
 
+	ta.Task = t
+
 	evt, err := NewTaskCreatedEvent(t.ID, t.ProjectID, t.Title, t.Description)
 	if err != nil {
 		return nil, err
