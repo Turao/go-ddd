@@ -2,52 +2,30 @@ package query
 
 import (
 	"context"
-	"errors"
-	"log"
-	"reflect"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
 type FindProjectHandler struct {
-	eventStore events.EventStore
+	repository project.Repository
 }
 
-func NewFindProjectQueryHandler(es events.EventStore) *FindProjectHandler {
+func NewFindProjectQueryHandler(repository project.Repository) *FindProjectHandler {
 	return &FindProjectHandler{
-		eventStore: es,
+		repository: repository,
 	}
 }
 
 func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindProjectQuery) (*application.FindProjectResponse, error) {
-	var p project.ProjectAggregate
-	evts, err := h.eventStore.Events(context.Background())
+	p, err := h.repository.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("events", evts)
-
-	for _, evt := range evts {
-		log.Println(reflect.TypeOf(evt))
-
-		devt := evt.(events.DomainEvent)
-		if devt.AggregateID() == req.ID {
-			if err := p.HandleEvent(devt); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	if p.Project == nil {
-		return nil, errors.New("cannot reconstruct project from events")
-	}
-
 	return &application.FindProjectResponse{
-		ID:     p.Project.ID,
-		Name:   p.Project.Name,
-		Active: p.Project.Active,
+		ID:     p.ID,
+		Name:   p.Name,
+		Active: p.Active,
 	}, nil
 }

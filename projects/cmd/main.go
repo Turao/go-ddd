@@ -31,7 +31,8 @@ func main() {
 			DeleteProject: command.NewDeleteProjectCommandHandler(pr, eventStore),
 		},
 		Queries: application.Queries{
-			FindProject: query.NewFindProjectQueryHandler(eventStore),
+			FindProject:  query.NewFindProjectQueryHandler(pr),
+			ListProjects: query.NewListProjectsQueryHandler(pr),
 		},
 	}
 
@@ -45,34 +46,62 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ps, err := pr.FindAll(context.Background())
+	// list all
+	res, err := app.Queries.ListProjects.Handle(
+		context.Background(),
+		application.ListProjectsQuery{},
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for _, p := range ps {
-		log.Println(p)
-	}
 
-	err = app.Commands.UpdateProject.Handle(
-		context.Background(),
-		application.UpdateProjectCommand{
-			ID:   "00000000-0000-0000-0000-000000000000",
-			Name: "my-project-updated",
-		})
-
+	d, err := json.MarshalIndent(res, "", " ")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
+	}
+	log.Println("listing all projects")
+	log.Println(string(d))
+
+	// iterate and find by id
+	for _, p := range res.Projects {
+		log.Println("searching for project: ", p.ID)
+		res2, err := app.Queries.FindProject.Handle(
+			context.Background(),
+			application.FindProjectQuery{
+				ID: p.ID,
+			},
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		d, err := json.MarshalIndent(res2, "", " ")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(string(d))
 	}
 
-	err = app.Commands.DeleteProject.Handle(
-		context.Background(),
-		application.DeleteProjectCommand{
-			ID: "00000000-0000-0000-0000-000000000000",
-		})
+	// err = app.Commands.UpdateProject.Handle(
+	// 	context.Background(),
+	// 	application.UpdateProjectCommand{
+	// 		ID:   "00000000-0000-0000-0000-000000000000",
+	// 		Name: "my-project-updated",
+	// 	})
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// err = app.Commands.DeleteProject.Handle(
+	// 	context.Background(),
+	// 	application.DeleteProjectCommand{
+	// 		ID: "00000000-0000-0000-0000-000000000000",
+	// 	})
+
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	evts, err := eventStore.Events(context.Background())
 	if err != nil {
