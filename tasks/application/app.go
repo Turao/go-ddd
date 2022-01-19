@@ -12,6 +12,7 @@ type App struct {
 type Commands struct {
 	CreateTaskCommand   CreateTaskCommandHandler
 	AssignToUserCommand AssignToUserCommandHandler
+	UnassignUserCommand UnassignUserCommandHandler
 }
 
 type Queries struct {
@@ -38,6 +39,14 @@ type AssignToUserCommandHandler interface {
 	Handle(ctx context.Context, req AssignToUserCommand) error
 }
 
+type UnassignUserCommand struct {
+	TaskID string `json:"taskId"`
+}
+
+type UnassignUserCommandHandler interface {
+	Handle(ctx context.Context, req UnassignUserCommand) error
+}
+
 // --- Queries ---
 type TasksByProjectQuery struct {
 	ProjectID string `json:"projectId"`
@@ -56,5 +65,3 @@ type Task struct {
 type TasksByProjectQueryHandler interface {
 	Handle(ctx context.Context, req TasksByProjectQuery) (*TasksByProjectResponse, error)
 }
-
-// -- Queriess --

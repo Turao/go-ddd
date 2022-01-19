@@ -76,3 +76,22 @@ func (ta TaskAggregate) AssignTo(assignedUserID user.UserID) error {
 
 	return nil
 }
+
+func (ta TaskAggregate) Unassign() error {
+	err := ta.Task.Unassign()
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewTaskUnassignedEvent(ta.Task.ID)
+	if err != nil {
+		return err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

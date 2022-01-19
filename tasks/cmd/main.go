@@ -28,6 +28,7 @@ func main() {
 		Commands: application.Commands{
 			CreateTaskCommand:   command.NewCreateTaskCommandHandler(tr, eventStore),
 			AssignToUserCommand: command.NewAssignToUserCommandHandler(tr, eventStore),
+			UnassignUserCommand: command.NewUnassignUserCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(tr),

@@ -65,3 +65,18 @@ func NewTaskAssignedEvent(id TaskID, assignedUserID user.UserID) (*TaskAssignedE
 		AssignedTo:  assignedUserID,
 	}, nil
 }
+
+type TaskUnassignedEvent struct {
+	events.DomainEvent `json:"domainEvent"`
+}
+
+func NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
+	domainEvent, err := events.NewDomainEvent("task.unassigned", id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &TaskAssignedEvent{
+		DomainEvent: domainEvent,
+	}, nil
+}

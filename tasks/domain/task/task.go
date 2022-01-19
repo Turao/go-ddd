@@ -56,3 +56,8 @@ func (t *Task) AssignTo(assignedUserID user.UserID) error {
 	t.AssignedUser = &assignedUserID
 	return nil
 }
+
+func (t *Task) Unassign() error {
+	t.AssignedUser = nil
+	return nil
+}
