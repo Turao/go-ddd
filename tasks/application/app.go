@@ -17,7 +17,8 @@ type Commands struct {
 }
 
 type Queries struct {
-	TasksByProjectQuery TasksByProjectQueryHandler
+	TasksByProjectQuery      TasksByProjectQueryHandler
+	TasksByAssignedUserQuery TasksByAssignedUserQueryHandler
 }
 
 // -- Commands --
@@ -74,4 +75,17 @@ type Task struct {
 
 type TasksByProjectQueryHandler interface {
 	Handle(ctx context.Context, req TasksByProjectQuery) (*TasksByProjectResponse, error)
+}
+
+type TasksByAssignedUserQuery struct {
+	UserID string `json:"userId"`
+}
+
+type TasksByAssignedUserResponse struct {
+	UserID string `json:"userId"`
+	Tasks  []Task `json:"tasks"`
+}
+
+type TasksByAssignedUserQueryHandler interface {
+	Handle(ctx context.Context, req TasksByAssignedUserQuery) (*TasksByAssignedUserResponse, error)
 }

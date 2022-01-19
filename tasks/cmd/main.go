@@ -32,7 +32,8 @@ func main() {
 			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
-			TasksByProjectQuery: query.NewTaskByProjectQueryHandler(tr),
+			TasksByProjectQuery:      query.NewTaskByProjectQueryHandler(tr),
+			TasksByAssignedUserQuery: query.NewTasksByAssignedUserQueryHandler(tr),
 		},
 	}
 
@@ -93,15 +94,15 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		err = app.Commands.UnassignUserCommand.Handle(
-			context.Background(),
-			application.UnassignUserCommand{
-				TaskID: t.TaskID,
-			},
-		)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		// err = app.Commands.UnassignUserCommand.Handle(
+		// 	context.Background(),
+		// 	application.UnassignUserCommand{
+		// 		TaskID: t.TaskID,
+		// 	},
+		// )
+		// if err != nil {
+		// 	log.Fatalln(err)
+		// }
 
 		err = app.Commands.UpdateDescriptionCommand.Handle(
 			context.Background(),
@@ -129,6 +130,24 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Println("tasks by project")
+	log.Println(string(d))
+
+	res2, err := app.Queries.TasksByAssignedUserQuery.Handle(
+		context.Background(),
+		application.TasksByAssignedUserQuery{
+			UserID: "",
+		},
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	d, err = json.MarshalIndent(res2, "", " ")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("tasks by assigned user")
 	log.Println(string(d))
 
 	// dump event store

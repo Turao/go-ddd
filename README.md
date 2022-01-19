@@ -41,6 +41,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - `UpdateDescription`
 - Queries:
   - `TasksByProject`
+  - `TasksByAssignedUser`
 - Events: 
   - `TaskCreated`
   - `TaskAssigned`

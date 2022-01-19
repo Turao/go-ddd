@@ -6,6 +6,7 @@ import (
 
 	"github.com/turao/go-ddd/projects/domain/project"
 	"github.com/turao/go-ddd/tasks/domain/task"
+	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type TaskRepository struct {
@@ -38,6 +39,20 @@ func (tr TaskRepository) FindByProjectID(ctx context.Context, projectID project.
 	for _, t := range tr.tasks {
 		if t.ProjectID == projectID {
 			ts = append(ts, t)
+		}
+	}
+
+	return ts, nil
+}
+
+func (tr TaskRepository) FindByAssignedUserID(ctx context.Context, assignedUserID user.UserID) ([]*task.Task, error) {
+	ts := make([]*task.Task, 0)
+
+	for _, t := range tr.tasks {
+		if t.AssignedUser != nil {
+			if *t.AssignedUser == assignedUserID {
+				ts = append(ts, t)
+			}
 		}
 	}
 
