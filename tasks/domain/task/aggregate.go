@@ -32,6 +32,10 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 		}
 		ta.Task = t
 		return nil
+	case TaskAssignedEvent:
+		return ta.Task.AssignTo(event.AssignedTo)
+	case TaskUnassignedEvent:
+		return ta.Task.Unassign()
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
