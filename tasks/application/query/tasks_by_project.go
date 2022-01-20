@@ -36,6 +36,7 @@ func (h TasksByProjectQueryHandler) Handle(
 		tsDTO = append(tsDTO, application.Task{
 			TaskID:     t.ID,
 			AssignedTo: assignedTo,
+			Status:     t.Status,
 		})
 	}
 

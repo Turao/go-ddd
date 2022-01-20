@@ -33,6 +33,7 @@ func (h TasksByAssignedUserQueryHandler) Handle(ctx context.Context, req applica
 		tsDTO = append(tsDTO, application.Task{
 			TaskID:     t.ID,
 			AssignedTo: assignedUser,
+			Status:     t.Status,
 		})
 	}
 

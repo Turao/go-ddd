@@ -127,6 +127,17 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
+
+		err = app.Commands.UpdateStatusCommand.Handle(
+			context.Background(),
+			application.UpdateStatusCommand{
+				TaskID: t.TaskID,
+				Status: "completed",
+			},
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	res, err = app.Queries.TasksByProjectQuery.Handle(

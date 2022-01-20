@@ -79,6 +79,12 @@ type UpdateStatusCommandHandler interface {
 }
 
 // --- Queries ---
+type Task struct {
+	TaskID     string `json:"taskId"`
+	AssignedTo string `json:"assignedTo"`
+	Status     string `json:"status"`
+}
+
 type TasksByProjectQuery struct {
 	ProjectID string `json:"projectId"`
 }
@@ -86,11 +92,6 @@ type TasksByProjectQuery struct {
 type TasksByProjectResponse struct {
 	ProjectID string `json:"projectId"`
 	Tasks     []Task `json:"tasks"`
-}
-
-type Task struct {
-	TaskID     string `json:"taskId"`
-	AssignedTo string `json:"assignedTo"`
 }
 
 type TasksByProjectQueryHandler interface {
