@@ -38,6 +38,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - `CreateTask`
   - `AssignToUser`
   - `UnassignUser`
+  - `UpdateTitle`
   - `UpdateDescription`
 - Queries:
   - `TasksByProject`
