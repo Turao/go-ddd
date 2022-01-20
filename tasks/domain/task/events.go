@@ -122,3 +122,24 @@ func NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpda
 		Description: description,
 	}, nil
 }
+
+type StatusUpdatedEvent struct {
+	events.DomainEvent `json:"domainEvent"`
+	Status             string `json:"status"`
+}
+
+func NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error) {
+	domainEvent, err := events.NewDomainEvent("task.status.updated", id)
+	if err != nil {
+		return nil, err
+	}
+
+	if status == "" {
+		return nil, ErrInvalidStatus
+	}
+
+	return &StatusUpdatedEvent{
+		DomainEvent: domainEvent,
+		Status:      status,
+	}, nil
+}

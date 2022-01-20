@@ -9,11 +9,21 @@ import (
 
 type TaskID = string
 
+type Status = string
+
+const (
+	New        Status = "new"
+	InProgress Status = "in_progress"
+	Blocked    Status = "blocked"
+	Completed  Status = "completed"
+)
+
 type Task struct {
 	ID          TaskID            `json:"id"`
 	ProjectID   project.ProjectID `json:"projectId"`
 	Title       string            `json:"title"`
 	Description string            `json:"description"`
+	Status      Status            `json:"status"`
 
 	AssignedUser *user.UserID `json:"assignedUser"`
 }
@@ -24,6 +34,7 @@ var (
 	ErrInvalidTitle       = errors.New("invalid title")
 	ErrInvalidDescription = errors.New("invalid description")
 	ErrInvalidUserID      = errors.New("invalid user id")
+	ErrInvalidStatus      = errors.New("invalid status")
 )
 
 func NewTask(id TaskID, projectId project.ProjectID, title string, description string) (*Task, error) {
@@ -48,6 +59,7 @@ func NewTask(id TaskID, projectId project.ProjectID, title string, description s
 		ProjectID:    projectId,
 		Title:        title,
 		Description:  description,
+		Status:       New,
 		AssignedUser: nil,
 	}, nil
 }
@@ -60,6 +72,25 @@ func (t *Task) AssignTo(assignedUserID user.UserID) error {
 func (t *Task) Unassign() error {
 	t.AssignedUser = nil
 	return nil
+}
+
+func (t *Task) UpdateStatus(status Status) error {
+	switch status {
+	case New:
+		t.Status = New
+		return nil
+	case InProgress:
+		t.Status = InProgress
+		return nil
+	case Blocked:
+		t.Status = Blocked
+		return nil
+	case Completed:
+		t.Status = Completed
+		return nil
+	default:
+		return ErrInvalidStatus
+	}
 }
 
 func (t *Task) UpdateTitle(title string) error {

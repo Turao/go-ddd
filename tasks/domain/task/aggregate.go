@@ -40,6 +40,8 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 		return ta.Task.UpdateTitle(event.Title)
 	case DescriptionUpdatedEvent:
 		return ta.Task.UpdateDescription(event.Description)
+	case StatusUpdatedEvent:
+		return ta.Task.UpdateStatus(event.Status)
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -130,6 +132,25 @@ func (ta TaskAggregate) UpdateDescription(description string) error {
 	}
 
 	evt, err := NewDescriptionUpdatedEvent(ta.Task.ID, description)
+	if err != nil {
+		return err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ta TaskAggregate) UpdateStatus(status string) error {
+	err := ta.Task.UpdateStatus(status)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewStatusUpdatedEvent(ta.Task.ID, status)
 	if err != nil {
 		return err
 	}
