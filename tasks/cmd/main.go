@@ -29,6 +29,7 @@ func main() {
 			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr, eventStore),
 			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, eventStore),
 			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore),
+			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr, eventStore),
 			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
@@ -103,6 +104,17 @@ func main() {
 		// if err != nil {
 		// 	log.Fatalln(err)
 		// }
+
+		err = app.Commands.UpdateTitleCommand.Handle(
+			context.Background(),
+			application.UpdateTitleCommand{
+				TaskID: t.TaskID,
+				Title:  "this is the new title",
+			},
+		)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		err = app.Commands.UpdateDescriptionCommand.Handle(
 			context.Background(),

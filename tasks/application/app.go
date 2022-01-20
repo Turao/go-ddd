@@ -13,6 +13,7 @@ type Commands struct {
 	CreateTaskCommand        CreateTaskCommandHandler
 	AssignToUserCommand      AssignToUserCommandHandler
 	UnassignUserCommand      UnassignUserCommandHandler
+	UpdateTitleCommand       UpdateTitleCommandHandler
 	UpdateDescriptionCommand UpdateDescriptionCommandHandler
 }
 
@@ -47,6 +48,15 @@ type UnassignUserCommand struct {
 
 type UnassignUserCommandHandler interface {
 	Handle(ctx context.Context, req UnassignUserCommand) error
+}
+
+type UpdateTitleCommand struct {
+	TaskID string `json:"taskId"`
+	Title  string `json:"title"`
+}
+
+type UpdateTitleCommandHandler interface {
+	Handle(ctx context.Context, req UpdateTitleCommand) error
 }
 
 type UpdateDescriptionCommand struct {

@@ -36,6 +36,8 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 		return ta.Task.AssignTo(event.AssignedTo)
 	case TaskUnassignedEvent:
 		return ta.Task.Unassign()
+	case TitleUpdatedEvent:
+		return ta.Task.UpdateTitle(event.Title)
 	case DescriptionUpdatedEvent:
 		return ta.Task.UpdateDescription(event.Description)
 	default:
@@ -90,6 +92,25 @@ func (ta TaskAggregate) Unassign() error {
 	}
 
 	evt, err := NewTaskUnassignedEvent(ta.Task.ID)
+	if err != nil {
+		return err
+	}
+
+	err = ta.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ta TaskAggregate) UpdateTitle(title string) error {
+	err := ta.Task.UpdateTitle(title)
+	if err != nil {
+		return err
+	}
+
+	evt, err := NewTitleUpdatedEvent(ta.Task.ID, title)
 	if err != nil {
 		return err
 	}

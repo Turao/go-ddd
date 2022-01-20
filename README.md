@@ -46,6 +46,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - `TaskCreated`
   - `TaskAssigned`
   - `TaskUnassigned`
+  - `TitleUpdated`
   - `DescriptionUpdated`
 
 

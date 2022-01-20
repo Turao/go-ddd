@@ -62,6 +62,14 @@ func (t *Task) Unassign() error {
 	return nil
 }
 
+func (t *Task) UpdateTitle(title string) error {
+	if title == "" {
+		return ErrInvalidTitle
+	}
+	t.Title = title
+	return nil
+}
+
 func (t *Task) UpdateDescription(description string) error {
 	if description == "" {
 		return ErrInvalidDescription
