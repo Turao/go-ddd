@@ -59,3 +59,9 @@ Kind of trying to create a Project Manager (e.g. Jira)...
 - Commands: TBD
 - Queries: TBD
 - Events: TBD
+
+Will listen to:
+- `UserRegistered`
+- `TaskAssigned`
+- `TaskUnassigned`
+- `StatusUpdated`
