@@ -19,7 +19,7 @@ var (
 )
 
 func NewTaskStatusUpdatedEvent(taskID string, status string) (*TaskStatusUpdatedEvent, error) {
-	integrationEvent, err := events.NewIntegrationEvent("task.status.updated", uuid.NewString())
+	ie, err := events.NewIntegrationEvent("task.status.updated", uuid.NewString())
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func NewTaskStatusUpdatedEvent(taskID string, status string) (*TaskStatusUpdated
 	}
 
 	return &TaskStatusUpdatedEvent{
-		IntegrationEvent: integrationEvent,
+		IntegrationEvent: ie,
 		TaskID:           taskID,
 		Status:           status,
 	}, nil
