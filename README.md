@@ -57,7 +57,8 @@ Kind of trying to create a Project Manager (e.g. Jira)...
 
 #### Billing
 - Commands: TBD
-- Queries: TBD
+- Queries:
+  - InvoiceByUser (or something like that)
 - Events: TBD
 
 Will listen to:
