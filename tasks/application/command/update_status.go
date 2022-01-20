@@ -2,7 +2,9 @@ package command
 
 import (
 	"context"
+	"log"
 
+	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -40,6 +42,13 @@ func (h UpdateStatusCommandHandler) Handle(ctx context.Context, req application.
 	if err != nil {
 		return err
 	}
+
+	// todo: should we put our integration event (task.completed) here?
+	ie, err := api.NewTaskStatusUpdatedEvent(t.ID, t.Status)
+	if err != nil {
+		return err
+	}
+	log.Println("TODO: publish this task.status.updated integration event: ", ie)
 
 	return nil
 }

@@ -18,3 +18,12 @@ type DomainEvent interface {
 	Event
 	AggregateID() AggregateID
 }
+
+// ----
+
+type CorrelationID = string
+
+type IntegrationEvent interface {
+	Event
+	CorrelationID() CorrelationID
+}
