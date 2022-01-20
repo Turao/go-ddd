@@ -15,6 +15,7 @@ type Commands struct {
 	UnassignUserCommand      UnassignUserCommandHandler
 	UpdateTitleCommand       UpdateTitleCommandHandler
 	UpdateDescriptionCommand UpdateDescriptionCommandHandler
+	UpdateStatusCommand      UpdateStatusCommandHandler
 }
 
 type Queries struct {
@@ -66,6 +67,15 @@ type UpdateDescriptionCommand struct {
 
 type UpdateDescriptionCommandHandler interface {
 	Handle(ctx context.Context, req UpdateDescriptionCommand) error
+}
+
+type UpdateStatusCommand struct {
+	TaskID string `json:"taskId"`
+	Status string `json:"status"`
+}
+
+type UpdateStatusCommandHandler interface {
+	Handle(ctx context.Context, req UpdateStatusCommand) error
 }
 
 // --- Queries ---

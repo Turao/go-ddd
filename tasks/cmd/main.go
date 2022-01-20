@@ -31,6 +31,7 @@ func main() {
 			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore),
 			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr, eventStore),
 			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
+			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, eventStore),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery:      query.NewTaskByProjectQueryHandler(tr),
