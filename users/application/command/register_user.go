@@ -2,7 +2,9 @@ package command
 
 import (
 	"context"
+	"log"
 
+	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/domain/user"
@@ -35,6 +37,12 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 	if err != nil {
 		return err
 	}
+
+	ie, err := api.NewUserRegisteredEvent(ua.User.ID)
+	if err != nil {
+		return err
+	}
+	log.Println("TODO: publish this user.registered integration event: ", ie)
 
 	return nil
 }
