@@ -40,6 +40,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - `UnassignUser`
   - `UpdateTitle`
   - `UpdateDescription`
+  - `UpdateStatus`
 - Queries:
   - `TasksByProject`
   - `TasksByAssignedUser`
@@ -49,6 +50,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - `TaskUnassigned`
   - `TitleUpdated`
   - `DescriptionUpdated`
+  - `StatusUpdated`
 
 
 > Tasks should likely be part of Project's context (Projects often don't have that many tasks)... but (1) I don't care about strong consistency between Project and Task really that much (2) let's pretend users will create a lot of tasks for each project, so we need to move the collection to its own bounded context...
