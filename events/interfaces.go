@@ -1,6 +1,9 @@
 package events
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type EventID = string
 
@@ -26,4 +29,10 @@ type CorrelationID = string
 type IntegrationEvent interface {
 	Event
 	CorrelationID() CorrelationID
+}
+
+// ---
+type EventStore interface {
+	Push(ctx context.Context, evt Event) error
+	Events(ctx context.Context) ([]Event, error)
 }

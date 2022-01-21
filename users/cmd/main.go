@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
 	"github.com/turao/go-ddd/users/application/query"
@@ -18,7 +18,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	es, err := events.NewInMemoryStore()
+	es, err := in_memory.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
