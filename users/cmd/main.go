@@ -10,6 +10,7 @@ import (
 	"github.com/turao/go-ddd/users/application/command"
 	"github.com/turao/go-ddd/users/application/query"
 	"github.com/turao/go-ddd/users/infrastructure"
+	"github.com/turao/go-ddd/users/infrastructure/messaging"
 )
 
 func main() {
@@ -66,5 +67,17 @@ func main() {
 	}
 
 	log.Println(string(d))
+
+	adapter, err := messaging.NewAdapter(messaging.OnRegisterUser{
+		CommandHandler: command.NewRegisterUserHandler(ur, es),
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = adapter.RegisterHandlers()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 }
