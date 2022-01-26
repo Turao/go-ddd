@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
 	"github.com/turao/go-ddd/users/application/query"
 	"github.com/turao/go-ddd/users/infrastructure"
-	"github.com/turao/go-ddd/users/infrastructure/messaging"
 )
 
 func main() {
@@ -24,9 +25,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	publisher := gochannel.NewGoChannel(gochannel.Config{}, watermill.NewStdLogger(false, false))
+	defer publisher.Close()
+
 	app := application.Application{
 		Commands: application.Commands{
-			RegisterUserCommand: command.NewRegisterUserHandler(ur, es),
+			RegisterUserCommand: command.NewRegisterUserHandler(ur, es, publisher),
 		},
 		Queries: application.Queries{
 			ListUsersQuery: query.NewListUsersQueryHandler(ur),
@@ -67,17 +71,5 @@ func main() {
 	}
 
 	log.Println(string(d))
-
-	adapter, err := messaging.NewAdapter(messaging.OnRegisterUser{
-		CommandHandler: command.NewRegisterUserHandler(ur, es),
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = adapter.RegisterHandlers()
-	if err != nil {
-		log.Fatalln(err)
-	}
 
 }

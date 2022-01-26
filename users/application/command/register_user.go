@@ -2,8 +2,10 @@ package command
 
 import (
 	"context"
-	"log"
+	"encoding/json"
 
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/application"
@@ -11,14 +13,16 @@ import (
 )
 
 type RegisterUserHandler struct {
-	repository user.Repository
-	eventStore events.EventStore
+	repository     user.Repository
+	eventStore     events.EventStore
+	eventPublisher message.Publisher
 }
 
-func NewRegisterUserHandler(repository user.Repository, es events.EventStore) *RegisterUserHandler {
+func NewRegisterUserHandler(repository user.Repository, es events.EventStore, ep message.Publisher) *RegisterUserHandler {
 	return &RegisterUserHandler{
-		repository: repository,
-		eventStore: es,
+		repository:     repository,
+		eventStore:     es,
+		eventPublisher: ep,
 	}
 }
 
@@ -42,7 +46,19 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 	if err != nil {
 		return err
 	}
-	log.Println("TODO: publish this user.registered integration event: ", ie)
+
+	payload, err := json.Marshal(ie)
+	if err != nil {
+		return err
+	}
+
+	err = h.eventPublisher.Publish(
+		ie.Name(),
+		message.NewMessage(uuid.NewString(), payload),
+	)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
