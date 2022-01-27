@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
@@ -25,7 +25,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	publisher := gochannel.NewGoChannel(gochannel.Config{}, watermill.NewStdLogger(false, false))
+	queue := amqp.NewDurableQueueConfig("amqp://localhost:5672")
+	publisher, err := amqp.NewPublisher(queue, watermill.NewStdLogger(false, false))
+	if err != nil {
+		log.Fatalln(err)
+	}
 	defer publisher.Close()
 
 	app := application.Application{

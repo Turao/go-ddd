@@ -52,6 +52,8 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 		return err
 	}
 
+	// there's some infrastructure layer leakage here
+	// todo: fix this
 	err = h.eventPublisher.Publish(
 		ie.Name(),
 		message.NewMessage(uuid.NewString(), payload),
