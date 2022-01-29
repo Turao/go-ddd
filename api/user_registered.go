@@ -1,11 +1,16 @@
 package api
 
 import (
+	"context"
 	"errors"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 )
+
+type UserRegisteredEventPublisher interface {
+	Publish(ctx context.Context, event UserRegisteredEvent) error
+}
 
 type UserRegisteredEvent struct {
 	events.IntegrationEvent

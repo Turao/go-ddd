@@ -6,7 +6,8 @@ import (
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
+	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
+	"github.com/turao/go-ddd/api/amqp"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
@@ -25,16 +26,21 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	queue := amqp.NewDurableQueueConfig("amqp://localhost:5672")
-	publisher, err := amqp.NewPublisher(queue, watermill.NewStdLogger(false, false))
+	queue := watermillAMQP.NewDurableQueueConfig("amqp://localhost:5672")
+	publisher, err := watermillAMQP.NewPublisher(queue, watermill.NewStdLogger(false, false))
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer publisher.Close()
 
+	urep, err := amqp.NewAMQPUserRegisteredEventPublisher(publisher)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	app := application.Application{
 		Commands: application.Commands{
-			RegisterUserCommand: command.NewRegisterUserHandler(ur, es, publisher),
+			RegisterUserCommand: command.NewRegisterUserHandler(ur, es, urep),
 		},
 		Queries: application.Queries{
 			ListUsersQuery: query.NewListUsersQueryHandler(ur),

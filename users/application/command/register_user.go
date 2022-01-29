@@ -2,10 +2,7 @@ package command
 
 import (
 	"context"
-	"encoding/json"
 
-	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/application"
@@ -13,16 +10,16 @@ import (
 )
 
 type RegisterUserHandler struct {
-	repository     user.Repository
-	eventStore     events.EventStore
-	eventPublisher message.Publisher
+	repository                   user.Repository
+	eventStore                   events.EventStore
+	userRegisteredEventPublisher api.UserRegisteredEventPublisher
 }
 
-func NewRegisterUserHandler(repository user.Repository, es events.EventStore, ep message.Publisher) *RegisterUserHandler {
+func NewRegisterUserHandler(repository user.Repository, es events.EventStore, urep api.UserRegisteredEventPublisher) *RegisterUserHandler {
 	return &RegisterUserHandler{
-		repository:     repository,
-		eventStore:     es,
-		eventPublisher: ep,
+		repository:                   repository,
+		eventStore:                   es,
+		userRegisteredEventPublisher: urep,
 	}
 }
 
@@ -47,16 +44,9 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 		return err
 	}
 
-	payload, err := json.Marshal(ie)
-	if err != nil {
-		return err
-	}
-
-	// there's some infrastructure layer leakage here
-	// todo: fix this
-	err = h.eventPublisher.Publish(
-		ie.Name(),
-		message.NewMessage(uuid.NewString(), payload),
+	err = h.userRegisteredEventPublisher.Publish(
+		ctx,
+		*ie,
 	)
 	if err != nil {
 		return err
