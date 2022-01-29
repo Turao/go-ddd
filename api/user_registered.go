@@ -17,12 +17,16 @@ type UserRegisteredEvent struct {
 	UserID string `json:"userId"`
 }
 
+const (
+	UserRegisteredEventName = "user.registered"
+)
+
 var (
 	ErrInvalidUserID = errors.New("invalid user id")
 )
 
 func NewUserRegisteredEvent(userID string) (*UserRegisteredEvent, error) {
-	ie, err := events.NewIntegrationEvent("user.registered", uuid.NewString())
+	ie, err := events.NewIntegrationEvent(UserRegisteredEventName, uuid.NewString())
 	if err != nil {
 		return nil, err
 	}
