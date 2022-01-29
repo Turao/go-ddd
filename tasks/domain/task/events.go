@@ -1,4 +1,4 @@
-package domain
+package task
 
 import (
 	"github.com/turao/go-ddd/events"

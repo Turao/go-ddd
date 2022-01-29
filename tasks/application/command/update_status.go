@@ -7,7 +7,7 @@ import (
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
-	task "github.com/turao/go-ddd/tasks/domain"
+	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type UpdateStatusCommandHandler struct {
