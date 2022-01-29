@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	user "github.com/turao/go-ddd/billing/domain"
+	"github.com/turao/go-ddd/billing/domain/user"
 )
 
 type UserRepository struct {
