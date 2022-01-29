@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
 	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
@@ -81,29 +80,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	log.Println(string(d))
-
-	subscriber, err := watermillAMQP.NewSubscriber(queue, logger)
-	ures, err := amqp.NewUserRegisteredEventSubscriber(subscriber)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	events, err := ures.Subscribe(context.Background())
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	go func() {
-		for event := range events {
-			d, err = json.MarshalIndent(event, "", " ")
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Println("received event:", string(d))
-		}
-	}()
-
-	time.Sleep(10 * time.Second)
 
 }
