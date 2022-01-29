@@ -28,15 +28,15 @@ func NewDomainEvent(name string, aggregateID string) (*domainEvent, error) {
 }
 
 func (de domainEvent) ID() string {
-	return de.baseEvent.id
+	return de.baseEvent.ID()
 }
 
 func (de domainEvent) Name() string {
-	return de.baseEvent.name
+	return de.baseEvent.Name()
 }
 
 func (de domainEvent) OccuredAt() time.Time {
-	return de.baseEvent.occuredAt
+	return de.baseEvent.OccuredAt()
 }
 
 func (de domainEvent) AggregateID() string {
@@ -50,9 +50,9 @@ func (de domainEvent) MarshalJSON() ([]byte, error) {
 		OccuredAt   time.Time `json:"occurredAt"`
 		AggregateID string    `json:"aggregateId"`
 	}{
-		ID:          de.baseEvent.id,
-		Name:        de.baseEvent.name,
-		OccuredAt:   de.baseEvent.occuredAt,
+		ID:          de.baseEvent.ID(),
+		Name:        de.baseEvent.Name(),
+		OccuredAt:   de.baseEvent.OccuredAt(),
 		AggregateID: de.aggregateID,
 	})
 	if err != nil {

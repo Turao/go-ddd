@@ -7,12 +7,12 @@ import (
 )
 
 type integrationEvent struct {
-	baseEvent     *baseEvent
+	domainEvent   *domainEvent
 	correlationID string
 }
 
-func NewIntegrationEvent(name string, correlationID string) (*integrationEvent, error) {
-	baseEvent, err := NewBaseEvent(name)
+func NewIntegrationEvent(name string, aggregateId string, correlationID string) (*integrationEvent, error) {
+	de, err := NewDomainEvent(name, aggregateId)
 	if err != nil {
 		return nil, err
 	}
@@ -22,21 +22,25 @@ func NewIntegrationEvent(name string, correlationID string) (*integrationEvent, 
 	}
 
 	return &integrationEvent{
-		baseEvent:     baseEvent,
+		domainEvent:   de,
 		correlationID: correlationID,
 	}, nil
 }
 
 func (ie integrationEvent) ID() string {
-	return ie.baseEvent.id
+	return ie.domainEvent.ID()
 }
 
 func (ie integrationEvent) Name() string {
-	return ie.baseEvent.name
+	return ie.domainEvent.Name()
 }
 
 func (ie integrationEvent) OccuredAt() time.Time {
-	return ie.baseEvent.occuredAt
+	return ie.domainEvent.OccuredAt()
+}
+
+func (ie integrationEvent) AggregateID() string {
+	return ie.domainEvent.AggregateID()
 }
 
 func (ie integrationEvent) CorrelationID() string {
@@ -50,9 +54,9 @@ func (ie integrationEvent) MarshalJSON() ([]byte, error) {
 		OccuredAt     time.Time `json:"occurredAt"`
 		CorrelationID string    `json:"correlationID"`
 	}{
-		ID:            ie.baseEvent.id,
-		Name:          ie.baseEvent.name,
-		OccuredAt:     ie.baseEvent.occuredAt,
+		ID:            ie.domainEvent.ID(),
+		Name:          ie.domainEvent.Name(),
+		OccuredAt:     ie.domainEvent.OccuredAt(),
 		CorrelationID: ie.correlationID,
 	})
 	if err != nil {

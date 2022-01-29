@@ -21,7 +21,6 @@ func NewUserRegisteredEventSubscriber(s message.Subscriber) (*UserRegisteredEven
 
 func (s UserRegisteredEventSubscriber) Subscribe(ctx context.Context) (<-chan *api.UserRegisteredEvent, error) {
 	events := make(chan *api.UserRegisteredEvent, 10) // let's buffer this channel for now...
-	defer close(events)
 
 	msgs, err := s.subscriber.Subscribe(ctx, api.UserRegisteredEventName)
 	if err != nil {
@@ -30,6 +29,8 @@ func (s UserRegisteredEventSubscriber) Subscribe(ctx context.Context) (<-chan *a
 
 	// listen & map incoming messages to API contract
 	go func() {
+		defer close(events)
+
 		for msg := range msgs {
 			var event api.UserRegisteredEvent
 			err = json.Unmarshal(msg.Payload, &event)

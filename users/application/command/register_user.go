@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/application"
@@ -39,7 +40,7 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 		return err
 	}
 
-	ie, err := api.NewUserRegisteredEvent(ua.User.ID)
+	ie, err := api.NewUserRegisteredEvent(uuid.NewString(), ua.User.ID)
 	if err != nil {
 		return err
 	}

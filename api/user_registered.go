@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
 )
 
@@ -13,7 +12,7 @@ type UserRegisteredEventPublisher interface {
 }
 
 type UserRegisteredEvent struct {
-	events.IntegrationEvent
+	IntegrationEvent
 	UserID string `json:"userId"`
 }
 
@@ -25,8 +24,9 @@ var (
 	ErrInvalidUserID = errors.New("invalid user id")
 )
 
-func NewUserRegisteredEvent(userID string) (*UserRegisteredEvent, error) {
-	ie, err := events.NewIntegrationEvent(UserRegisteredEventName, uuid.NewString())
+func NewUserRegisteredEvent(correlationID string, userID string) (*UserRegisteredEvent, error) {
+
+	ie, err := events.NewIntegrationEvent(UserRegisteredEventName, userID, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,17 @@ func NewUserRegisteredEvent(userID string) (*UserRegisteredEvent, error) {
 	}
 
 	return &UserRegisteredEvent{
-		IntegrationEvent: ie,
-		UserID:           userID,
+		IntegrationEvent: IntegrationEvent{
+			DomainEvent: DomainEvent{
+				BaseEvent: BaseEvent{
+					ID:         ie.ID(),
+					Name:       ie.Name(),
+					OccurredAt: ie.OccuredAt(),
+				},
+				AggregateID: ie.AggregateID(),
+			},
+			CorrelationID: ie.CorrelationID(),
+		},
+		UserID: userID,
 	}, nil
 }

@@ -43,8 +43,7 @@ func (h UpdateStatusCommandHandler) Handle(ctx context.Context, req application.
 		return err
 	}
 
-	// todo: should we put our integration event (task.completed) here?
-	ie, err := api.NewTaskStatusUpdatedEvent(t.ID, t.Status)
+	ie, err := api.NewTaskStatusUpdatedEvent("", t.ID, t.Status)
 	if err != nil {
 		return err
 	}

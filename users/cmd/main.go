@@ -96,7 +96,11 @@ func main() {
 
 	go func() {
 		for event := range events {
-			log.Println("received event:", event)
+			d, err = json.MarshalIndent(event, "", " ")
+			if err != nil {
+				log.Fatalln(err)
+			}
+			log.Println("received event:", string(d))
 		}
 	}()
 
