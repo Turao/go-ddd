@@ -1,10 +1,15 @@
 package api
 
 import (
+	"context"
 	"errors"
 
 	"github.com/turao/go-ddd/events"
 )
+
+type TaskStatusUpdatedEventPublisher interface {
+	Publish(ctx context.Context, event TaskStatusUpdatedEvent) error
+}
 
 type TaskStatusUpdatedEvent struct {
 	IntegrationEvent

@@ -2,8 +2,8 @@ package command
 
 import (
 	"context"
-	"log"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
@@ -11,14 +11,16 @@ import (
 )
 
 type UpdateStatusCommandHandler struct {
-	repository task.Repository
-	eventStore events.EventStore
+	repository                      task.Repository
+	eventStore                      events.EventStore
+	taskStatusUpdatedEventPublisher api.TaskStatusUpdatedEventPublisher
 }
 
-func NewUpdateStatusCommandHandler(repository task.Repository, es events.EventStore) *UpdateStatusCommandHandler {
+func NewUpdateStatusCommandHandler(repository task.Repository, es events.EventStore, tsuep api.TaskStatusUpdatedEventPublisher) *UpdateStatusCommandHandler {
 	return &UpdateStatusCommandHandler{
-		repository: repository,
-		eventStore: es,
+		repository:                      repository,
+		eventStore:                      es,
+		taskStatusUpdatedEventPublisher: tsuep,
 	}
 }
 
@@ -43,11 +45,15 @@ func (h UpdateStatusCommandHandler) Handle(ctx context.Context, req application.
 		return err
 	}
 
-	ie, err := api.NewTaskStatusUpdatedEvent("", t.ID, t.Status)
+	ie, err := api.NewTaskStatusUpdatedEvent(uuid.NewString(), t.ID, t.Status)
 	if err != nil {
 		return err
 	}
-	log.Println("TODO: publish this task.status.updated integration event: ", ie)
+
+	err = h.taskStatusUpdatedEventPublisher.Publish(ctx, *ie)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

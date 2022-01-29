@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"log"
 
+	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
+
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/turao/go-ddd/api/amqp"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/application/command"
@@ -24,6 +28,19 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	queue := watermillAMQP.NewDurableQueueConfig("amqp://localhost:5672")
+	logger := watermill.NewStdLogger(false, false)
+	publisher, err := watermillAMQP.NewPublisher(queue, logger)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer publisher.Close()
+
+	urep, err := amqp.NewAMQPTaskStatusUpdatedEventPublisher(publisher)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	app := &application.App{
 		Commands: application.Commands{
 			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr, eventStore),
@@ -31,7 +48,7 @@ func main() {
 			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore),
 			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr, eventStore),
 			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
-			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, eventStore),
+			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, eventStore, urep),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery:      query.NewTaskByProjectQueryHandler(tr),
