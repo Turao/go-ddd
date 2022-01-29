@@ -2,15 +2,13 @@ package task
 
 import (
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/projects/domain/project"
-	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type TaskCreatedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
-	ProjectID          project.ProjectID `json:"projectId"`
-	Title              string            `json:"title"`
-	Description        string            `json:"description"`
+	ProjectID          ProjectID `json:"projectId"`
+	Title              string    `json:"title"`
+	Description        string    `json:"description"`
 }
 
 // var (
@@ -19,7 +17,7 @@ type TaskCreatedEvent struct {
 // ErrInvalidDescription = errors.New("invalid description")
 // )
 
-func NewTaskCreatedEvent(id TaskID, projectID project.ProjectID, title string, description string) (*TaskCreatedEvent, error) {
+func NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("task.created", id)
 	if err != nil {
 		return nil, err
@@ -47,10 +45,10 @@ func NewTaskCreatedEvent(id TaskID, projectID project.ProjectID, title string, d
 
 type TaskAssignedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
-	AssignedTo         user.UserID `json:"assignedTo"`
+	AssignedTo         UserID `json:"assignedTo"`
 }
 
-func NewTaskAssignedEvent(id TaskID, assignedUserID user.UserID) (*TaskAssignedEvent, error) {
+func NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("task.assigned", id)
 	if err != nil {
 		return nil, err

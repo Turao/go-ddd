@@ -8,6 +8,8 @@ import (
 )
 
 type TaskID = string
+type ProjectID = project.ProjectID
+type UserID = user.UserID
 
 type Status = string
 
@@ -19,13 +21,13 @@ const (
 )
 
 type Task struct {
-	ID          TaskID            `json:"id"`
-	ProjectID   project.ProjectID `json:"projectId"`
-	Title       string            `json:"title"`
-	Description string            `json:"description"`
-	Status      Status            `json:"status"`
+	ID          TaskID    `json:"id"`
+	ProjectID   ProjectID `json:"projectId"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Status      Status    `json:"status"`
 
-	AssignedUser *user.UserID `json:"assignedUser"`
+	AssignedUser *UserID `json:"assignedUser"`
 }
 
 var (
@@ -37,7 +39,7 @@ var (
 	ErrInvalidStatus      = errors.New("invalid status")
 )
 
-func NewTask(id TaskID, projectId project.ProjectID, title string, description string) (*Task, error) {
+func NewTask(id TaskID, projectId ProjectID, title string, description string) (*Task, error) {
 	if id == "" {
 		return nil, ErrInvalidTaskID
 	}
@@ -64,7 +66,7 @@ func NewTask(id TaskID, projectId project.ProjectID, title string, description s
 	}, nil
 }
 
-func (t *Task) AssignTo(assignedUserID user.UserID) error {
+func (t *Task) AssignTo(assignedUserID UserID) error {
 	t.AssignedUser = &assignedUserID
 	return nil
 }

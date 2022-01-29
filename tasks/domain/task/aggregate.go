@@ -6,8 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/projects/domain/project"
-	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type TaskAggregate struct {
@@ -47,7 +45,7 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 	}
 }
 
-func (ta *TaskAggregate) CreateTask(projectID project.ProjectID, title string, description string) (*Task, error) {
+func (ta *TaskAggregate) CreateTask(projectID ProjectID, title string, description string) (*Task, error) {
 	t, err := NewTask(uuid.NewString(), projectID, title, description)
 	if err != nil {
 		return nil, err
@@ -68,7 +66,7 @@ func (ta *TaskAggregate) CreateTask(projectID project.ProjectID, title string, d
 	return t, nil
 }
 
-func (ta TaskAggregate) AssignTo(assignedUserID user.UserID) error {
+func (ta TaskAggregate) AssignTo(assignedUserID UserID) error {
 	err := ta.Task.AssignTo(assignedUserID)
 	if err != nil {
 		return err
