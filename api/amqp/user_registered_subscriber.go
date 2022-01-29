@@ -40,6 +40,7 @@ func (s UserRegisteredEventSubscriber) Subscribe(ctx context.Context) (<-chan *a
 			}
 
 			events <- &event
+			msg.Ack()
 		}
 	}()
 
