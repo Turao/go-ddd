@@ -15,17 +15,19 @@ var (
 	ErrInvalidUserID      = errors.New("invalid user id")
 )
 
+type UserID = user.UserID
+
 type Project struct {
 	ID   ProjectID `json:"id"`
 	Name string    `json:"name"`
 
-	CreatedBy user.UserID `json:"createdBy"`
-	CreatedAt time.Time   `json:"createdAt"`
+	CreatedBy UserID    `json:"createdBy"`
+	CreatedAt time.Time `json:"createdAt"`
 
 	Active bool `json:"active"`
 }
 
-func NewProject(id ProjectID, name string, createdBy user.UserID, createdAt time.Time, active bool) (*Project, error) {
+func NewProject(id ProjectID, name string, createdBy UserID, createdAt time.Time, active bool) (*Project, error) {
 	if id == "" {
 		return nil, ErrInvalidProjectID
 	}

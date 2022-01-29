@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type ProjectAggregate struct {
@@ -48,7 +47,7 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 	}
 }
 
-func (pa *ProjectAggregate) CreateProject(name string, createdBy user.UserID) error {
+func (pa *ProjectAggregate) CreateProject(name string, createdBy UserID) error {
 	now := time.Now()
 	p, err := NewProject(uuid.NewString(), name, createdBy, now, true)
 	if err != nil {
