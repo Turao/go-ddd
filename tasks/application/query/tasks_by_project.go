@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/turao/go-ddd/tasks/application"
-	"github.com/turao/go-ddd/tasks/domain/task"
+	task "github.com/turao/go-ddd/tasks/domain"
 )
 
 type TasksByProjectQueryHandler struct {

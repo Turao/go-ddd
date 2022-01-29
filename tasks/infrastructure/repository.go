@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/projects/domain/project"
-	"github.com/turao/go-ddd/tasks/domain/task"
+	task "github.com/turao/go-ddd/tasks/domain"
 	"github.com/turao/go-ddd/users/domain/user"
 )
 
