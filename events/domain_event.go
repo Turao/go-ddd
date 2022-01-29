@@ -11,6 +11,10 @@ type domainEvent struct {
 	aggregateID string
 }
 
+var (
+	ErrInvalidAggregateID = errors.New("invalid aggregate id")
+)
+
 func NewDomainEvent(name string, aggregateID string) (*domainEvent, error) {
 	baseEvent, err := NewBaseEvent(name)
 	if err != nil {
@@ -18,7 +22,7 @@ func NewDomainEvent(name string, aggregateID string) (*domainEvent, error) {
 	}
 
 	if aggregateID == "" {
-		return nil, errors.New("aggregate ID must not be empty")
+		return nil, ErrInvalidAggregateID
 	}
 
 	return &domainEvent{

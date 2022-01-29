@@ -11,6 +11,10 @@ type integrationEvent struct {
 	correlationID string
 }
 
+var (
+	ErrInvalidCorrelationID = errors.New("invalid correlation id")
+)
+
 func NewIntegrationEvent(name string, aggregateId string, correlationID string) (*integrationEvent, error) {
 	de, err := NewDomainEvent(name, aggregateId)
 	if err != nil {
@@ -18,7 +22,7 @@ func NewIntegrationEvent(name string, aggregateId string, correlationID string) 
 	}
 
 	if correlationID == "" {
-		return nil, errors.New("correlation ID must not be empty")
+		return nil, ErrInvalidCorrelationID
 	}
 
 	return &integrationEvent{

@@ -14,9 +14,13 @@ type baseEvent struct {
 	occuredAt time.Time
 }
 
+var (
+	ErrInvalidName = errors.New("invalid event name")
+)
+
 func NewBaseEvent(name string) (*baseEvent, error) {
 	if name == "" {
-		return nil, errors.New("event name must not be empty")
+		return nil, ErrInvalidName
 	}
 
 	return &baseEvent{
