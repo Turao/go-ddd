@@ -41,11 +41,21 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	taep, err := amqp.NewAMQPTaskAssignedEventPublisher(publisher)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	tuep, err := amqp.NewAMQPTaskUnassignedEventPublisher(publisher)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	app := &application.App{
 		Commands: application.Commands{
 			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr, eventStore),
-			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, eventStore),
-			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore),
+			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, eventStore, taep),
+			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore, tuep),
 			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr, eventStore),
 			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
 			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, eventStore, urep),

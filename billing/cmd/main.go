@@ -62,5 +62,45 @@ func main() {
 		}
 	}()
 
-	time.Sleep(30 * time.Second)
+	taes, err := amqp.NewTaskAssignedEventSubscriber(subscriber)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	taskAssignedEvents, err := taes.Subscribe(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	go func() {
+		for event := range taskAssignedEvents {
+			d, err := json.MarshalIndent(event, "", " ")
+			if err != nil {
+				log.Fatalln(err)
+			}
+			log.Println("received event:", string(d))
+		}
+	}()
+
+	tues, err := amqp.NewTaskUnassignedEventSubscriber(subscriber)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	taskUnassignedEvents, err := tues.Subscribe(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	go func() {
+		for event := range taskUnassignedEvents {
+			d, err := json.MarshalIndent(event, "", " ")
+			if err != nil {
+				log.Fatalln(err)
+			}
+			log.Println("received event:", string(d))
+		}
+	}()
+
+	time.Sleep(60 * time.Second)
 }
