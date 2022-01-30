@@ -41,19 +41,21 @@ func (r *Router) Init() error {
 		return err
 	}
 
-	router.AddPlugin(plugin.SignalsHandler)
-	router.AddMiddleware(
-		middleware.Retry{
-			MaxRetries: 1,
-		}.Middleware,
-		middleware.Recoverer,
-		MessageLogger,
-	)
-
 	queueConfig := amqp.NewDurableQueueConfig("amqp://localhost:5672")
+
 	subscriber, err := amqp.NewSubscriber(queueConfig, logger)
 	if err != nil {
-		log.Fatalln(err)
+		return err
+	}
+
+	publisher, err := amqp.NewPublisher(queueConfig, logger)
+	if err != nil {
+		return err
+	}
+
+	poisonMiddleware, err := middleware.PoisonQueue(publisher, "unprocessable.messages")
+	if err != nil {
+		return err
 	}
 
 	router.AddNoPublisherHandler(
@@ -81,6 +83,16 @@ func (r *Router) Init() error {
 		UnassignTaskCommandHandler{
 			CommandHandler: r.UnassignTaskCommandHandler,
 		}.Handle,
+	)
+
+	router.AddPlugin(plugin.SignalsHandler)
+	router.AddMiddleware(
+		middleware.Retry{
+			MaxRetries: 1,
+		}.Middleware,
+		middleware.Recoverer,
+		poisonMiddleware,
+		MessageLogger,
 	)
 
 	r.router = router
