@@ -14,14 +14,15 @@ type RemoveTaskFromInvoiceCommandHandler struct {
 }
 
 func (h RemoveTaskFromInvoiceCommandHandler) Handle(msg *message.Message) error {
-	var evt api.UserRegisteredEvent
+	var evt api.TaskUnassignedEvent
 	err := json.Unmarshal(msg.Payload, &evt)
 	if err != nil {
 		return err
 	}
 
 	err = h.CommandHandler.Handle(context.Background(), application.RemoveTaskFromInvoiceCommand{
-		UserID: evt.AggregateID,
+		UserID: evt.UserID,
+		TaskID: evt.TaskID,
 	})
 
 	if err != nil {

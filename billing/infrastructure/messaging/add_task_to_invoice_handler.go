@@ -14,14 +14,15 @@ type AddTaskToInvoiceCommandHandler struct {
 }
 
 func (h AddTaskToInvoiceCommandHandler) Handle(msg *message.Message) error {
-	var evt api.UserRegisteredEvent
+	var evt api.TaskAssignedEvent
 	err := json.Unmarshal(msg.Payload, &evt)
 	if err != nil {
 		return err
 	}
 
 	err = h.CommandHandler.Handle(context.Background(), application.AddTaskToInvoiceCommand{
-		UserID: evt.AggregateID,
+		UserID: evt.UserID,
+		TaskID: evt.TaskID,
 	})
 
 	if err != nil {
