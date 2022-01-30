@@ -29,6 +29,10 @@ func (ua *UserAggregate) HandleEvent(event events.DomainEvent) error {
 		}
 		ua.User = u
 		return nil
+	case TaskAssignedEvent:
+		return ua.AssignTask(e.TaskID)
+	case TaskUnassignedEvent:
+		return ua.UnassignTask(e.TaskID)
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -60,6 +64,17 @@ func (ua *UserAggregate) AssignTask(taskID TaskID) error {
 	if err != nil {
 		return err
 	}
+
+	evt, err := NewTaskAssignedEvent(ua.User.ID, taskID)
+	if err != nil {
+		return err
+	}
+
+	err = ua.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -68,5 +83,16 @@ func (ua *UserAggregate) UnassignTask(taskID TaskID) error {
 	if err != nil {
 		return err
 	}
+
+	evt, err := NewTaskUnassignedEvent(ua.User.ID, taskID)
+	if err != nil {
+		return err
+	}
+
+	err = ua.events.Push(context.Background(), *evt)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
