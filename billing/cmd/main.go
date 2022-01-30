@@ -24,17 +24,17 @@ func main() {
 
 	app := application.Application{
 		Commands: application.Commands{
-			CreateInvoiceCommand: command.NewCreateInvoiceCommandHandler(ur, es),
-			AddTaskCommand:       command.NewAddTaskCommandHandler(ur, es),
-			RemoveTaskCommand:    command.NewRemoveTaskCommandHandler(ur, es),
+			CreateInvoiceCommand:         command.NewCreateInvoiceCommandHandler(ur, es),
+			AddTaskToInvoiceCommand:      command.NewAddTaskToInvoiceCommandHandler(ur, es),
+			RemoveTaskFromInvoiceCommand: command.NewRemoveTaskFromInvoiceCommandHandler(ur, es),
 		},
 		Queries: application.Queries{},
 	}
 
 	router := messaging.Router{
-		CreateInvoiceCommandHandler: app.Commands.CreateInvoiceCommand,
-		AddTaskCommandHandler:       app.Commands.AddTaskCommand,
-		RemoveTaskCommandHandler:    app.Commands.RemoveTaskCommand,
+		CreateInvoiceCommandHandler:         app.Commands.CreateInvoiceCommand,
+		AddTaskToInvoiceCommandHandler:      app.Commands.AddTaskToInvoiceCommand,
+		RemoveTaskFromInvoiceCommandHandler: app.Commands.RemoveTaskFromInvoiceCommand,
 	}
 
 	err = router.Init()

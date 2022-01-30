@@ -8,9 +8,9 @@ type Application struct {
 }
 
 type Commands struct {
-	CreateInvoiceCommand CreateInvoiceCommandHandler
-	AddTaskCommand       AddTaskCommandHandler
-	RemoveTaskCommand    RemoveTaskCommandHandler
+	CreateInvoiceCommand         CreateInvoiceCommandHandler
+	AddTaskToInvoiceCommand      AddTaskToInvoiceCommandHandler
+	RemoveTaskFromInvoiceCommand RemoveTaskFromInvoiceCommandHandler
 }
 
 type Queries struct {
@@ -24,20 +24,20 @@ type CreateInvoiceCommandHandler interface {
 	Handle(ctx context.Context, req CreateInvoiceCommand) error
 }
 
-type AddTaskCommand struct {
+type AddTaskToInvoiceCommand struct {
 	UserID string `json:"userId"`
 	TaskID string `json:"taskId"`
 }
 
-type AddTaskCommandHandler interface {
-	Handle(ctx context.Context, req AddTaskCommand) error
+type AddTaskToInvoiceCommandHandler interface {
+	Handle(ctx context.Context, req AddTaskToInvoiceCommand) error
 }
 
-type RemoveTaskCommand struct {
+type RemoveTaskFromInvoiceCommand struct {
 	UserID string `json:"userId"`
 	TaskID string `json:"taskId"`
 }
 
-type RemoveTaskCommandHandler interface {
-	Handle(ctx context.Context, req RemoveTaskCommand) error
+type RemoveTaskFromInvoiceCommandHandler interface {
+	Handle(ctx context.Context, req RemoveTaskFromInvoiceCommand) error
 }

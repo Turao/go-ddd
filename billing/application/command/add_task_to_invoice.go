@@ -8,21 +8,21 @@ import (
 	"github.com/turao/go-ddd/events"
 )
 
-type AddTaskCommandHandler struct {
+type AddTaskToInvoiceCommandHandler struct {
 	repository invoice.Repository
 	eventStore events.EventStore
 }
 
-var _ application.AddTaskCommandHandler = (*AddTaskCommandHandler)(nil)
+var _ application.AddTaskToInvoiceCommandHandler = (*AddTaskToInvoiceCommandHandler)(nil)
 
-func NewAddTaskCommandHandler(repository invoice.Repository, es events.EventStore) *AddTaskCommandHandler {
-	return &AddTaskCommandHandler{
+func NewAddTaskToInvoiceCommandHandler(repository invoice.Repository, es events.EventStore) *AddTaskToInvoiceCommandHandler {
+	return &AddTaskToInvoiceCommandHandler{
 		repository: repository,
 		eventStore: es,
 	}
 }
 
-func (h AddTaskCommandHandler) Handle(ctx context.Context, req application.AddTaskCommand) error {
+func (h AddTaskToInvoiceCommandHandler) Handle(ctx context.Context, req application.AddTaskToInvoiceCommand) error {
 	i, err := h.repository.FindByUserID(ctx, req.UserID)
 	if err != nil {
 		return err

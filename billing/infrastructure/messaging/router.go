@@ -17,9 +17,9 @@ import (
 type Router struct {
 	router *message.Router
 
-	CreateInvoiceCommandHandler application.CreateInvoiceCommandHandler
-	AddTaskCommandHandler       application.AddTaskCommandHandler
-	RemoveTaskCommandHandler    application.RemoveTaskCommandHandler
+	CreateInvoiceCommandHandler         application.CreateInvoiceCommandHandler
+	AddTaskToInvoiceCommandHandler      application.AddTaskToInvoiceCommandHandler
+	RemoveTaskFromInvoiceCommandHandler application.RemoveTaskFromInvoiceCommandHandler
 }
 
 func MessageLogger(h message.HandlerFunc) message.HandlerFunc {
@@ -71,8 +71,8 @@ func (r *Router) Init() error {
 		"invoice.task.assigned.handler",
 		api.TaskAssignedEventName,
 		subscriber,
-		AddTaskCommandHandler{
-			CommandHandler: r.AddTaskCommandHandler,
+		AddTaskToInvoiceCommandHandler{
+			CommandHandler: r.AddTaskToInvoiceCommandHandler,
 		}.Handle,
 	)
 
@@ -80,8 +80,8 @@ func (r *Router) Init() error {
 		"invoice.task.unassigned.handler",
 		api.TaskUnassignedEventName,
 		subscriber,
-		RemoveTaskCommandHandler{
-			CommandHandler: r.RemoveTaskCommandHandler,
+		RemoveTaskFromInvoiceCommandHandler{
+			CommandHandler: r.RemoveTaskFromInvoiceCommandHandler,
 		}.Handle,
 	)
 
