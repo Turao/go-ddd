@@ -8,36 +8,36 @@ type Application struct {
 }
 
 type Commands struct {
-	RegisterUserCommand RegisterUserCommandHandler
-	AssignTaskCommand   AssignTaskCommandHandler
-	UnassignTaskCommand UnassignTaskCommandHandler
+	CreateInvoiceCommand CreateInvoiceCommandHandler
+	AddTaskCommand       AddTaskCommandHandler
+	RemoveTaskCommand    RemoveTaskCommandHandler
 }
 
 type Queries struct {
 }
 
-type RegisterUserCommand struct {
+type CreateInvoiceCommand struct {
 	UserID string `json:"userId"`
 }
 
-type RegisterUserCommandHandler interface {
-	Handle(ctx context.Context, req RegisterUserCommand) error
+type CreateInvoiceCommandHandler interface {
+	Handle(ctx context.Context, req CreateInvoiceCommand) error
 }
 
-type AssignTaskCommand struct {
-	UserID string `json:"userId"`
-	TaskID string `json:"taskId"`
-}
-
-type AssignTaskCommandHandler interface {
-	Handle(ctx context.Context, req AssignTaskCommand) error
-}
-
-type UnassignTaskCommand struct {
+type AddTaskCommand struct {
 	UserID string `json:"userId"`
 	TaskID string `json:"taskId"`
 }
 
-type UnassignTaskCommandHandler interface {
-	Handle(ctx context.Context, req UnassignTaskCommand) error
+type AddTaskCommandHandler interface {
+	Handle(ctx context.Context, req AddTaskCommand) error
+}
+
+type RemoveTaskCommand struct {
+	UserID string `json:"userId"`
+	TaskID string `json:"taskId"`
+}
+
+type RemoveTaskCommandHandler interface {
+	Handle(ctx context.Context, req RemoveTaskCommand) error
 }

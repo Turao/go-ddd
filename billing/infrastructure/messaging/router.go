@@ -17,9 +17,9 @@ import (
 type Router struct {
 	router *message.Router
 
-	RegisterUserCommandHandler application.RegisterUserCommandHandler
-	AssignTaskCommandHandler   application.AssignTaskCommandHandler
-	UnassignTaskCommandHandler application.UnassignTaskCommandHandler
+	CreateInvoiceCommandHandler application.CreateInvoiceCommandHandler
+	AddTaskCommandHandler       application.AddTaskCommandHandler
+	RemoveTaskCommandHandler    application.RemoveTaskCommandHandler
 }
 
 func MessageLogger(h message.HandlerFunc) message.HandlerFunc {
@@ -59,29 +59,29 @@ func (r *Router) Init() error {
 	}
 
 	router.AddNoPublisherHandler(
-		"register.user",
+		"invoice.user.registered.handler",
 		api.UserRegisteredEventName,
 		subscriber,
-		RegisterUserCommandHandler{
-			CommandHandler: r.RegisterUserCommandHandler,
+		CreateInvoiceCommandHandler{
+			CommandHandler: r.CreateInvoiceCommandHandler,
 		}.Handle,
 	)
 
 	router.AddNoPublisherHandler(
-		"assign.task",
+		"invoice.task.assigned.handler",
 		api.TaskAssignedEventName,
 		subscriber,
-		AssignTaskCommandHandler{
-			CommandHandler: r.AssignTaskCommandHandler,
+		AddTaskCommandHandler{
+			CommandHandler: r.AddTaskCommandHandler,
 		}.Handle,
 	)
 
 	router.AddNoPublisherHandler(
-		"unassign.task",
-		api.TaskAssignedEventName,
+		"invoice.task.unassigned.handler",
+		api.TaskUnassignedEventName,
 		subscriber,
-		UnassignTaskCommandHandler{
-			CommandHandler: r.UnassignTaskCommandHandler,
+		RemoveTaskCommandHandler{
+			CommandHandler: r.RemoveTaskCommandHandler,
 		}.Handle,
 	)
 

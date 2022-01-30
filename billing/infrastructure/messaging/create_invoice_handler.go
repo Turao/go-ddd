@@ -9,18 +9,18 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 )
 
-type RegisterUserCommandHandler struct {
-	CommandHandler application.RegisterUserCommandHandler
+type CreateInvoiceCommandHandler struct {
+	CommandHandler application.CreateInvoiceCommandHandler
 }
 
-func (h RegisterUserCommandHandler) Handle(msg *message.Message) error {
+func (h CreateInvoiceCommandHandler) Handle(msg *message.Message) error {
 	var evt api.UserRegisteredEvent
 	err := json.Unmarshal(msg.Payload, &evt)
 	if err != nil {
 		return err
 	}
 
-	err = h.CommandHandler.Handle(context.Background(), application.RegisterUserCommand{
+	err = h.CommandHandler.Handle(context.Background(), application.CreateInvoiceCommand{
 		UserID: evt.AggregateID,
 	})
 

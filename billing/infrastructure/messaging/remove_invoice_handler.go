@@ -9,18 +9,18 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 )
 
-type UnassignTaskCommandHandler struct {
-	CommandHandler application.UnassignTaskCommandHandler
+type RemoveTaskCommandHandler struct {
+	CommandHandler application.RemoveTaskCommandHandler
 }
 
-func (h UnassignTaskCommandHandler) Handle(msg *message.Message) error {
+func (h RemoveTaskCommandHandler) Handle(msg *message.Message) error {
 	var evt api.UserRegisteredEvent
 	err := json.Unmarshal(msg.Payload, &evt)
 	if err != nil {
 		return err
 	}
 
-	err = h.CommandHandler.Handle(context.Background(), application.UnassignTaskCommand{
+	err = h.CommandHandler.Handle(context.Background(), application.RemoveTaskCommand{
 		UserID: evt.AggregateID,
 	})
 

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	ur, err := infrastructure.NewUserRepository()
+	ur, err := infrastructure.NewInvoiceRepository()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -24,17 +24,17 @@ func main() {
 
 	app := application.Application{
 		Commands: application.Commands{
-			RegisterUserCommand: command.NewRegisterUserCommandHandler(ur, es),
-			AssignTaskCommand:   command.NewAssignTaskCommandHandler(ur, es),
-			UnassignTaskCommand: command.NewUnassignTaskCommandHandler(ur, es),
+			CreateInvoiceCommand: command.NewCreateInvoiceCommandHandler(ur, es),
+			AddTaskCommand:       command.NewAddTaskCommandHandler(ur, es),
+			RemoveTaskCommand:    command.NewRemoveTaskCommandHandler(ur, es),
 		},
 		Queries: application.Queries{},
 	}
 
 	router := messaging.Router{
-		RegisterUserCommandHandler: app.Commands.RegisterUserCommand,
-		AssignTaskCommandHandler:   app.Commands.AssignTaskCommand,
-		UnassignTaskCommandHandler: app.Commands.UnassignTaskCommand,
+		CreateInvoiceCommandHandler: app.Commands.CreateInvoiceCommand,
+		AddTaskCommandHandler:       app.Commands.AddTaskCommand,
+		RemoveTaskCommandHandler:    app.Commands.RemoveTaskCommand,
 	}
 
 	err = router.Init()
