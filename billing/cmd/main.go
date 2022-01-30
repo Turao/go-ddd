@@ -25,12 +25,16 @@ func main() {
 	app := application.Application{
 		Commands: application.Commands{
 			RegisterUserCommand: command.NewRegisterUserCommandHandler(ur, es),
+			AssignTaskCommand:   command.NewAssignTaskCommandHandler(ur, es),
+			UnassignTaskCommand: command.NewUnassignTaskCommandHandler(ur, es),
 		},
 		Queries: application.Queries{},
 	}
 
 	router := messaging.Router{
 		RegisterUserCommandHandler: app.Commands.RegisterUserCommand,
+		AssignTaskCommandHandler:   app.Commands.AssignTaskCommand,
+		UnassignTaskCommandHandler: app.Commands.UnassignTaskCommand,
 	}
 
 	err = router.Init()

@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
@@ -17,6 +18,20 @@ type Router struct {
 	router *message.Router
 
 	RegisterUserCommandHandler application.RegisterUserCommandHandler
+	AssignTaskCommandHandler   application.AssignTaskCommandHandler
+	UnassignTaskCommandHandler application.UnassignTaskCommandHandler
+}
+
+func MessageLogger(h message.HandlerFunc) message.HandlerFunc {
+	return func(msg *message.Message) ([]*message.Message, error) {
+		d, err := json.Marshal(msg.Payload)
+		if err != nil {
+			return nil, err
+		}
+		log.Println("received message: ", string(d))
+		defer log.Println("message processed!")
+		return h(msg)
+	}
 }
 
 func (r *Router) Init() error {
@@ -27,7 +42,13 @@ func (r *Router) Init() error {
 	}
 
 	router.AddPlugin(plugin.SignalsHandler)
-	router.AddMiddleware(middleware.Recoverer)
+	router.AddMiddleware(
+		middleware.Retry{
+			MaxRetries: 1,
+		}.Middleware,
+		middleware.Recoverer,
+		MessageLogger,
+	)
 
 	queueConfig := amqp.NewDurableQueueConfig("amqp://localhost:5672")
 	subscriber, err := amqp.NewSubscriber(queueConfig, logger)
@@ -41,6 +62,24 @@ func (r *Router) Init() error {
 		subscriber,
 		RegisterUserCommandHandler{
 			CommandHandler: r.RegisterUserCommandHandler,
+		}.Handle,
+	)
+
+	router.AddNoPublisherHandler(
+		"assign.task",
+		api.TaskAssignedEventName,
+		subscriber,
+		AssignTaskCommandHandler{
+			CommandHandler: r.AssignTaskCommandHandler,
+		}.Handle,
+	)
+
+	router.AddNoPublisherHandler(
+		"unassign.task",
+		api.TaskAssignedEventName,
+		subscriber,
+		UnassignTaskCommandHandler{
+			CommandHandler: r.UnassignTaskCommandHandler,
 		}.Handle,
 	)
 

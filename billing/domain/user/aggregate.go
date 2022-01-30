@@ -54,3 +54,19 @@ func (ua *UserAggregate) RegisterUser(userID user.UserID) error {
 
 	return nil
 }
+
+func (ua *UserAggregate) AssignTask(taskID TaskID) error {
+	err := ua.User.AddTask(taskID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ua *UserAggregate) UnassignTask(taskID TaskID) error {
+	err := ua.User.RemoveTask(taskID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
