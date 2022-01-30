@@ -15,11 +15,11 @@ type RegisterUserCommandHandler struct {
 
 var _ application.RegisterUserCommandHandler = (*RegisterUserCommandHandler)(nil)
 
-func NewRegisterUserCommandHandler(repository user.Repository, es events.EventStore) (*RegisterUserCommandHandler, error) {
+func NewRegisterUserCommandHandler(repository user.Repository, es events.EventStore) *RegisterUserCommandHandler {
 	return &RegisterUserCommandHandler{
 		repository: repository,
 		eventStore: es,
-	}, nil
+	}
 }
 
 func (h RegisterUserCommandHandler) Handle(ctx context.Context, req application.RegisterUserCommand) error {

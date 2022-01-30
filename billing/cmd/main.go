@@ -2,105 +2,45 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
-	"time"
 
-	"github.com/ThreeDotsLabs/watermill"
-	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
-
-	"github.com/turao/go-ddd/api/amqp"
+	"github.com/turao/go-ddd/billing/application"
+	"github.com/turao/go-ddd/billing/application/command"
+	"github.com/turao/go-ddd/billing/infrastructure"
+	"github.com/turao/go-ddd/billing/infrastructure/messaging"
+	"github.com/turao/go-ddd/events/in_memory"
 )
 
 func main() {
-	queueConfig := watermillAMQP.NewDurableQueueConfig("amqp://localhost:5672")
-	logger := watermill.NewStdLogger(false, false)
-
-	subscriber, err := watermillAMQP.NewSubscriber(queueConfig, logger)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer subscriber.Close()
-
-	ures, err := amqp.NewUserRegisteredEventSubscriber(subscriber)
+	ur, err := infrastructure.NewUserRepository()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	userRegisteredEvents, err := ures.Subscribe(context.Background())
+	es, err := in_memory.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	go func() {
-		for event := range userRegisteredEvents {
-			d, err := json.MarshalIndent(event, "", " ")
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Println("received event:", string(d))
-		}
-	}()
+	app := application.Application{
+		Commands: application.Commands{
+			RegisterUserCommand: command.NewRegisterUserCommandHandler(ur, es),
+		},
+		Queries: application.Queries{},
+	}
 
-	tsues, err := amqp.NewTaskStatusUpdatedEventSubscriber(subscriber)
+	router := messaging.Router{
+		RegisterUserCommandHandler: app.Commands.RegisterUserCommand,
+	}
+
+	err = router.Init()
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer router.Close()
 
-	taskStatusUpdatedEvents, err := tsues.Subscribe(context.Background())
-	if err != nil {
+	if err := router.Run(context.Background()); err != nil {
 		log.Fatalln(err)
 	}
 
-	go func() {
-		for event := range taskStatusUpdatedEvents {
-			d, err := json.MarshalIndent(event, "", " ")
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Println("received event:", string(d))
-		}
-	}()
-
-	taes, err := amqp.NewTaskAssignedEventSubscriber(subscriber)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	taskAssignedEvents, err := taes.Subscribe(context.Background())
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	go func() {
-		for event := range taskAssignedEvents {
-			d, err := json.MarshalIndent(event, "", " ")
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Println("received event:", string(d))
-		}
-	}()
-
-	tues, err := amqp.NewTaskUnassignedEventSubscriber(subscriber)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	taskUnassignedEvents, err := tues.Subscribe(context.Background())
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	go func() {
-		for event := range taskUnassignedEvents {
-			d, err := json.MarshalIndent(event, "", " ")
-			if err != nil {
-				log.Fatalln(err)
-			}
-			log.Println("received event:", string(d))
-		}
-	}()
-
-	time.Sleep(60 * time.Second)
 }
