@@ -8,7 +8,7 @@ Kind of trying to create a Project Manager (e.g. Jira)...
 - CQRS (e.g. Read / Write models)
   - Have some projections to list tasks by project, tasks by user, and do some full-text searching based on the task description
 - Event Sourcing
-  - Billing Bounded Context: tracks how many tasks have been assigned and completed by each user so we can pay them later. 
+  - Billing: tracks how many tasks have been assigned and completed by each user so we can pay them later. 
     - Domain Events are replayed every time there's an UPDATE-like Command (e.g. `AddTaskToUser`)
     - TODO: Add Snapshot behavior to cache the AggregateRoot's state and avoid replaying ALL events on every update command...
 
