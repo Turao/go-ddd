@@ -2,6 +2,7 @@ package account
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -31,16 +32,16 @@ func (aa *AccountAggregate) HandleEvent(event events.DomainEvent) error {
 		aa.Account = a
 		return nil
 	case TaskAddedEvent:
-		return aa.AddTask(e.TaskID)
+		return aa.Account.Invoice.AddTask(e.TaskID)
 	case TaskRemovedEvent:
-		return aa.RemoveTask(e.TaskID)
+		return aa.Account.Invoice.RemoveTask(e.TaskID)
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
 }
 
 func (aa *AccountAggregate) CreateAccount(userID user.UserID) error {
-	a, err := NewAccount(uuid.NewString(), userID, uuid.NewString())
+	a, err := NewAccount(userID, userID, uuid.NewString()) // use UserID as AccountID
 	if err != nil {
 		return err
 	}
@@ -59,7 +60,18 @@ func (aa *AccountAggregate) CreateAccount(userID user.UserID) error {
 	return nil
 }
 
+func (aa *AccountAggregate) assertAccountExists() error {
+	if aa.Account == nil {
+		return errors.New("account has not been created yet")
+	}
+	return nil
+}
+
 func (aa *AccountAggregate) AddTask(taskID TaskID) error {
+	if err := aa.assertAccountExists(); err != nil {
+		return err
+	}
+
 	err := aa.Account.Invoice.AddTask(taskID)
 	if err != nil {
 		return err
@@ -79,6 +91,10 @@ func (aa *AccountAggregate) AddTask(taskID TaskID) error {
 }
 
 func (aa *AccountAggregate) RemoveTask(taskID TaskID) error {
+	if err := aa.assertAccountExists(); err != nil {
+		return err
+	}
+
 	err := aa.Account.Invoice.RemoveTask(taskID)
 	if err != nil {
 		return err
