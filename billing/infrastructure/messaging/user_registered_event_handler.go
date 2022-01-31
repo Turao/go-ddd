@@ -9,11 +9,11 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 )
 
-type CreateInvoiceCommandHandler struct {
+type UserRegisteredEventHandler struct {
 	CommandHandler application.CreateInvoiceCommandHandler
 }
 
-func (h CreateInvoiceCommandHandler) Handle(msg *message.Message) error {
+func (h UserRegisteredEventHandler) Handle(msg *message.Message) error {
 	var evt api.UserRegisteredEvent
 	err := json.Unmarshal(msg.Payload, &evt)
 	if err != nil {

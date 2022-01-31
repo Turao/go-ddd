@@ -62,7 +62,7 @@ func (r *Router) Init() error {
 		"invoice.user.registered.handler",
 		api.UserRegisteredEventName,
 		subscriber,
-		CreateInvoiceCommandHandler{
+		UserRegisteredEventHandler{
 			CommandHandler: r.CreateInvoiceCommandHandler,
 		}.Handle,
 	)
@@ -71,7 +71,7 @@ func (r *Router) Init() error {
 		"invoice.task.assigned.handler",
 		api.TaskAssignedEventName,
 		subscriber,
-		AddTaskToInvoiceCommandHandler{
+		TaskAssignedEventHandler{
 			CommandHandler: r.AddTaskToInvoiceCommandHandler,
 		}.Handle,
 	)
@@ -80,7 +80,7 @@ func (r *Router) Init() error {
 		"invoice.task.unassigned.handler",
 		api.TaskUnassignedEventName,
 		subscriber,
-		RemoveTaskFromInvoiceCommandHandler{
+		TaskUnassignedEventHandler{
 			CommandHandler: r.RemoveTaskFromInvoiceCommandHandler,
 		}.Handle,
 	)
