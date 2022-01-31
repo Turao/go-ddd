@@ -57,12 +57,18 @@ Kind of trying to create a Project Manager (e.g. Jira)...
 
 #### Billing
 - Commands:
-  - `CreateInvoice`
-  - `AddTask`
-  - `RemoveTask`
+  - `CreateAccount`
+  - `AddTaskToUser`
+  - `RemoveTaskFromUser`
 - Queries:
-  - InvoiceByUser (or something like that)
-- Events: TBD
+  - AccountDetails (TODO)
+    - get information like invoice id + number of tasks concluded + what the user needs to pay
+- Events:
+  - `AccountCreated`
+  - `TaskAdded`
+    - whenever an user is assigned to a task, we add it into the User's Account Invoice
+  - `TaskRemoved`
+    - whenever an user is unassigned from a task, we remove it from the User's Account Invoice
 
 Will listen to:
 - `UserRegistered`
