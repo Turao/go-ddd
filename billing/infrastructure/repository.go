@@ -8,8 +8,7 @@ import (
 )
 
 type InvoiceRepository struct {
-	// use the user id as primary key (i.e. only one invoice per user now)
-	invoices map[invoice.UserID]*invoice.Invoice
+	invoices map[invoice.InvoiceID]*invoice.Invoice
 }
 
 var _ invoice.Repository = (*InvoiceRepository)(nil)
@@ -24,8 +23,8 @@ func NewInvoiceRepository() (*InvoiceRepository, error) {
 	}, nil
 }
 
-func (ir InvoiceRepository) FindByUserID(ctx context.Context, userID invoice.UserID) (*invoice.Invoice, error) {
-	t, found := ir.invoices[userID]
+func (ir InvoiceRepository) FindByID(ctx context.Context, invoiceID invoice.InvoiceID) (*invoice.Invoice, error) {
+	t, found := ir.invoices[invoiceID]
 	if !found {
 		return nil, ErrNotFound
 	}

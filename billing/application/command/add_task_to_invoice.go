@@ -23,7 +23,7 @@ func NewAddTaskToInvoiceCommandHandler(repository invoice.Repository, es events.
 }
 
 func (h AddTaskToInvoiceCommandHandler) Handle(ctx context.Context, req application.AddTaskToInvoiceCommand) error {
-	i, err := h.repository.FindByUserID(ctx, req.UserID)
+	i, err := h.repository.FindByID(ctx, req.InvoiceID)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (h AddTaskToInvoiceCommandHandler) Handle(ctx context.Context, req applicat
 		return nil
 	}
 
-	err = ia.AddTask(req.UserID)
+	err = ia.AddTask(req.TaskID)
 	if err != nil {
 		return err
 	}

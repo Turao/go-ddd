@@ -21,8 +21,8 @@ func (h TaskUnassignedEventHandler) Handle(msg *message.Message) error {
 	}
 
 	err = h.CommandHandler.Handle(context.Background(), application.RemoveTaskFromInvoiceCommand{
-		UserID: evt.UserID,
-		TaskID: evt.TaskID,
+		InvoiceID: "todo",
+		TaskID:    evt.TaskID,
 	})
 
 	if err != nil {

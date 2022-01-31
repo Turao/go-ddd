@@ -25,8 +25,8 @@ type CreateInvoiceCommandHandler interface {
 }
 
 type AddTaskToInvoiceCommand struct {
-	UserID string `json:"userId"`
-	TaskID string `json:"taskId"`
+	InvoiceID string `json:"invoiceID"`
+	TaskID    string `json:"taskId"`
 }
 
 type AddTaskToInvoiceCommandHandler interface {
@@ -34,8 +34,8 @@ type AddTaskToInvoiceCommandHandler interface {
 }
 
 type RemoveTaskFromInvoiceCommand struct {
-	UserID string `json:"userId"`
-	TaskID string `json:"taskId"`
+	InvoiceID string `json:"invoiceID"`
+	TaskID    string `json:"taskId"`
 }
 
 type RemoveTaskFromInvoiceCommandHandler interface {

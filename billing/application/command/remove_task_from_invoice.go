@@ -23,7 +23,7 @@ func NewRemoveTaskFromInvoiceCommandHandler(repository invoice.Repository, es ev
 }
 
 func (h RemoveTaskFromInvoiceCommandHandler) Handle(ctx context.Context, req application.RemoveTaskFromInvoiceCommand) error {
-	i, err := h.repository.FindByUserID(ctx, req.UserID)
+	i, err := h.repository.FindByID(ctx, req.InvoiceID)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (h RemoveTaskFromInvoiceCommandHandler) Handle(ctx context.Context, req app
 		return nil
 	}
 
-	err = ia.RemoveTask(req.UserID)
+	err = ia.RemoveTask(req.TaskID)
 	if err != nil {
 		return err
 	}

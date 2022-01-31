@@ -21,8 +21,8 @@ func (h TaskAssignedEventHandler) Handle(msg *message.Message) error {
 	}
 
 	err = h.CommandHandler.Handle(context.Background(), application.AddTaskToInvoiceCommand{
-		UserID: evt.UserID,
-		TaskID: evt.TaskID,
+		InvoiceID: "todo",
+		TaskID:    evt.TaskID,
 	})
 
 	if err != nil {
