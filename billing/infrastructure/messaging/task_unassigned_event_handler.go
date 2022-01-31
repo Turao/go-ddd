@@ -10,7 +10,7 @@ import (
 )
 
 type TaskUnassignedEventHandler struct {
-	CommandHandler application.RemoveTaskFromInvoiceCommandHandler
+	CommandHandler application.RemoveTaskFromUserCommandHandler
 }
 
 func (h TaskUnassignedEventHandler) Handle(msg *message.Message) error {
@@ -20,9 +20,9 @@ func (h TaskUnassignedEventHandler) Handle(msg *message.Message) error {
 		return err
 	}
 
-	err = h.CommandHandler.Handle(context.Background(), application.RemoveTaskFromInvoiceCommand{
-		InvoiceID: "todo",
-		TaskID:    evt.TaskID,
+	err = h.CommandHandler.Handle(context.Background(), application.RemoveTaskFromUserCommand{
+		UserID: evt.UserID,
+		TaskID: evt.TaskID,
 	})
 
 	if err != nil {

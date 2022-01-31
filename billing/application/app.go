@@ -8,36 +8,36 @@ type Application struct {
 }
 
 type Commands struct {
-	CreateInvoiceCommand         CreateInvoiceCommandHandler
-	AddTaskToInvoiceCommand      AddTaskToInvoiceCommandHandler
-	RemoveTaskFromInvoiceCommand RemoveTaskFromInvoiceCommandHandler
+	CreateAccountCommand      CreateAccountCommandHandler
+	AddTaskToUserCommand      AddTaskToUserCommandHandler
+	RemoveTaskFromUserCommand RemoveTaskFromUserCommandHandler
 }
 
 type Queries struct {
 }
 
-type CreateInvoiceCommand struct {
+type CreateAccountCommand struct {
 	UserID string `json:"userId"`
 }
 
-type CreateInvoiceCommandHandler interface {
-	Handle(ctx context.Context, req CreateInvoiceCommand) error
+type CreateAccountCommandHandler interface {
+	Handle(ctx context.Context, req CreateAccountCommand) error
 }
 
-type AddTaskToInvoiceCommand struct {
-	InvoiceID string `json:"invoiceID"`
-	TaskID    string `json:"taskId"`
+type AddTaskToUserCommand struct {
+	UserID string `json:"userId"`
+	TaskID string `json:"taskId"`
 }
 
-type AddTaskToInvoiceCommandHandler interface {
-	Handle(ctx context.Context, req AddTaskToInvoiceCommand) error
+type AddTaskToUserCommandHandler interface {
+	Handle(ctx context.Context, req AddTaskToUserCommand) error
 }
 
-type RemoveTaskFromInvoiceCommand struct {
-	InvoiceID string `json:"invoiceID"`
-	TaskID    string `json:"taskId"`
+type RemoveTaskFromUserCommand struct {
+	UserID string `json:"userId"`
+	TaskID string `json:"taskId"`
 }
 
-type RemoveTaskFromInvoiceCommandHandler interface {
-	Handle(ctx context.Context, req RemoveTaskFromInvoiceCommand) error
+type RemoveTaskFromUserCommandHandler interface {
+	Handle(ctx context.Context, req RemoveTaskFromUserCommand) error
 }

@@ -17,9 +17,9 @@ import (
 type Router struct {
 	router *message.Router
 
-	CreateInvoiceCommandHandler         application.CreateInvoiceCommandHandler
-	AddTaskToInvoiceCommandHandler      application.AddTaskToInvoiceCommandHandler
-	RemoveTaskFromInvoiceCommandHandler application.RemoveTaskFromInvoiceCommandHandler
+	CreateAccountCommandHandler      application.CreateAccountCommandHandler
+	AddTaskToUserCommandHandler      application.AddTaskToUserCommandHandler
+	RemoveTaskFromUserCommandHandler application.RemoveTaskFromUserCommandHandler
 }
 
 func MessageLogger(h message.HandlerFunc) message.HandlerFunc {
@@ -59,29 +59,29 @@ func (r *Router) Init() error {
 	}
 
 	router.AddNoPublisherHandler(
-		"invoice.user.registered.handler",
+		"billing.user.registered.handler",
 		api.UserRegisteredEventName,
 		subscriber,
 		UserRegisteredEventHandler{
-			CommandHandler: r.CreateInvoiceCommandHandler,
+			CommandHandler: r.CreateAccountCommandHandler,
 		}.Handle,
 	)
 
 	router.AddNoPublisherHandler(
-		"invoice.task.assigned.handler",
+		"billing.task.assigned.handler",
 		api.TaskAssignedEventName,
 		subscriber,
 		TaskAssignedEventHandler{
-			CommandHandler: r.AddTaskToInvoiceCommandHandler,
+			CommandHandler: r.AddTaskToUserCommandHandler,
 		}.Handle,
 	)
 
 	router.AddNoPublisherHandler(
-		"invoice.task.unassigned.handler",
+		"billing.task.unassigned.handler",
 		api.TaskUnassignedEventName,
 		subscriber,
 		TaskUnassignedEventHandler{
-			CommandHandler: r.RemoveTaskFromInvoiceCommandHandler,
+			CommandHandler: r.RemoveTaskFromUserCommandHandler,
 		}.Handle,
 	)
 

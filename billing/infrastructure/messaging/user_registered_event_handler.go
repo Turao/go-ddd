@@ -10,7 +10,7 @@ import (
 )
 
 type UserRegisteredEventHandler struct {
-	CommandHandler application.CreateInvoiceCommandHandler
+	CommandHandler application.CreateAccountCommandHandler
 }
 
 func (h UserRegisteredEventHandler) Handle(msg *message.Message) error {
@@ -20,7 +20,7 @@ func (h UserRegisteredEventHandler) Handle(msg *message.Message) error {
 		return err
 	}
 
-	err = h.CommandHandler.Handle(context.Background(), application.CreateInvoiceCommand{
+	err = h.CommandHandler.Handle(context.Background(), application.CreateAccountCommand{
 		UserID: evt.AggregateID,
 	})
 

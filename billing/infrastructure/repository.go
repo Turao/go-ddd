@@ -4,27 +4,27 @@ import (
 	"context"
 	"errors"
 
-	"github.com/turao/go-ddd/billing/domain/invoice"
+	"github.com/turao/go-ddd/billing/domain/account"
 )
 
-type InvoiceRepository struct {
-	invoices map[invoice.InvoiceID]*invoice.Invoice
+type AccountRepository struct {
+	accounts map[account.AccountID]*account.Account
 }
 
-var _ invoice.Repository = (*InvoiceRepository)(nil)
+var _ account.Repository = (*AccountRepository)(nil)
 
 var (
 	ErrNotFound = errors.New("not found")
 )
 
-func NewInvoiceRepository() (*InvoiceRepository, error) {
-	return &InvoiceRepository{
-		invoices: make(map[string]*invoice.Invoice),
+func NewAccountRepository() (*AccountRepository, error) {
+	return &AccountRepository{
+		accounts: make(map[string]*account.Account),
 	}, nil
 }
 
-func (ir InvoiceRepository) FindByID(ctx context.Context, invoiceID invoice.InvoiceID) (*invoice.Invoice, error) {
-	t, found := ir.invoices[invoiceID]
+func (ir AccountRepository) FindByID(ctx context.Context, accountID account.AccountID) (*account.Account, error) {
+	t, found := ir.accounts[accountID]
 	if !found {
 		return nil, ErrNotFound
 	}
@@ -32,14 +32,14 @@ func (ir InvoiceRepository) FindByID(ctx context.Context, invoiceID invoice.Invo
 	return t, nil
 }
 
-func (tr InvoiceRepository) Save(ctx context.Context, p invoice.Invoice) error {
-	tr.invoices[p.ID] = &p
+func (tr AccountRepository) Save(ctx context.Context, p account.Account) error {
+	tr.accounts[p.ID] = &p
 	return nil
 }
 
-func (ir InvoiceRepository) FindAll(ctx context.Context) ([]*invoice.Invoice, error) {
-	var us []*invoice.Invoice
-	for _, p := range ir.invoices {
+func (ir AccountRepository) FindAll(ctx context.Context) ([]*account.Account, error) {
+	var us []*account.Account
+	for _, p := range ir.accounts {
 		us = append(us, p)
 	}
 	return us, nil

@@ -10,7 +10,7 @@ import (
 )
 
 type TaskAssignedEventHandler struct {
-	CommandHandler application.AddTaskToInvoiceCommandHandler
+	CommandHandler application.AddTaskToUserCommandHandler
 }
 
 func (h TaskAssignedEventHandler) Handle(msg *message.Message) error {
@@ -20,9 +20,9 @@ func (h TaskAssignedEventHandler) Handle(msg *message.Message) error {
 		return err
 	}
 
-	err = h.CommandHandler.Handle(context.Background(), application.AddTaskToInvoiceCommand{
-		InvoiceID: "todo",
-		TaskID:    evt.TaskID,
+	err = h.CommandHandler.Handle(context.Background(), application.AddTaskToUserCommand{
+		UserID: evt.UserID,
+		TaskID: evt.TaskID,
 	})
 
 	if err != nil {
