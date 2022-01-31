@@ -78,17 +78,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = app.Commands.CreateTaskCommand.Handle(
-		context.Background(),
-		application.CreateTaskCommand{
-			ProjectID:   "projectId",
-			Title:       "task-title",
-			Description: "task-description",
-		},
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// err = app.Commands.CreateTaskCommand.Handle(
+	// 	context.Background(),
+	// 	application.CreateTaskCommand{
+	// 		ProjectID:   "projectId",
+	// 		Title:       "task-title",
+	// 		Description: "task-description",
+	// 	},
+	// )
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
 	// err = app.Commands.AssignToUserCommand.Handle(
 	// 	context.Background(),
@@ -116,7 +116,7 @@ func main() {
 			context.Background(),
 			application.AssignToUserCommand{
 				TaskID: t.TaskID,
-				UserID: "mock-user-id",
+				UserID: "00000000-0000-0000-0000-000000000000",
 			},
 		)
 		if err != nil {
