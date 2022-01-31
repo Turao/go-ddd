@@ -23,14 +23,21 @@ func NewAddTaskToUserCommandHandler(repository account.Repository, es events.Eve
 }
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
-	a, err := h.repository.FindByID(ctx, req.UserID)
+	events, err := h.eventStore.EventsByAggregateID(ctx, req.UserID)
 	if err != nil {
 		return err
 	}
 
-	aa, err := account.NewAccountAggregate(a, h.eventStore)
+	aa, err := account.NewAccountAggregate(nil, h.eventStore)
 	if err != nil {
 		return nil
+	}
+
+	for _, event := range events {
+		err = aa.HandleEvent(event)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = aa.AddTask(req.TaskID)
