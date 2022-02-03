@@ -16,7 +16,8 @@ type mockEventStore struct {
 var _ events.EventStore = (*mockEventStore)(nil)
 
 func (m *mockEventStore) Push(ctx context.Context, event events.Event) error {
-	return nil
+	args := m.Called(ctx, event)
+	return args.Error(0)
 }
 
 func (m *mockEventStore) Events(ctx context.Context) ([]events.Event, error) {
@@ -46,6 +47,8 @@ func TestRegisterUser(t *testing.T) {
 		agg, err := NewUserAggregate(nil, eventStore)
 		assert.NoError(t, err)
 
+		eventStore.On("Push", mock.Anything, mock.Anything).Return(test.err)
+
 		err = agg.RegisterUser(test.inputName)
 
 		if test.fail {
@@ -54,7 +57,6 @@ func TestRegisterUser(t *testing.T) {
 		}
 
 		assert.NoError(t, err)
-
-		// todo: assert event is pushed to eventStore
+		eventStore.AssertCalled(t, "Push", mock.Anything, mock.Anything) // should we assert on the event type?
 	}
 }
