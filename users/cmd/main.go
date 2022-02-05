@@ -82,4 +82,15 @@ func main() {
 	}
 	log.Println(string(d))
 
+	server, err := infrastructure.NewServer(&infrastructure.Application{
+		Delegate: app,
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalln(err)
+	}
+
 }
