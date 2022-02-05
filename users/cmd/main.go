@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
@@ -47,40 +45,6 @@ func main() {
 			ListUsersQuery: query.NewListUsersQueryHandler(ur),
 		},
 	}
-
-	err = app.Commands.RegisterUserCommand.Handle(
-		context.Background(),
-		application.RegisterUserCommand{
-			Username: "turao",
-		},
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = app.Commands.RegisterUserCommand.Handle(
-		context.Background(),
-		application.RegisterUserCommand{
-			Username: "lenz",
-		},
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	res, err := app.Queries.ListUsersQuery.Handle(
-		context.Background(),
-		application.ListUsersQuery{},
-	)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	d, err := json.MarshalIndent(res, "", " ")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println(string(d))
 
 	server, err := infrastructure.NewServer(&infrastructure.Application{
 		Delegate: app,
