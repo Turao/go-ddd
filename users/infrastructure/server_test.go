@@ -29,7 +29,7 @@ func (h mockListUsersQueryHandler) Handle(ctx context.Context, cmd application.L
 func newTestApplication() *Application {
 
 	app := &Application{
-		Delegate: application.Application{
+		Delegate: &application.Application{
 			Commands: application.Commands{
 				RegisterUserCommand: mockRegisterUserCommandHandler{},
 			},

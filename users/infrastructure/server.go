@@ -55,7 +55,7 @@ func ContentTypeJSON(next http.Handler) http.Handler {
 // Application is a thin layer that decorates another Application,
 // unmarshalling HTTP requests, handling commands/queries, and marshalling responses to HTTP format
 type Application struct {
-	Delegate application.Application
+	Delegate *application.Application
 }
 
 func (a Application) HandleRegisterUser(rw http.ResponseWriter, r *http.Request) {

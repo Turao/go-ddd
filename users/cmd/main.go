@@ -37,7 +37,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	app := application.Application{
+	app := &application.Application{
 		Commands: application.Commands{
 			RegisterUserCommand: command.NewRegisterUserHandler(ur, es, urep),
 		},
