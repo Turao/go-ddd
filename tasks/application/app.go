@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type App struct {
+type Application struct {
 	Commands Commands
 	Queries  Queries
 }
