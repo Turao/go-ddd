@@ -1,40 +1,39 @@
 package account
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/shared/ddd"
 	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type AccountAggregate struct {
+	ddd.AggregateRoot
+
 	Account *Account `json:"account"`
-	events  events.EventStore
 }
 
 func NewAccountAggregate(a *Account, es events.EventStore) (*AccountAggregate, error) {
 	return &AccountAggregate{
 		Account: a,
-		events:  es,
+		AggregateRoot: ddd.AggregateRoot{
+			Version: 0,
+			Events:  es,
+		},
 	}, nil
 }
 
 func (aa *AccountAggregate) HandleEvent(event events.DomainEvent) error {
 	switch e := event.(type) {
 	case AccountCreatedEvent:
-		a, err := NewAccount(e.AggregateID(), e.UserID, e.InvoiceID)
-		if err != nil {
-			return err
-		}
-		aa.Account = a
-		return nil
+		return aa.AggregateRoot.HandleEvent(event, aa.OnAccountCreatedEvent)
 	case TaskAddedEvent:
-		return aa.Account.Invoice.AddTask(e.TaskID)
+		return aa.AggregateRoot.HandleEvent(event, aa.OnTaskAddedEvent)
 	case TaskRemovedEvent:
-		return aa.Account.Invoice.RemoveTask(e.TaskID)
+		return aa.AggregateRoot.HandleEvent(event, aa.OnTaskRemovedEvent)
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -52,11 +51,21 @@ func (aa *AccountAggregate) CreateAccount(userID user.UserID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.AggregateRoot.AddEvent(*evt)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (aa *AccountAggregate) OnAccountCreatedEvent(event events.DomainEvent) error {
+	e := event.(AccountCreatedEvent)
+	a, err := NewAccount(e.AggregateID(), e.UserID, e.InvoiceID)
+	if err != nil {
+		return err
+	}
+	aa.Account = a
 	return nil
 }
 
@@ -82,12 +91,17 @@ func (aa *AccountAggregate) AddTask(taskID TaskID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.AggregateRoot.AddEvent(*evt)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (aa *AccountAggregate) OnTaskAddedEvent(event events.DomainEvent) error {
+	e := event.(TaskAddedEvent)
+	return aa.Account.Invoice.AddTask(e.TaskID)
 }
 
 func (aa *AccountAggregate) RemoveTask(taskID TaskID) error {
@@ -105,10 +119,15 @@ func (aa *AccountAggregate) RemoveTask(taskID TaskID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.AggregateRoot.AddEvent(*evt)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (aa *AccountAggregate) OnTaskRemovedEvent(event events.DomainEvent) error {
+	e := event.(TaskRemovedEvent)
+	return aa.Account.Invoice.RemoveTask(e.TaskID)
 }
