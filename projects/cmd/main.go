@@ -140,9 +140,9 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer server.Close()
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
-
 }
