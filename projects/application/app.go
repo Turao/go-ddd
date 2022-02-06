@@ -7,7 +7,7 @@ import (
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
-type App struct {
+type Application struct {
 	Commands Commands
 	Queries  Queries
 }

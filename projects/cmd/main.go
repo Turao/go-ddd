@@ -25,7 +25,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	app := application.App{
+	app := &application.Application{
 		Commands: application.Commands{
 			CreateProject: command.NewCreateProjectCommandHandler(pr, eventStore),
 			UpdateProject: command.NewUpdateProjectCommandHandler(pr, eventStore),
@@ -133,5 +133,16 @@ func main() {
 	// 	log.Fatalln(err)
 	// }
 	// log.Println(string(d))
+
+	server, err := infrastructure.NewServer(&infrastructure.Application{
+		Delegate: app,
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalln(err)
+	}
 
 }
