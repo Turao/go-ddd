@@ -20,7 +20,8 @@ func NewServer(app *Application) (*Server, error) {
 	router := mux.NewRouter()
 	router.Use(ContentTypeJSON)
 	router.HandleFunc("/task", app.HandleCreateTask).Methods(http.MethodPost)
-	router.HandleFunc("/tasks/{projectId}", app.HandleTasksByProject).Methods(http.MethodGet)
+	router.HandleFunc("/project/{projectId}", app.HandleTasksByProject).Methods(http.MethodGet)
+	router.HandleFunc("/user/{userId}", app.HandleTasksByAssignedUser).Methods(http.MethodGet)
 
 	// prepare HTTP server
 	httpServer := &http.Server{
@@ -74,6 +75,32 @@ func (a Application) HandleCreateTask(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusCreated)
+}
+
+func (a Application) HandleTasksByAssignedUser(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	req := application.TasksByAssignedUserQuery{
+		UserID: vars["userId"],
+	}
+
+	res, err := a.Delegate.Queries.TasksByAssignedUserQuery.Handle(context.Background(), req)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	payload, err := json.Marshal(res)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = rw.Write(payload)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (a Application) HandleTasksByProject(rw http.ResponseWriter, r *http.Request) {
