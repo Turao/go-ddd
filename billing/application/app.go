@@ -14,6 +14,7 @@ type Commands struct {
 }
 
 type Queries struct {
+	GetAccountDetails GetAccountDetailsQueryHandler
 }
 
 type CreateAccountCommand struct {
@@ -40,4 +41,20 @@ type RemoveTaskFromUserCommand struct {
 
 type RemoveTaskFromUserCommandHandler interface {
 	Handle(ctx context.Context, req RemoveTaskFromUserCommand) error
+}
+
+type GetAccountDetailsQuery struct {
+	AccountID string `json:"accountId"`
+}
+
+type GetAccountDetailsResponse struct {
+	Account Account `json:"account"`
+}
+
+type Account struct {
+	ID string `json:"accountId"`
+}
+
+type GetAccountDetailsQueryHandler interface {
+	Handle(ctx context.Context, req GetAccountDetailsQuery) (*GetAccountDetailsResponse, error)
 }
