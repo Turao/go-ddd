@@ -87,7 +87,7 @@ func (a Application) HandleListUsers(rw http.ResponseWriter, r *http.Request) {
 
 	res, err := a.Delegate.Queries.ListUsersQuery.Handle(context.Background(), req)
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
+		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
