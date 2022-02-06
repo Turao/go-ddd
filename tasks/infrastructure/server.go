@@ -20,8 +20,10 @@ func NewServer(app *Application) (*Server, error) {
 	router := mux.NewRouter()
 	router.Use(ContentTypeJSON)
 	router.HandleFunc("/task", app.HandleCreateTask).Methods(http.MethodPost)
-	router.HandleFunc("/project/{projectId}", app.HandleTasksByProject).Methods(http.MethodGet)
-	router.HandleFunc("/user/{userId}", app.HandleTasksByAssignedUser).Methods(http.MethodGet)
+	router.HandleFunc("/task/{taskId}/assign", app.HandleAssignToUser).Methods(http.MethodPost)
+	router.HandleFunc("/task/{taskId}/unassign", app.HandleUnassignUser).Methods(http.MethodPost)
+	router.HandleFunc("/tasks/project/{projectId}", app.HandleTasksByProject).Methods(http.MethodGet)
+	router.HandleFunc("/tasks/user/{userId}", app.HandleTasksByAssignedUser).Methods(http.MethodGet)
 
 	// prepare HTTP server
 	httpServer := &http.Server{
@@ -57,6 +59,46 @@ func ContentTypeJSON(next http.Handler) http.Handler {
 // unmarshalling HTTP requests, handling commands/queries, and marshalling responses to HTTP format
 type Application struct {
 	Delegate *application.Application
+}
+
+func (a Application) HandleAssignToUser(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	var body struct {
+		UserID string `json:"userId"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	req := application.AssignToUserCommand{
+		TaskID: vars["taskId"],
+		UserID: body.UserID,
+	}
+
+	err = a.Delegate.Commands.AssignToUserCommand.Handle(context.Background(), req)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (a Application) HandleUnassignUser(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	req := application.UnassignUserCommand{
+		TaskID: vars["taskId"],
+	}
+
+	err := a.Delegate.Commands.UnassignUserCommand.Handle(context.Background(), req)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (a Application) HandleCreateTask(rw http.ResponseWriter, r *http.Request) {
