@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/turao/go-ddd/events"
 )
 
@@ -17,19 +18,29 @@ func (e MockEvent) Name() string         { return "" }
 func (e MockEvent) OccuredAt() time.Time { return time.Now() }
 
 func TestPush(t *testing.T) {
-	e := &MockEvent{}
+	type test struct {
+		Event           events.Event
+		ExpectedVersion int
 
-	es, err := NewInMemoryStore()
-	if err != nil {
-		t.Error(err)
+		ExpectedSize int
+		Error        error
 	}
 
-	err = es.Push(context.Background(), e)
-	if err != nil {
-		t.Error(e)
+	tests := []test{
+		{Event: &MockEvent{}, ExpectedVersion: 1, ExpectedSize: 1, Error: nil},
+		{Event: &MockEvent{}, ExpectedVersion: 2, ExpectedSize: 0, Error: ErrExpectedVersionNotSatisfied},
 	}
 
-	if len(es.evts) != 1 {
-		t.Errorf("event store should have 1 event")
+	for _, test := range tests {
+		es, err := NewInMemoryStore()
+		if err != nil {
+			panic(err)
+		}
+
+		err = es.Push(context.Background(), test.Event, test.ExpectedVersion)
+		assert.Equal(t, err, test.Error)
+		if len(es.evts) != test.ExpectedSize {
+			t.Errorf("event store should have %v event(s)", test.ExpectedSize)
+		}
 	}
 }
