@@ -30,33 +30,32 @@ func (m *mockEventStore) EventsByAggregateID(ctx context.Context, aggregateID ev
 
 func TestRegisterUser(t *testing.T) {
 	type test struct {
-		inputName       string
-		publishedEvents []events.Event
+		InputName       string
+		PublishedEvents []events.Event
 
-		fail bool
-		err  error
+		Error error
 	}
 
-	tests := []test{
-		{inputName: "dummy", publishedEvents: make([]events.Event, 0), fail: false, err: nil},
-		{inputName: "", publishedEvents: make([]events.Event, 0), fail: true, err: ErrInvalidUserName},
+	tests := map[string]test{
+		"success":         {InputName: "dummy", PublishedEvents: make([]events.Event, 0), Error: nil},
+		"empty user name": {InputName: "", PublishedEvents: make([]events.Event, 0), Error: ErrInvalidUserName},
 	}
 
-	for _, test := range tests {
+	for name, test := range tests {
 		eventStore := new(mockEventStore)
 		agg, err := NewUserAggregate(nil, eventStore)
 		assert.NoError(t, err)
 
-		eventStore.On("Push", mock.Anything, mock.Anything, mock.Anything).Return(test.err)
+		eventStore.On("Push", mock.Anything, mock.Anything, mock.Anything).Return(test.Error)
 
-		err = agg.RegisterUser(test.inputName)
+		err = agg.RegisterUser(test.InputName)
 
-		if test.fail {
-			assert.Equal(t, test.err, err)
+		if err != nil {
+			assert.Equalf(t, err, test.Error, name)
 			continue
 		}
 
-		assert.NoError(t, err)
-		eventStore.AssertCalled(t, "Push", mock.Anything, mock.Anything) // should we assert on the event type?
+		// todo: should we assert on the event type?
+		eventStore.AssertCalled(t, "Push", mock.Anything, mock.Anything, mock.Anything)
 	}
 }

@@ -11,6 +11,8 @@ Kind of trying to create a Project Manager (e.g. Jira)...
   - Billing: tracks how many tasks have been assigned and completed by each user so we can pay them later. 
     - Domain Events are replayed every time there's an UPDATE-like Command (e.g. `AddTaskToUser`)
     - TODO: Add Snapshot behavior to cache the AggregateRoot's state and avoid replaying ALL events on every update command...
+- Other:
+  - Table-Driven tests (see `users/aggregate_test.go`)
 
 
 ## Contexts

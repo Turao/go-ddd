@@ -26,21 +26,23 @@ func TestPush(t *testing.T) {
 		Error        error
 	}
 
-	tests := []test{
-		{Event: &MockEvent{}, ExpectedVersion: 1, ExpectedSize: 1, Error: nil},
-		{Event: &MockEvent{}, ExpectedVersion: 2, ExpectedSize: 0, Error: ErrExpectedVersionNotSatisfied},
+	tests := map[string]test{
+		"basic success":          {Event: &MockEvent{}, ExpectedVersion: 1, ExpectedSize: 1, Error: nil},
+		"wrong expected version": {Event: &MockEvent{}, ExpectedVersion: 2, ExpectedSize: 0, Error: ErrExpectedVersionNotSatisfied},
 	}
 
-	for _, test := range tests {
+	for name, test := range tests {
 		es, err := NewInMemoryStore()
 		if err != nil {
 			panic(err)
 		}
 
 		err = es.Push(context.Background(), test.Event, test.ExpectedVersion)
-		assert.Equal(t, err, test.Error)
-		if len(es.evts) != test.ExpectedSize {
-			t.Errorf("event store should have %v event(s)", test.ExpectedSize)
+		if err != nil {
+			assert.Equalf(t, err, test.Error, name)
+			continue
 		}
+
+		assert.Equalf(t, len(es.evts), test.ExpectedSize, name)
 	}
 }

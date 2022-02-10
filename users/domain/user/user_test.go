@@ -8,32 +8,28 @@ import (
 
 func TestNewUser(t *testing.T) {
 	type test struct {
-		inputID   string
-		inputName string
+		InputID   string
+		InputName string
 
-		outputID   string
-		outputName string
+		OutputID   string
+		OutputName string
 
-		fails bool
-		err   error
+		Error error
 	}
 
-	tests := []test{
-		{inputID: "id", inputName: "name", outputID: "id", outputName: "name", fails: false, err: nil},
-		{inputID: "", inputName: "name", outputID: "", outputName: "name", fails: true, err: ErrInvalidUserID},
-		{inputID: "id", inputName: "", outputID: "id", outputName: "", fails: true, err: ErrInvalidUserName},
+	tests := map[string]test{
+		"success":         {InputID: "id", InputName: "name", OutputID: "id", OutputName: "name", Error: nil},
+		"empty user id":   {InputID: "", InputName: "name", OutputID: "", OutputName: "name", Error: ErrInvalidUserID},
+		"empty user name": {InputID: "id", InputName: "", OutputID: "id", OutputName: "", Error: ErrInvalidUserName},
 	}
 
-	for _, test := range tests {
-		got, err := NewUser(test.inputID, test.inputName)
-
-		if test.fails {
-			assert.Equal(t, err, test.err)
+	for name, test := range tests {
+		got, err := NewUser(test.InputID, test.InputName)
+		if err != nil {
+			assert.Equalf(t, err, test.Error, name)
 			continue
 		}
-
-		assert.NoError(t, err)
-		assert.Equal(t, got.ID, test.outputID)
-		assert.Equal(t, got.Name, test.outputName)
+		assert.Equalf(t, got.ID, test.OutputID, name)
+		assert.Equalf(t, got.Name, test.OutputName, name)
 	}
 }

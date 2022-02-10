@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/turao/go-ddd/users/application"
 )
 
@@ -49,23 +50,20 @@ func TestRegisterUserHandler(t *testing.T) {
 
 	app := newTestApplication()
 
-	tests := []test{
-		{Body: `{ "username": "dummy" }`, ExpectedStatus: http.StatusCreated},
-		{Body: `{ "usern }`, ExpectedStatus: http.StatusBadRequest},
-		{Body: `{}`, ExpectedStatus: http.StatusInternalServerError},
+	tests := map[string]test{
+		"valid payload":      {Body: `{ "username": "dummy" }`, ExpectedStatus: http.StatusCreated},
+		"unprocessable json": {Body: `{ "usern }`, ExpectedStatus: http.StatusBadRequest},
+		"empty body":         {Body: `{}`, ExpectedStatus: http.StatusInternalServerError},
 	}
 
-	for _, test := range tests {
+	for name, test := range tests {
 		req := httptest.NewRequest("POST", "/users", strings.NewReader(test.Body))
-
 		recorder := httptest.NewRecorder()
 		handler := http.HandlerFunc(app.HandleRegisterUser)
 
 		handler.ServeHTTP(recorder, req)
 
-		if status := recorder.Code; status != test.ExpectedStatus {
-			t.Errorf("handler returned wrong http code: got %v - wanted %v", status, test.ExpectedStatus)
-		}
+		assert.Equalf(t, recorder.Code, test.ExpectedStatus, name)
 	}
 
 }
