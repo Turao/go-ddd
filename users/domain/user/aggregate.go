@@ -9,15 +9,16 @@ import (
 )
 
 type UserAggregate struct {
-	User *User
-
-	events events.EventStore
+	User    *User
+	version int
+	events  events.EventStore
 }
 
 func NewUserAggregate(u *User, es events.EventStore) (*UserAggregate, error) {
 	return &UserAggregate{
-		User:   u,
-		events: es,
+		User:    u,
+		version: 0,
+		events:  es,
 	}, nil
 }
 
@@ -29,6 +30,7 @@ func (ua *UserAggregate) HandleEvent(event events.DomainEvent) error {
 			return err
 		}
 		ua.User = u
+		ua.version += 1
 		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
@@ -49,10 +51,11 @@ func (ua *UserAggregate) RegisterUser(name string) error {
 		return err
 	}
 
-	err = ua.events.Push(context.Background(), *evt)
+	err = ua.events.Push(context.Background(), *evt, ua.version+1)
 	if err != nil {
 		return err
 	}
+	ua.version += 1
 
 	return nil
 }

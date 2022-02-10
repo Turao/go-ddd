@@ -15,8 +15,8 @@ type mockEventStore struct {
 
 var _ events.EventStore = (*mockEventStore)(nil)
 
-func (m *mockEventStore) Push(ctx context.Context, event events.Event) error {
-	args := m.Called(ctx, event)
+func (m *mockEventStore) Push(ctx context.Context, event events.Event, expectedVersion int) error {
+	args := m.Called(ctx, event, expectedVersion)
 	return args.Error(0)
 }
 
@@ -47,7 +47,7 @@ func TestRegisterUser(t *testing.T) {
 		agg, err := NewUserAggregate(nil, eventStore)
 		assert.NoError(t, err)
 
-		eventStore.On("Push", mock.Anything, mock.Anything).Return(test.err)
+		eventStore.On("Push", mock.Anything, mock.Anything, mock.Anything).Return(test.err)
 
 		err = agg.RegisterUser(test.inputName)
 

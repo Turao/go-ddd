@@ -9,15 +9,16 @@ import (
 )
 
 type TaskAggregate struct {
-	Task *Task
-
-	events events.EventStore
+	Task    *Task
+	version int
+	events  events.EventStore
 }
 
 func NewTaskAggregate(task *Task, es events.EventStore) (*TaskAggregate, error) {
 	return &TaskAggregate{
-		Task:   task,
-		events: es,
+		Task:    task,
+		version: 0,
+		events:  es,
 	}, nil
 }
 
@@ -29,17 +30,43 @@ func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
 			return err
 		}
 		ta.Task = t
+		ta.version += 1
 		return nil
 	case TaskAssignedEvent:
-		return ta.Task.AssignTo(event.AssignedTo)
+		err := ta.Task.AssignTo(event.AssignedTo)
+		if err != nil {
+			return err
+		}
+		ta.version += 1
+		return nil
 	case TaskUnassignedEvent:
-		return ta.Task.Unassign()
+		err := ta.Task.Unassign()
+		if err != nil {
+			return err
+		}
+		ta.version += 1
+		return nil
 	case TitleUpdatedEvent:
-		return ta.Task.UpdateTitle(event.Title)
+		err := ta.Task.UpdateTitle(event.Title)
+		if err != nil {
+			return err
+		}
+		ta.version += 1
+		return nil
 	case DescriptionUpdatedEvent:
-		return ta.Task.UpdateDescription(event.Description)
+		err := ta.Task.UpdateDescription(event.Description)
+		if err != nil {
+			return err
+		}
+		ta.version += 1
+		return nil
 	case StatusUpdatedEvent:
-		return ta.Task.UpdateStatus(event.Status)
+		err := ta.Task.UpdateStatus(event.Status)
+		if err != nil {
+			return err
+		}
+		ta.version += 1
+		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -58,10 +85,11 @@ func (ta *TaskAggregate) CreateTask(projectID ProjectID, title string, descripti
 		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return nil, err
 	}
+	ta.version += 1
 
 	return t, nil
 }
@@ -77,10 +105,11 @@ func (ta TaskAggregate) AssignTo(assignedUserID UserID) error {
 		return err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return err
 	}
+	ta.version += 1
 
 	return nil
 }
@@ -96,10 +125,11 @@ func (ta TaskAggregate) Unassign() error {
 		return err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return err
 	}
+	ta.version += 1
 
 	return nil
 }
@@ -115,10 +145,11 @@ func (ta TaskAggregate) UpdateTitle(title string) error {
 		return err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return err
 	}
+	ta.version += 1
 
 	return nil
 }
@@ -134,10 +165,11 @@ func (ta TaskAggregate) UpdateDescription(description string) error {
 		return err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return err
 	}
+	ta.version += 1
 
 	return nil
 }
@@ -153,10 +185,11 @@ func (ta TaskAggregate) UpdateStatus(status string) error {
 		return err
 	}
 
-	err = ta.events.Push(context.Background(), *evt)
+	err = ta.events.Push(context.Background(), *evt, ta.version+1)
 	if err != nil {
 		return err
 	}
+	ta.version += 1
 
 	return nil
 }

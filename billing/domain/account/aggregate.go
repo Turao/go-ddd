@@ -12,12 +12,14 @@ import (
 
 type AccountAggregate struct {
 	Account *Account `json:"account"`
+	version int
 	events  events.EventStore
 }
 
 func NewAccountAggregate(a *Account, es events.EventStore) (*AccountAggregate, error) {
 	return &AccountAggregate{
 		Account: a,
+		version: 0,
 		events:  es,
 	}, nil
 }
@@ -30,11 +32,22 @@ func (aa *AccountAggregate) HandleEvent(event events.DomainEvent) error {
 			return err
 		}
 		aa.Account = a
+		aa.version += 1
 		return nil
 	case TaskAddedEvent:
-		return aa.Account.Invoice.AddTask(e.TaskID)
+		err := aa.Account.Invoice.AddTask(e.TaskID)
+		if err != nil {
+			return err
+		}
+		aa.version += 1
+		return nil
 	case TaskRemovedEvent:
-		return aa.Account.Invoice.RemoveTask(e.TaskID)
+		err := aa.Account.Invoice.RemoveTask(e.TaskID)
+		if err != nil {
+			return err
+		}
+		aa.version += 1
+		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -52,10 +65,11 @@ func (aa *AccountAggregate) CreateAccount(userID user.UserID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.events.Push(context.Background(), *evt, aa.version+1)
 	if err != nil {
 		return err
 	}
+	aa.version += 1
 
 	return nil
 }
@@ -82,10 +96,11 @@ func (aa *AccountAggregate) AddTask(taskID TaskID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.events.Push(context.Background(), *evt, aa.version+1)
 	if err != nil {
 		return err
 	}
+	aa.version += 1
 
 	return nil
 }
@@ -105,10 +120,11 @@ func (aa *AccountAggregate) RemoveTask(taskID TaskID) error {
 		return err
 	}
 
-	err = aa.events.Push(context.Background(), *evt)
+	err = aa.events.Push(context.Background(), *evt, aa.version+1)
 	if err != nil {
 		return err
 	}
+	aa.version += 1
 
 	return nil
 }

@@ -12,13 +12,14 @@ import (
 
 type ProjectAggregate struct {
 	Project *Project `json:"project"`
-
-	events events.EventStore
+	version int
+	events  events.EventStore
 }
 
 func NewProjectAggregate(p *Project, es events.EventStore) (*ProjectAggregate, error) {
 	return &ProjectAggregate{
 		Project: p,
+		version: 0,
 		events:  es,
 	}, nil
 }
@@ -31,17 +32,28 @@ func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
 			return err
 		}
 		pa.Project = p
+		pa.version += 1
 		return nil
 	case ProjectUpdatedEvent:
 		if pa.Project == nil {
 			return errors.New("project does not exist")
 		}
-		return pa.Project.Rename(event.ProjectName)
+		err := pa.Project.Rename(event.ProjectName)
+		if err != nil {
+			return err
+		}
+		pa.version += 1
+		return nil
 	case ProjectDeletedEvent:
 		if pa.Project == nil {
 			return errors.New("project does not exist")
 		}
-		return pa.Project.Delete()
+		err := pa.Project.Delete()
+		if err != nil {
+			return err
+		}
+		pa.version += 1
+		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
@@ -61,10 +73,11 @@ func (pa *ProjectAggregate) CreateProject(name string, createdBy UserID) error {
 		return err
 	}
 
-	err = pa.events.Push(context.Background(), *evt)
+	err = pa.events.Push(context.Background(), *evt, pa.version+1)
 	if err != nil {
 		return err
 	}
+	pa.version += 1
 
 	return nil
 }
@@ -80,7 +93,13 @@ func (pa *ProjectAggregate) DeleteProject() error {
 		return err
 	}
 
-	return pa.events.Push(context.Background(), *evt)
+	err = pa.events.Push(context.Background(), *evt, pa.version+1)
+	if err != nil {
+		return err
+	}
+	pa.version += 1
+
+	return nil
 }
 
 func (pa *ProjectAggregate) UpdateProject(name string) error {
@@ -94,5 +113,11 @@ func (pa *ProjectAggregate) UpdateProject(name string) error {
 		return err
 	}
 
-	return pa.events.Push(context.Background(), *evt)
+	err = pa.events.Push(context.Background(), *evt, pa.version+1)
+	if err != nil {
+		return err
+	}
+	pa.version += 1
+
+	return nil
 }
