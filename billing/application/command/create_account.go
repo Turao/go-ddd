@@ -28,7 +28,7 @@ func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application
 		return nil
 	}
 
-	err = aa.CreateAccount(req.UserID)
+	err = aa.CreateAccount(req.AccountID)
 	if err != nil {
 		return err
 	}

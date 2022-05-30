@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
+	"github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
@@ -41,14 +41,22 @@ func (r *Router) Init() error {
 		return err
 	}
 
-	queueConfig := amqp.NewDurableQueueConfig("amqp://localhost:5672")
-
-	subscriber, err := amqp.NewSubscriber(queueConfig, logger)
+	// queueConfig := amqp.NewDurableQueueConfig("amqp://localhost:5672")
+	subscriberConfig := kafka.SubscriberConfig{
+		Brokers:       []string{"localhost:29092"},
+		Unmarshaler:   kafka.DefaultMarshaler{},
+		ConsumerGroup: "billing",
+	}
+	subscriber, err := kafka.NewSubscriber(subscriberConfig, logger)
 	if err != nil {
 		return err
 	}
 
-	publisher, err := amqp.NewPublisher(queueConfig, logger)
+	publisherConfig := kafka.PublisherConfig{
+		Brokers:   []string{"localhost:29092"},
+		Marshaler: kafka.DefaultMarshaler{},
+	}
+	publisher, err := kafka.NewPublisher(publisherConfig, logger)
 	if err != nil {
 		return err
 	}

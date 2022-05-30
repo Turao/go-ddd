@@ -10,6 +10,7 @@ import (
 	"github.com/turao/go-ddd/billing/application/query"
 	"github.com/turao/go-ddd/billing/infrastructure"
 	"github.com/turao/go-ddd/billing/infrastructure/messaging"
+	"github.com/turao/go-ddd/billing/infrastructure/rest"
 	"github.com/turao/go-ddd/events/in_memory"
 )
 
@@ -63,7 +64,7 @@ func main() {
 	go func() {
 		wg.Done()
 
-		server, err := infrastructure.NewServer(&infrastructure.Application{
+		server, err := rest.NewServer(&rest.Application{
 			Delegate: app,
 		})
 		if err != nil {
