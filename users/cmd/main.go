@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/ThreeDotsLabs/watermill"
-	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
-	"github.com/turao/go-ddd/api/amqp"
+	watermillKafka "github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
+	"github.com/turao/go-ddd/api/kafka"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
@@ -24,15 +24,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	queue := watermillAMQP.NewDurableQueueConfig("amqp://localhost:5672")
+	queue := watermillKafka.PublisherConfig{
+		Brokers:   []string{"localhost:29092"},
+		Marshaler: watermillKafka.DefaultMarshaler{},
+	}
 	logger := watermill.NewStdLogger(false, false)
-	publisher, err := watermillAMQP.NewPublisher(queue, logger)
+	publisher, err := watermillKafka.NewPublisher(queue, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer publisher.Close()
 
-	urep, err := amqp.NewAMQPUserRegisteredEventPublisher(publisher)
+	urep, err := kafka.NewUserRegisteredEventPublisher(publisher)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -1,4 +1,4 @@
-package amqp
+package kafka
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"github.com/turao/go-ddd/api"
 )
 
-type AMQPUserRegisteredEventPublisher struct {
+type UserRegisteredEventPublisher struct {
 	publisher message.Publisher
 }
 
-func NewAMQPUserRegisteredEventPublisher(p message.Publisher) (*AMQPUserRegisteredEventPublisher, error) {
-	return &AMQPUserRegisteredEventPublisher{
+func NewUserRegisteredEventPublisher(p message.Publisher) (*UserRegisteredEventPublisher, error) {
+	return &UserRegisteredEventPublisher{
 		publisher: p,
 	}, nil
 }
 
-func (p AMQPUserRegisteredEventPublisher) Publish(ctx context.Context, event api.UserRegisteredEvent) error {
+func (p UserRegisteredEventPublisher) Publish(ctx context.Context, event api.UserRegisteredEvent) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return err
