@@ -5,8 +5,8 @@ import (
 
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/events/ddd"
 )
 
 type CreateAccountCommandHandler struct {
