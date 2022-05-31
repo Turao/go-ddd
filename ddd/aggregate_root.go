@@ -62,7 +62,8 @@ func (root *AggregateRoot) HandleCommand(ctx context.Context, cmd interface{}) e
 		return err
 	}
 
-	// aggregate root version should increment for each command successfully handled
+	// aggregate root version should increment for each event generated
+	// to be consistent with the event handler behavior
 	root.version += len(evts)
 
 	for _, evt := range evts {
