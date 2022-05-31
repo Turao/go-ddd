@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/events/aggregate"
+	"github.com/turao/go-ddd/events/ddd"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/domain/user"
 )
@@ -32,7 +32,7 @@ func NewRegisterUserHandler(
 func (h RegisterUserHandler) Handle(ctx context.Context, req application.RegisterUserCommand) error {
 	// create the aggregate root
 	ua := user.NewUserAggregate(user.UserEventsFactory{})
-	root, err := aggregate.NewAggregateRoot(
+	root, err := ddd.NewAggregateRoot(
 		ua,
 		h.eventStore,
 	)
