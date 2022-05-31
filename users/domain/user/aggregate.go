@@ -9,20 +9,23 @@ import (
 )
 
 type UserAggregate struct {
-	User    *User
-	version int
-	events  events.EventStore
+	User *User
+
+	EventFactory
 }
 
-func NewUserAggregate(u *User, es events.EventStore) (*UserAggregate, error) {
+func NewUserAggregate(ef EventFactory) *UserAggregate {
 	return &UserAggregate{
-		User:    u,
-		version: 0,
-		events:  es,
-	}, nil
+		User:         nil,
+		EventFactory: ef,
+	}
 }
 
-func (ua *UserAggregate) HandleEvent(event events.DomainEvent) error {
+func (ua *UserAggregate) ID() string {
+	return ua.User.ID
+}
+
+func (ua *UserAggregate) HandleEvent(ctx context.Context, event events.DomainEvent) error {
 	switch e := event.(type) {
 	case UserRegisteredEvent:
 		u, err := NewUser(e.AggregateID(), e.Username)
@@ -30,7 +33,6 @@ func (ua *UserAggregate) HandleEvent(event events.DomainEvent) error {
 			return err
 		}
 		ua.User = u
-		ua.version += 1
 		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
@@ -38,24 +40,29 @@ func (ua *UserAggregate) HandleEvent(event events.DomainEvent) error {
 
 }
 
-func (ua *UserAggregate) RegisterUser(name string) error {
-	u, err := NewUser(uuid.NewString(), name)
+func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]events.DomainEvent, error) {
+	switch c := cmd.(type) {
+	case RegisterUserCommand:
+		return ua.RegisterUser(c)
+	default:
+		return nil, fmt.Errorf("unable to handle command %s", cmd)
+	}
+}
+
+func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]events.DomainEvent, error) {
+	u, err := NewUser(uuid.NewString(), cmd.Username)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ua.User = u
 
-	evt, err := NewUserRegisteredEvent(u.ID, u.Name)
+	evt, err := ua.EventFactory.NewUserRegisteredEvent(u.ID, u.Name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ua.events.Push(context.Background(), *evt, ua.version+1)
-	if err != nil {
-		return err
-	}
-	ua.version += 1
-
-	return nil
+	return []events.DomainEvent{
+		*evt,
+	}, nil
 }
