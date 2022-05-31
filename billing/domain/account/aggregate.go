@@ -7,124 +7,123 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/events"
-	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type AccountAggregate struct {
 	Account *Account `json:"account"`
-	version int
-	events  events.EventStore
+	EventFactory
 }
 
-func NewAccountAggregate(a *Account, es events.EventStore) (*AccountAggregate, error) {
+func NewAccountAggregate(ef EventFactory) *AccountAggregate {
 	return &AccountAggregate{
-		Account: a,
-		version: 0,
-		events:  es,
-	}, nil
+		Account:      nil,
+		EventFactory: ef,
+	}
 }
 
-func (aa *AccountAggregate) HandleEvent(event events.DomainEvent) error {
+func (agg AccountAggregate) ID() string {
+	return agg.Account.ID
+}
+
+func (agg *AccountAggregate) HandleEvent(ctx context.Context, event events.DomainEvent) error {
 	switch e := event.(type) {
 	case AccountCreatedEvent:
 		a, err := NewAccount(e.AggregateID(), e.UserID, e.InvoiceID)
 		if err != nil {
 			return err
 		}
-		aa.Account = a
-		aa.version += 1
+		agg.Account = a
 		return nil
 	case TaskAddedEvent:
-		err := aa.Account.Invoice.AddTask(e.TaskID)
+		err := agg.Account.Invoice.AddTask(e.TaskID)
 		if err != nil {
 			return err
 		}
-		aa.version += 1
 		return nil
 	case TaskRemovedEvent:
-		err := aa.Account.Invoice.RemoveTask(e.TaskID)
+		err := agg.Account.Invoice.RemoveTask(e.TaskID)
 		if err != nil {
 			return err
 		}
-		aa.version += 1
 		return nil
 	default:
 		return fmt.Errorf("unable to handle domain event %s", e)
 	}
 }
 
-func (aa *AccountAggregate) CreateAccount(userID user.UserID) error {
-	a, err := NewAccount(userID, userID, uuid.NewString()) // use UserID as AccountID
-	if err != nil {
-		return err
+func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]events.DomainEvent, error) {
+	switch c := cmd.(type) {
+	case CreateAccountCommand:
+		return agg.CreateAccount(c)
+	case AddTaskToUserCommand:
+		return agg.AddTask(c)
+	case RemoveTaskFromUserCommand:
+		return agg.RemoveTask(c)
+	default:
+		return nil, fmt.Errorf("unable to handle command %s", cmd)
 	}
-	aa.Account = a
-
-	evt, err := NewAccountCreatedEvent(a.ID, a.User.ID, a.Invoice.ID)
-	if err != nil {
-		return err
-	}
-
-	err = aa.events.Push(context.Background(), *evt, aa.version+1)
-	if err != nil {
-		return err
-	}
-	aa.version += 1
-
-	return nil
 }
 
-func (aa *AccountAggregate) assertAccountExists() error {
-	if aa.Account == nil {
+func (agg *AccountAggregate) CreateAccount(cmd CreateAccountCommand) ([]events.DomainEvent, error) {
+	a, err := NewAccount(cmd.UserID, cmd.UserID, uuid.NewString()) // use UserID as AccountID
+	if err != nil {
+		return nil, err
+	}
+	agg.Account = a
+
+	evt, err := agg.EventFactory.NewAccountCreatedEvent(a.ID, a.User.ID, a.Invoice.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return []events.DomainEvent{
+		*evt,
+	}, nil
+}
+
+func (agg *AccountAggregate) assertAccountExists() error {
+	if agg.Account == nil {
 		return errors.New("account has not been created yet")
 	}
 	return nil
 }
 
-func (aa *AccountAggregate) AddTask(taskID TaskID) error {
-	if err := aa.assertAccountExists(); err != nil {
-		return err
+func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]events.DomainEvent, error) {
+	if err := agg.assertAccountExists(); err != nil {
+		return nil, err
 	}
 
-	err := aa.Account.Invoice.AddTask(taskID)
+	err := agg.Account.Invoice.AddTask(cmd.TaskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewTaskAddedEvent(aa.Account.ID, aa.Account.Invoice.ID, taskID)
+	evt, err := agg.EventFactory.NewTaskAddedEvent(agg.Account.ID, agg.Account.Invoice.ID, cmd.TaskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = aa.events.Push(context.Background(), *evt, aa.version+1)
-	if err != nil {
-		return err
-	}
-	aa.version += 1
-
-	return nil
+	return []events.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (aa *AccountAggregate) RemoveTask(taskID TaskID) error {
-	if err := aa.assertAccountExists(); err != nil {
-		return err
+func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]events.DomainEvent, error) {
+	if err := agg.assertAccountExists(); err != nil {
+		return nil, err
 	}
 
-	err := aa.Account.Invoice.RemoveTask(taskID)
+	err := agg.Account.Invoice.RemoveTask(cmd.TaskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewTaskRemovedEvent(aa.Account.ID, aa.Account.Invoice.ID, taskID)
+	evt, err := agg.EventFactory.NewTaskRemovedEvent(agg.Account.ID, agg.Account.Invoice.ID, cmd.TaskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = aa.events.Push(context.Background(), *evt, aa.version+1)
-	if err != nil {
-		return err
-	}
-	aa.version += 1
-
-	return nil
+	return []events.DomainEvent{
+		*evt,
+	}, nil
 }

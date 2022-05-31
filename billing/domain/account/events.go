@@ -2,6 +2,14 @@ package account
 
 import "github.com/turao/go-ddd/events"
 
+type EventFactory interface {
+	NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
+	NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error)
+	NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error)
+}
+
+type AccountEventsFactory struct{}
+
 type AccountCreatedEvent struct {
 	events.DomainEvent `json:"domainEvent"`
 	UserID             UserID    `json:"userId"`
@@ -13,7 +21,7 @@ type AccountCreatedEvent struct {
 // 	ErrInvalidTaskID   = errors.New("invalid task id")
 // )
 
-func NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
+func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("account.created", accountID)
 	if err != nil {
 		return nil, err
@@ -40,7 +48,7 @@ type TaskAddedEvent struct {
 	TaskID             TaskID    `json:"taskId"`
 }
 
-func NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
+func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("account.invoice.task.added", accountID)
 	if err != nil {
 		return nil, err
@@ -67,7 +75,7 @@ type TaskRemovedEvent struct {
 	TaskID             TaskID    `json:"taskId"`
 }
 
-func NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
+func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
 	domainEvent, err := events.NewDomainEvent("account.invoice.task.removed", accountID)
 	if err != nil {
 		return nil, err

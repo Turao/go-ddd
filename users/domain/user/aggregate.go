@@ -21,7 +21,7 @@ func NewUserAggregate(ef EventFactory) *UserAggregate {
 	}
 }
 
-func (ua *UserAggregate) ID() string {
+func (ua UserAggregate) ID() string {
 	return ua.User.ID
 }
 
