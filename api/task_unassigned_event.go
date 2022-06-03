@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	"github.com/turao/go-ddd/events"
 )
@@ -19,17 +20,8 @@ type TaskUnassignedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
 
-const (
-	TaskUnassignedEventName = "task.unassigned"
-)
-
-// var (
-// 	ErrInvalidTaskID = errors.New("invalid task id")
-// 	ErrInvalidUserID = errors.New("invalid user id")
-// )
-
 func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) (*TaskUnassignedEvent, error) {
-	event, err := events.NewEvent(TaskUnassignedEventName)
+	event, err := events.NewEvent("task.unassigned")
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +32,11 @@ func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) 
 	}
 
 	if taskID == "" {
-		return nil, ErrInvalidTaskID
+		return nil, errors.New("invalid task id")
 	}
 
 	if userID == "" {
-		return nil, ErrInvalidStatus
+		return nil, errors.New("invalid status")
 	}
 
 	return &TaskUnassignedEvent{

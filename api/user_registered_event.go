@@ -19,16 +19,8 @@ type UserRegisteredEvent struct {
 
 var _ events.IntegrationEvent = (*UserRegisteredEvent)(nil)
 
-const (
-	UserRegisteredEventName = "user.registered"
-)
-
-var (
-	ErrInvalidUserID = errors.New("invalid user id")
-)
-
 func NewUserRegisteredEvent(correlationID string, userID string) (*UserRegisteredEvent, error) {
-	event, err := events.NewEvent(UserRegisteredEventName)
+	event, err := events.NewEvent("user.registered")
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +31,7 @@ func NewUserRegisteredEvent(correlationID string, userID string) (*UserRegistere
 	}
 
 	if userID == "" {
-		return nil, ErrInvalidUserID
+		return nil, errors.New("invalid user id")
 	}
 
 	return &UserRegisteredEvent{

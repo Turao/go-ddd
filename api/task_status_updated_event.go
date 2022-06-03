@@ -20,17 +20,8 @@ type TaskStatusUpdatedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
 
-const (
-	TaskStatusUpdatedEventName = "task.status.updated"
-)
-
-var (
-	ErrInvalidTaskID = errors.New("invalid task id")
-	ErrInvalidStatus = errors.New("invalid status")
-)
-
 func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status string) (*TaskStatusUpdatedEvent, error) {
-	event, err := events.NewEvent(TaskStatusUpdatedEventName)
+	event, err := events.NewEvent("task.status.updated")
 	if err != nil {
 		return nil, err
 	}
@@ -41,11 +32,11 @@ func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status strin
 	}
 
 	if taskID == "" {
-		return nil, ErrInvalidTaskID
+		return nil, errors.New("invalid task id")
 	}
 
 	if status == "" {
-		return nil, ErrInvalidStatus
+		return nil, errors.New("invalid status")
 	}
 
 	return &TaskStatusUpdatedEvent{

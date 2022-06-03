@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	"github.com/turao/go-ddd/events"
 )
@@ -19,17 +20,8 @@ type TaskAssignedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskAssignedEvent)(nil)
 
-const (
-	TaskAssignedEventName = "task.assigned"
-)
-
-// var (
-// 	ErrInvalidTaskID = errors.New("invalid task id")
-// 	ErrInvalidUserID = errors.New("invalid user id")
-// )
-
 func NewTaskAssignedEvent(correlationID string, taskID string, userID string) (*TaskAssignedEvent, error) {
-	event, err := events.NewEvent(TaskAssignedEventName)
+	event, err := events.NewEvent("task.assigned")
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +32,11 @@ func NewTaskAssignedEvent(correlationID string, taskID string, userID string) (*
 	}
 
 	if taskID == "" {
-		return nil, ErrInvalidTaskID
+		return nil, errors.New("invalid task id")
 	}
 
 	if userID == "" {
-		return nil, ErrInvalidStatus
+		return nil, errors.New("invalid status")
 	}
 
 	return &TaskAssignedEvent{
