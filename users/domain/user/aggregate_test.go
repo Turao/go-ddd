@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,25 +11,38 @@ import (
 type mockEventFactory struct{}
 
 func (ef *mockEventFactory) NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error) {
-	return nil, nil
+	return &UserRegisteredEvent{}, nil
 }
 
 func TestRegisterUser(t *testing.T) {
 	type test struct {
-		InputName       string
-		PublishedEvents []ddd.DomainEvent
-
-		Error error
+		InputName      string
+		ExpectedEvents func() []ddd.DomainEvent
+		ExpectedError  error
 	}
 
 	tests := map[string]test{
-		"success":         {InputName: "dummy", PublishedEvents: nil, Error: nil}, // todo: fix this test
-		"empty user name": {InputName: "", PublishedEvents: nil, Error: ErrInvalidUserName},
+		"success": {
+			InputName: "dummy",
+			ExpectedEvents: func() []ddd.DomainEvent {
+				return make([]ddd.DomainEvent, 0)
+			},
+			ExpectedError: nil,
+		},
+		"empty user name": {
+			InputName: "",
+			ExpectedEvents: func() []ddd.DomainEvent {
+				return make([]ddd.DomainEvent, 0)
+			},
+			ExpectedError: errors.New("invalid user name"),
+		},
 	}
 
 	for _, test := range tests {
 		agg := NewUserAggregate(&mockEventFactory{})
-		_, err := agg.RegisterUser(RegisterUserCommand{test.InputName})
-		assert.Equal(t, err, test.Error)
+		evts, err := agg.RegisterUser(RegisterUserCommand{test.InputName})
+
+		assert.EqualValues(t, test.ExpectedEvents, evts) // todo: fix mocking of event factory
+		assert.Equal(t, test.ExpectedError, err)
 	}
 }

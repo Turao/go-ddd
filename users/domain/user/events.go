@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+
 	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
@@ -17,11 +19,6 @@ type UserRegisteredEvent struct {
 	Username string `json:"username"`
 }
 
-// var (
-// 	ErrInvalidUserID   = errors.New("invalid user id")
-// 	ErrInvalidUserName = errors.New("invalid user name")
-// )
-
 func (f UserEventsFactory) NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error) {
 	event, err := events.NewEvent("user.registered")
 	if err != nil {
@@ -34,7 +31,7 @@ func (f UserEventsFactory) NewUserRegisteredEvent(id string, name string) (*User
 	}
 
 	if name == "" {
-		return nil, ErrInvalidUserName
+		return nil, errors.New("invalid user name")
 	}
 
 	return &UserRegisteredEvent{
