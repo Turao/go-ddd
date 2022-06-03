@@ -11,11 +11,13 @@ type TaskAssignedEventPublisher interface {
 }
 
 type TaskAssignedEvent struct {
-	IntegrationEvent
+	events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	UserID string `json:"userId"`
 }
+
+var _ events.IntegrationEvent = (*TaskAssignedEvent)(nil)
 
 const (
 	TaskAssignedEventName = "task.assigned"
@@ -27,7 +29,12 @@ const (
 // )
 
 func NewTaskAssignedEvent(correlationID string, taskID string, userID string) (*TaskAssignedEvent, error) {
-	ie, err := events.NewIntegrationEvent(TaskAssignedEventName, taskID, correlationID)
+	event, err := events.NewEvent(TaskAssignedEventName)
+	if err != nil {
+		return nil, err
+	}
+
+	ie, err := events.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,19 +48,8 @@ func NewTaskAssignedEvent(correlationID string, taskID string, userID string) (*
 	}
 
 	return &TaskAssignedEvent{
-		IntegrationEvent: IntegrationEvent{
-			DomainEvent: DomainEvent{
-				BaseEvent: BaseEvent{
-					ID:         ie.ID(),
-					Name:       ie.Name(),
-					OccurredAt: ie.OccuredAt(),
-				},
-				AggregateID: ie.AggregateID(),
-			},
-			CorrelationID: ie.CorrelationID(),
-		},
-
-		TaskID: taskID,
-		UserID: userID,
+		IntegrationEvent: ie,
+		TaskID:           taskID,
+		UserID:           userID,
 	}, nil
 }

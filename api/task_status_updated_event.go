@@ -12,11 +12,13 @@ type TaskStatusUpdatedEventPublisher interface {
 }
 
 type TaskStatusUpdatedEvent struct {
-	IntegrationEvent
+	events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	Status string `json:"status"`
 }
+
+var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
 
 const (
 	TaskStatusUpdatedEventName = "task.status.updated"
@@ -28,7 +30,12 @@ var (
 )
 
 func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status string) (*TaskStatusUpdatedEvent, error) {
-	ie, err := events.NewIntegrationEvent(TaskStatusUpdatedEventName, taskID, correlationID)
+	event, err := events.NewEvent(TaskStatusUpdatedEventName)
+	if err != nil {
+		return nil, err
+	}
+
+	ie, err := events.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,19 +49,8 @@ func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status strin
 	}
 
 	return &TaskStatusUpdatedEvent{
-		IntegrationEvent: IntegrationEvent{
-			DomainEvent: DomainEvent{
-				BaseEvent: BaseEvent{
-					ID:         ie.ID(),
-					Name:       ie.Name(),
-					OccurredAt: ie.OccuredAt(),
-				},
-				AggregateID: ie.AggregateID(),
-			},
-			CorrelationID: ie.CorrelationID(),
-		},
-
-		TaskID: taskID,
-		Status: status,
+		IntegrationEvent: ie,
+		TaskID:           taskID,
+		Status:           status,
 	}, nil
 }

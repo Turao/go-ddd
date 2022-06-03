@@ -11,11 +11,13 @@ type TaskUnassignedEventPublisher interface {
 }
 
 type TaskUnassignedEvent struct {
-	IntegrationEvent
+	events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	UserID string `json:"userId"`
 }
+
+var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
 
 const (
 	TaskUnassignedEventName = "task.unassigned"
@@ -27,7 +29,12 @@ const (
 // )
 
 func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) (*TaskUnassignedEvent, error) {
-	ie, err := events.NewIntegrationEvent(TaskUnassignedEventName, taskID, correlationID)
+	event, err := events.NewEvent(TaskUnassignedEventName)
+	if err != nil {
+		return nil, err
+	}
+
+	ie, err := events.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,19 +48,8 @@ func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) 
 	}
 
 	return &TaskUnassignedEvent{
-		IntegrationEvent: IntegrationEvent{
-			DomainEvent: DomainEvent{
-				BaseEvent: BaseEvent{
-					ID:         ie.ID(),
-					Name:       ie.Name(),
-					OccurredAt: ie.OccuredAt(),
-				},
-				AggregateID: ie.AggregateID(),
-			},
-			CorrelationID: ie.CorrelationID(),
-		},
-
-		TaskID: taskID,
-		UserID: userID,
+		IntegrationEvent: ie,
+		TaskID:           taskID,
+		UserID:           userID,
 	}, nil
 }

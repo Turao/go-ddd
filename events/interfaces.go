@@ -13,7 +13,11 @@ type Event interface {
 	OccurredAt() time.Time
 }
 
-// ---
+type IntegrationEvent interface {
+	Event
+	CorrelationID() string
+}
+
 type EventStore interface {
 	Push(ctx context.Context, evt Event, expectedVersion int) error
 	Events(ctx context.Context) ([]Event, error)

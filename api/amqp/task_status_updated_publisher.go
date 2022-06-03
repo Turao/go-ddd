@@ -26,7 +26,7 @@ func (p AMQPTaskStatusUpdatedEventPublisher) Publish(ctx context.Context, event 
 	}
 
 	err = p.publisher.Publish(
-		event.Name,
+		event.Name(),
 		message.NewMessage(uuid.NewString(), payload),
 	)
 	if err != nil {

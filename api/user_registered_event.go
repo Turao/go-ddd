@@ -12,9 +12,12 @@ type UserRegisteredEventPublisher interface {
 }
 
 type UserRegisteredEvent struct {
-	IntegrationEvent
+	events.IntegrationEvent
+
 	UserID string `json:"userId"`
 }
+
+var _ events.IntegrationEvent = (*UserRegisteredEvent)(nil)
 
 const (
 	UserRegisteredEventName = "user.registered"
@@ -25,8 +28,12 @@ var (
 )
 
 func NewUserRegisteredEvent(correlationID string, userID string) (*UserRegisteredEvent, error) {
+	event, err := events.NewEvent(UserRegisteredEventName)
+	if err != nil {
+		return nil, err
+	}
 
-	ie, err := events.NewIntegrationEvent(UserRegisteredEventName, userID, correlationID)
+	ie, err := events.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,17 +43,7 @@ func NewUserRegisteredEvent(correlationID string, userID string) (*UserRegistere
 	}
 
 	return &UserRegisteredEvent{
-		IntegrationEvent: IntegrationEvent{
-			DomainEvent: DomainEvent{
-				BaseEvent: BaseEvent{
-					ID:         ie.ID(),
-					Name:       ie.Name(),
-					OccurredAt: ie.OccuredAt(),
-				},
-				AggregateID: ie.AggregateID(),
-			},
-			CorrelationID: ie.CorrelationID(),
-		},
-		UserID: userID,
+		IntegrationEvent: ie,
+		UserID:           userID,
 	}, nil
 }
