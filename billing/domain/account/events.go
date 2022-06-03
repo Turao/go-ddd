@@ -1,6 +1,9 @@
 package account
 
-import "github.com/turao/go-ddd/events"
+import (
+	"github.com/turao/go-ddd/ddd"
+	"github.com/turao/go-ddd/events"
+)
 
 type EventFactory interface {
 	NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
@@ -11,9 +14,9 @@ type EventFactory interface {
 type AccountEventsFactory struct{}
 
 type AccountCreatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	UserID             UserID    `json:"userId"`
-	InvoiceID          InvoiceID `json:"invoiceID"`
+	ddd.DomainEvent `json:"domainEvent"`
+	UserID          UserID    `json:"userId"`
+	InvoiceID       InvoiceID `json:"invoiceID"`
 }
 
 // var (
@@ -22,7 +25,12 @@ type AccountCreatedEvent struct {
 // )
 
 func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("account.created", accountID)
+	event, err := events.NewEvent("account.created")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, accountID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,13 +51,18 @@ func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID
 }
 
 type TaskAddedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	InvoiceID          InvoiceID `json:"invoiceId"`
-	TaskID             TaskID    `json:"taskId"`
+	ddd.DomainEvent `json:"domainEvent"`
+	InvoiceID       InvoiceID `json:"invoiceId"`
+	TaskID          TaskID    `json:"taskId"`
 }
 
 func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("account.invoice.task.added", accountID)
+	event, err := events.NewEvent("account.invoice.task.added")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, accountID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +83,18 @@ func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID I
 }
 
 type TaskRemovedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	InvoiceID          InvoiceID `json:"invoiceId"`
-	TaskID             TaskID    `json:"taskId"`
+	ddd.DomainEvent `json:"domainEvent"`
+	InvoiceID       InvoiceID `json:"invoiceId"`
+	TaskID          TaskID    `json:"taskId"`
 }
 
 func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("account.invoice.task.removed", accountID)
+	event, err := events.NewEvent("account.invoice.task.removed")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, accountID)
 	if err != nil {
 		return nil, err
 	}

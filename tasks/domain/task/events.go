@@ -1,14 +1,15 @@
 package task
 
 import (
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
 
 type TaskCreatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	ProjectID          ProjectID `json:"projectId"`
-	Title              string    `json:"title"`
-	Description        string    `json:"description"`
+	ddd.DomainEvent `json:"domainEvent"`
+	ProjectID       ProjectID `json:"projectId"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
 }
 
 // var (
@@ -18,7 +19,12 @@ type TaskCreatedEvent struct {
 // )
 
 func NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.created", id)
+	event, err := events.NewEvent("task.created")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +50,17 @@ func NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, descripti
 }
 
 type TaskAssignedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	AssignedTo         UserID `json:"assignedTo"`
+	ddd.DomainEvent `json:"domainEvent"`
+	AssignedTo      UserID `json:"assignedTo"`
 }
 
 func NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.assigned", id)
+	event, err := events.NewEvent("task.assigned")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -65,11 +76,16 @@ func NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent,
 }
 
 type TaskUnassignedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
+	ddd.DomainEvent `json:"domainEvent"`
 }
 
 func NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.unassigned", id)
+	event, err := events.NewEvent("task.unassigned")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -80,12 +96,17 @@ func NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
 }
 
 type TitleUpdatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	Title              string `json:"title"`
+	ddd.DomainEvent `json:"domainEvent"`
+	Title           string `json:"title"`
 }
 
 func NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.title.updated", id)
+	event, err := events.NewEvent("task.title.updated")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,12 +122,17 @@ func NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error) {
 }
 
 type DescriptionUpdatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	Description        string `json:"description"`
+	ddd.DomainEvent `json:"domainEvent"`
+	Description     string `json:"description"`
 }
 
 func NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.description.updated", id)
+	event, err := events.NewEvent("task.description.updated")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -122,12 +148,17 @@ func NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpda
 }
 
 type StatusUpdatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	Status             string `json:"status"`
+	ddd.DomainEvent `json:"domainEvent"`
+	Status          string `json:"status"`
 }
 
 func NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("task.status.updated", id)
+	event, err := events.NewEvent("task.status.updated")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}

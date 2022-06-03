@@ -1,6 +1,9 @@
 package user
 
-import "github.com/turao/go-ddd/events"
+import (
+	"github.com/turao/go-ddd/ddd"
+	"github.com/turao/go-ddd/events"
+)
 
 type EventFactory interface {
 	NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error)
@@ -9,7 +12,7 @@ type EventFactory interface {
 type UserEventsFactory struct{}
 
 type UserRegisteredEvent struct {
-	events.DomainEvent `json:"domainEvent"`
+	ddd.DomainEvent `json:"domainEvent"`
 
 	Username string `json:"username"`
 }
@@ -20,7 +23,12 @@ type UserRegisteredEvent struct {
 // )
 
 func (f UserEventsFactory) NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error) {
-	domainEvent, err := events.NewDomainEvent("user.registered", id)
+	event, err := events.NewEvent("user.registered")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}

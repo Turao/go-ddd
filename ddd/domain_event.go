@@ -1,13 +1,15 @@
-package events
+package ddd
 
 import (
 	"encoding/json"
 	"errors"
 	"time"
+
+	"github.com/turao/go-ddd/events"
 )
 
 type domainEvent struct {
-	baseEvent   *baseEvent
+	events.Event
 	aggregateID string
 }
 
@@ -15,32 +17,15 @@ var (
 	ErrInvalidAggregateID = errors.New("invalid aggregate id")
 )
 
-func NewDomainEvent(name string, aggregateID string) (*domainEvent, error) {
-	baseEvent, err := NewBaseEvent(name)
-	if err != nil {
-		return nil, err
-	}
-
+func NewDomainEvent(event events.Event, aggregateID string) (*domainEvent, error) {
 	if aggregateID == "" {
 		return nil, ErrInvalidAggregateID
 	}
 
 	return &domainEvent{
-		baseEvent:   baseEvent,
+		Event:       event,
 		aggregateID: aggregateID,
 	}, nil
-}
-
-func (de domainEvent) ID() string {
-	return de.baseEvent.ID()
-}
-
-func (de domainEvent) Name() string {
-	return de.baseEvent.Name()
-}
-
-func (de domainEvent) OccuredAt() time.Time {
-	return de.baseEvent.OccuredAt()
 }
 
 func (de domainEvent) AggregateID() string {
@@ -54,9 +39,9 @@ func (de domainEvent) MarshalJSON() ([]byte, error) {
 		OccuredAt   time.Time `json:"occurredAt"`
 		AggregateID string    `json:"aggregateId"`
 	}{
-		ID:          de.baseEvent.ID(),
-		Name:        de.baseEvent.Name(),
-		OccuredAt:   de.baseEvent.OccuredAt(),
+		ID:          de.ID(),
+		Name:        de.Name(),
+		OccuredAt:   de.OccurredAt(),
 		AggregateID: de.aggregateID,
 	})
 	if err != nil {

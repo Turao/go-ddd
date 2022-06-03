@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/ddd"
 )
 
 type UserAggregate struct {
@@ -25,7 +25,7 @@ func (ua UserAggregate) ID() string {
 	return ua.User.ID
 }
 
-func (ua *UserAggregate) HandleEvent(ctx context.Context, event events.DomainEvent) error {
+func (ua *UserAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent) error {
 	switch e := event.(type) {
 	case UserRegisteredEvent:
 		u, err := NewUser(e.AggregateID(), e.Username)
@@ -40,7 +40,7 @@ func (ua *UserAggregate) HandleEvent(ctx context.Context, event events.DomainEve
 
 }
 
-func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]events.DomainEvent, error) {
+func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	switch c := cmd.(type) {
 	case RegisterUserCommand:
 		return ua.RegisterUser(c)
@@ -49,7 +49,7 @@ func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]
 	}
 }
 
-func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]events.DomainEvent, error) {
+func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]ddd.DomainEvent, error) {
 	u, err := NewUser(uuid.NewString(), cmd.Username)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]events.DomainE
 		return nil, err
 	}
 
-	return []events.DomainEvent{
+	return []ddd.DomainEvent{
 		*evt,
 	}, nil
 }

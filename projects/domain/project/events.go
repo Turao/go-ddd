@@ -4,18 +4,24 @@ import (
 	"errors"
 	"time"
 
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
 
 type ProjectCreatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	ProjectName        string    `json:"projectName"`
-	CreatedBy          UserID    `json:"createdBy"`
-	CreatedAt          time.Time `json:"createdAt"`
+	ddd.DomainEvent `json:"domainEvent"`
+	ProjectName     string    `json:"projectName"`
+	CreatedBy       UserID    `json:"createdBy"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy UserID, createdAt time.Time) (*ProjectCreatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("project.created", id)
+	event, err := events.NewEvent("project.created")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -37,12 +43,17 @@ func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy UserID, 
 }
 
 type ProjectUpdatedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
-	ProjectName        string `json:"projectName"`
+	ddd.DomainEvent `json:"domainEvent"`
+	ProjectName     string `json:"projectName"`
 }
 
 func NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("project.updated", id)
+	event, err := events.NewEvent("project.updated")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +69,16 @@ func NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEv
 }
 
 type ProjectDeletedEvent struct {
-	events.DomainEvent `json:"domainEvent"`
+	ddd.DomainEvent `json:"domainEvent"`
 }
 
 func NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
-	domainEvent, err := events.NewDomainEvent("project.deleted", id)
+	event, err := events.NewEvent("project.deleted")
+	if err != nil {
+		return nil, err
+	}
+
+	domainEvent, err := ddd.NewDomainEvent(event, id)
 	if err != nil {
 		return nil, err
 	}

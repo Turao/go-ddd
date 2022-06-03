@@ -13,9 +13,9 @@ type MockEvent struct{}
 
 var _ events.Event = (*MockEvent)(nil)
 
-func (e MockEvent) ID() string           { return "" }
-func (e MockEvent) Name() string         { return "" }
-func (e MockEvent) OccuredAt() time.Time { return time.Now() }
+func (e MockEvent) ID() string            { return "" }
+func (e MockEvent) Name() string          { return "" }
+func (e MockEvent) OccurredAt() time.Time { return time.Now() }
 
 func TestPush(t *testing.T) {
 	type test struct {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
 
@@ -24,7 +25,7 @@ func NewProjectAggregate(p *Project, es events.EventStore) (*ProjectAggregate, e
 	}, nil
 }
 
-func (pa *ProjectAggregate) HandleEvent(e events.DomainEvent) error {
+func (pa *ProjectAggregate) HandleEvent(e ddd.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
 		p, err := NewProject(event.AggregateID(), event.ProjectName, event.CreatedBy, event.CreatedAt, true)

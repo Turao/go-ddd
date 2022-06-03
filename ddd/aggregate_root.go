@@ -34,7 +34,7 @@ func NewAggregateRoot(agg Aggregate, es events.EventStore) (*AggregateRoot, erro
 
 	log.Println("replaying events")
 	for _, evt := range evts {
-		err := agg.HandleEvent(ctx, evt.(events.DomainEvent)) // todo: can we cast these events?
+		err := agg.HandleEvent(ctx, evt.(DomainEvent)) // todo: can we cast these events?
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +43,7 @@ func NewAggregateRoot(agg Aggregate, es events.EventStore) (*AggregateRoot, erro
 	return root, nil
 }
 
-func (root *AggregateRoot) HandleEvent(ctx context.Context, evt events.DomainEvent) error {
+func (root *AggregateRoot) HandleEvent(ctx context.Context, evt DomainEvent) error {
 	log.Printf("handling event - %s", evt.Name())
 	defer log.Printf("event handled - %s", evt.Name())
 	err := root.Aggregate.HandleEvent(ctx, evt)

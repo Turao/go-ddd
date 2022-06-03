@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/ddd"
 )
 
 type mockEventFactory struct{}
@@ -16,7 +16,7 @@ func (ef *mockEventFactory) NewUserRegisteredEvent(id string, name string) (*Use
 func TestRegisterUser(t *testing.T) {
 	type test struct {
 		InputName       string
-		PublishedEvents []events.DomainEvent
+		PublishedEvents []ddd.DomainEvent
 
 		Error error
 	}

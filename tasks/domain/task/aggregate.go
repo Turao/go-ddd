@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
 
@@ -22,7 +23,7 @@ func NewTaskAggregate(task *Task, es events.EventStore) (*TaskAggregate, error) 
 	}, nil
 }
 
-func (ta *TaskAggregate) HandleEvent(e events.DomainEvent) error {
+func (ta *TaskAggregate) HandleEvent(e ddd.DomainEvent) error {
 	switch event := e.(type) {
 	case TaskCreatedEvent:
 		t, err := NewTask(event.AggregateID(), event.ProjectID, event.Title, event.Description)

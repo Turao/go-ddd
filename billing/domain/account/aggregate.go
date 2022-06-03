@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/ddd"
 )
 
 type AccountAggregate struct {
@@ -25,7 +25,7 @@ func (agg AccountAggregate) ID() string {
 	return agg.Account.ID
 }
 
-func (agg *AccountAggregate) HandleEvent(ctx context.Context, event events.DomainEvent) error {
+func (agg *AccountAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent) error {
 	switch e := event.(type) {
 	case AccountCreatedEvent:
 		a, err := NewAccount(e.AggregateID(), e.UserID, e.InvoiceID)
@@ -51,7 +51,7 @@ func (agg *AccountAggregate) HandleEvent(ctx context.Context, event events.Domai
 	}
 }
 
-func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]events.DomainEvent, error) {
+func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	switch c := cmd.(type) {
 	case CreateAccountCommand:
 		return agg.CreateAccount(c)
@@ -64,7 +64,7 @@ func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{})
 	}
 }
 
-func (agg *AccountAggregate) CreateAccount(cmd CreateAccountCommand) ([]events.DomainEvent, error) {
+func (agg *AccountAggregate) CreateAccount(cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
 	a, err := NewAccount(cmd.UserID, cmd.UserID, uuid.NewString()) // use UserID as AccountID
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (agg *AccountAggregate) CreateAccount(cmd CreateAccountCommand) ([]events.D
 		return nil, err
 	}
 
-	return []events.DomainEvent{
+	return []ddd.DomainEvent{
 		*evt,
 	}, nil
 }
@@ -88,7 +88,7 @@ func (agg *AccountAggregate) assertAccountExists() error {
 	return nil
 }
 
-func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]events.DomainEvent, error) {
+func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}
@@ -103,12 +103,12 @@ func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]events.DomainE
 		return nil, err
 	}
 
-	return []events.DomainEvent{
+	return []ddd.DomainEvent{
 		*evt,
 	}, nil
 }
 
-func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]events.DomainEvent, error) {
+func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]events
 		return nil, err
 	}
 
-	return []events.DomainEvent{
+	return []ddd.DomainEvent{
 		*evt,
 	}, nil
 }
