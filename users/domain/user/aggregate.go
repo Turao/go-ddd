@@ -35,7 +35,7 @@ func (ua *UserAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent)
 		ua.User = u
 		return nil
 	default:
-		return fmt.Errorf("unable to handle domain event %s", e)
+		return fmt.Errorf("unable to handle domain event")
 	}
 
 }
@@ -45,7 +45,7 @@ func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]
 	case RegisterUserCommand:
 		return ua.RegisterUser(c)
 	default:
-		return nil, fmt.Errorf("unable to handle command %s", cmd)
+		return nil, fmt.Errorf("unable to handle command")
 	}
 }
 
