@@ -9,35 +9,6 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
-func TestRegisterUser(t *testing.T) {
-	type test struct {
-		Command        RegisterUserCommand
-		ExpectedEvents []ddd.DomainEvent
-		ExpectedError  error
-	}
-
-	tests := map[string]test{
-		"success": {
-			Command:        RegisterUserCommand{Username: "dummy"},
-			ExpectedEvents: []ddd.DomainEvent{},
-			ExpectedError:  nil,
-		},
-		"empty user name": {
-			Command:        RegisterUserCommand{Username: ""},
-			ExpectedEvents: []ddd.DomainEvent{},
-			ExpectedError:  errors.New("invalid user name"),
-		},
-	}
-
-	for name, test := range tests {
-		// todo: mock event factory
-		agg := NewUserAggregate(UserEventsFactory{})
-		evts, err := agg.RegisterUser(test.Command)
-		assert.Equalf(t, test.ExpectedEvents, evts, name)
-		assert.Equalf(t, test.ExpectedError, err, name)
-	}
-}
-
 func TestHandleEvent(t *testing.T) {
 	tests := map[string]struct {
 		Event         func() ddd.DomainEvent
@@ -85,6 +56,35 @@ func TestHandleCommand(t *testing.T) {
 	for name, test := range tests {
 		agg := NewUserAggregate(UserEventsFactory{})
 		evts, err := agg.HandleCommand(context.Background(), test.Command)
+		assert.Equalf(t, test.ExpectedEvents, evts, name)
+		assert.Equalf(t, test.ExpectedError, err, name)
+	}
+}
+
+func TestRegisterUser(t *testing.T) {
+	type test struct {
+		Command        RegisterUserCommand
+		ExpectedEvents []ddd.DomainEvent
+		ExpectedError  error
+	}
+
+	tests := map[string]test{
+		"success": {
+			Command:        RegisterUserCommand{Username: "dummy"},
+			ExpectedEvents: []ddd.DomainEvent{},
+			ExpectedError:  nil,
+		},
+		"empty user name": {
+			Command:        RegisterUserCommand{Username: ""},
+			ExpectedEvents: []ddd.DomainEvent{},
+			ExpectedError:  errors.New("invalid user name"),
+		},
+	}
+
+	for name, test := range tests {
+		// todo: mock event factory
+		agg := NewUserAggregate(UserEventsFactory{})
+		evts, err := agg.RegisterUser(test.Command)
 		assert.Equalf(t, test.ExpectedEvents, evts, name)
 		assert.Equalf(t, test.ExpectedError, err, name)
 	}
