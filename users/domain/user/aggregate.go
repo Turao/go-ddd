@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
@@ -13,6 +14,8 @@ type UserAggregate struct {
 
 	EventFactory
 }
+
+var _ ddd.Aggregate = (*UserAggregate)(nil)
 
 var (
 	ErrUnknownEvent   = errors.New("unknown event")
@@ -70,4 +73,24 @@ func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]ddd.DomainEven
 	return []ddd.DomainEvent{
 		*evt,
 	}, nil
+}
+
+func (ua UserAggregate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		User User `json:"user"`
+	}{
+		User: *ua.User,
+	})
+}
+
+func (ua *UserAggregate) UnmarshalJSON(data []byte) error {
+	var payload struct {
+		User User `json:"user"`
+	}
+	err := json.Unmarshal(data, &payload)
+	if err != nil {
+		return err
+	}
+	ua.User = &payload.User
+	return nil
 }
