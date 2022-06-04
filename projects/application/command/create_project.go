@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
@@ -21,12 +22,16 @@ func NewCreateProjectCommandHandler(repository project.Repository, es events.Eve
 }
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req application.CreateProjectCommand) error {
-	pa, err := project.NewProjectAggregate(nil, h.eventStore)
+	pa := project.NewProjectAggregate(project.ProjectEventFactory{})
+	root, err := ddd.NewAggregateRoot(pa, h.eventStore)
 	if err != nil {
 		return err
 	}
 
-	err = pa.CreateProject(req.Name, req.CreatedBy)
+	err = root.HandleCommand(ctx, project.CreateProjectCommand{
+		Name:      req.Name,
+		CreatedBy: req.CreatedBy,
+	})
 	if err != nil {
 		return err
 	}

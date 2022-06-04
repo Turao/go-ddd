@@ -27,7 +27,7 @@ func NewServer(app *Application) (*Server, error) {
 
 	// prepare HTTP server
 	httpServer := &http.Server{
-		Addr:         "0.0.0.0:8080",
+		Addr:         "0.0.0.0:8085",
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 15,

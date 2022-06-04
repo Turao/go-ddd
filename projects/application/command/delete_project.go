@@ -3,6 +3,7 @@ package command
 import (
 	"context"
 
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
@@ -26,12 +27,15 @@ func (h *DeleteProjectHandler) Handle(ctx context.Context, req application.Delet
 		return err
 	}
 
-	pa, err := project.NewProjectAggregate(p, h.eventStore)
+	pa := project.NewProjectAggregate(project.ProjectAggregate{})
+	pa.Project = p // todo: load from snapshot instead of overriding directly
+
+	root, err := ddd.NewAggregateRoot(pa, h.eventStore)
 	if err != nil {
 		return err
 	}
 
-	err = pa.DeleteProject()
+	err = root.HandleCommand(ctx, project.DeleteProjectCommand{})
 	if err != nil {
 		return err
 	}

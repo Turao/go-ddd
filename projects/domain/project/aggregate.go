@@ -3,29 +3,35 @@ package project
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type ProjectAggregate struct {
 	Project *Project `json:"project"`
-	version int
-	events  events.EventStore
+
+	EventFactory
 }
 
-func NewProjectAggregate(p *Project, es events.EventStore) (*ProjectAggregate, error) {
+var (
+	ErrUnknownEvent   = errors.New("unknown event")
+	ErrUnknownCommand = errors.New("unknown command")
+)
+
+func NewProjectAggregate(ef EventFactory) *ProjectAggregate {
 	return &ProjectAggregate{
-		Project: p,
-		version: 0,
-		events:  es,
-	}, nil
+		Project:      nil,
+		EventFactory: ef,
+	}
 }
 
-func (pa *ProjectAggregate) HandleEvent(e ddd.DomainEvent) error {
+func (pa ProjectAggregate) ID() string {
+	return pa.Project.ID
+}
+
+func (pa *ProjectAggregate) HandleEvent(ctx context.Context, e ddd.DomainEvent) error {
 	switch event := e.(type) {
 	case ProjectCreatedEvent:
 		p, err := NewProject(event.AggregateID(), event.ProjectName, event.CreatedBy, event.CreatedAt, true)
@@ -33,7 +39,6 @@ func (pa *ProjectAggregate) HandleEvent(e ddd.DomainEvent) error {
 			return err
 		}
 		pa.Project = p
-		pa.version += 1
 		return nil
 	case ProjectUpdatedEvent:
 		if pa.Project == nil {
@@ -43,7 +48,6 @@ func (pa *ProjectAggregate) HandleEvent(e ddd.DomainEvent) error {
 		if err != nil {
 			return err
 		}
-		pa.version += 1
 		return nil
 	case ProjectDeletedEvent:
 		if pa.Project == nil {
@@ -53,72 +57,72 @@ func (pa *ProjectAggregate) HandleEvent(e ddd.DomainEvent) error {
 		if err != nil {
 			return err
 		}
-		pa.version += 1
 		return nil
 	default:
-		return fmt.Errorf("unable to handle domain event %s", e)
+		return ErrUnknownEvent
 	}
 }
 
-func (pa *ProjectAggregate) CreateProject(name string, createdBy UserID) error {
+func (pa *ProjectAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
+	switch c := cmd.(type) {
+	case CreateProjectCommand:
+		return pa.CreateProject(c.Name, c.CreatedBy)
+	case UpdateProjectCommand:
+		return pa.UpdateProject(c.Name)
+	case DeleteProjectCommand:
+		return pa.DeleteProject()
+	default:
+		return nil, ErrUnknownCommand
+	}
+}
+
+func (pa *ProjectAggregate) CreateProject(name string, createdBy UserID) ([]ddd.DomainEvent, error) {
 	now := time.Now()
 	p, err := NewProject(uuid.NewString(), name, createdBy, now, true)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	pa.Project = p
 
-	evt, err := NewProjectCreatedEvent(p.ID, p.Name, createdBy, now)
+	evt, err := pa.EventFactory.NewProjectCreatedEvent(p.ID, p.Name, createdBy, now)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = pa.events.Push(context.Background(), *evt, pa.version+1)
-	if err != nil {
-		return err
-	}
-	pa.version += 1
-
-	return nil
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (pa *ProjectAggregate) DeleteProject() error {
-	err := pa.Project.Delete()
-	if err != nil {
-		return err
-	}
-
-	evt, err := NewProjectDeletedEvent(pa.Project.ID)
-	if err != nil {
-		return err
-	}
-
-	err = pa.events.Push(context.Background(), *evt, pa.version+1)
-	if err != nil {
-		return err
-	}
-	pa.version += 1
-
-	return nil
-}
-
-func (pa *ProjectAggregate) UpdateProject(name string) error {
+func (pa *ProjectAggregate) UpdateProject(name string) ([]ddd.DomainEvent, error) {
 	err := pa.Project.Rename(name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewProjectUpdatedEvent(pa.Project.ID, name)
+	evt, err := pa.EventFactory.NewProjectUpdatedEvent(pa.Project.ID, name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = pa.events.Push(context.Background(), *evt, pa.version+1)
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
+}
+
+func (pa *ProjectAggregate) DeleteProject() ([]ddd.DomainEvent, error) {
+	err := pa.Project.Delete()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	pa.version += 1
 
-	return nil
+	evt, err := pa.EventFactory.NewProjectDeletedEvent(pa.Project.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }

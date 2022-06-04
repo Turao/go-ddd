@@ -8,6 +8,14 @@ import (
 	"github.com/turao/go-ddd/events"
 )
 
+type EventFactory interface {
+	NewProjectCreatedEvent(id ProjectID, projectName string, createdBy UserID, createdAt time.Time) (*ProjectCreatedEvent, error)
+	NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error)
+	NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error)
+}
+
+type ProjectEventFactory struct{}
+
 type ProjectCreatedEvent struct {
 	ddd.DomainEvent `json:"domainEvent"`
 	ProjectName     string    `json:"projectName"`
@@ -15,7 +23,12 @@ type ProjectCreatedEvent struct {
 	CreatedAt       time.Time `json:"createdAt"`
 }
 
-func NewProjectCreatedEvent(id ProjectID, projectName string, createdBy UserID, createdAt time.Time) (*ProjectCreatedEvent, error) {
+func (ef ProjectEventFactory) NewProjectCreatedEvent(
+	id ProjectID,
+	projectName string,
+	createdBy UserID,
+	createdAt time.Time,
+) (*ProjectCreatedEvent, error) {
 	event, err := events.NewEvent("project.created")
 	if err != nil {
 		return nil, err
@@ -47,7 +60,7 @@ type ProjectUpdatedEvent struct {
 	ProjectName     string `json:"projectName"`
 }
 
-func NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {
+func (ef ProjectEventFactory) NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {
 	event, err := events.NewEvent("project.updated")
 	if err != nil {
 		return nil, err
@@ -72,7 +85,7 @@ type ProjectDeletedEvent struct {
 	ddd.DomainEvent `json:"domainEvent"`
 }
 
-func NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
+func (ef ProjectEventFactory) NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
 	event, err := events.NewEvent("project.deleted")
 	if err != nil {
 		return nil, err
