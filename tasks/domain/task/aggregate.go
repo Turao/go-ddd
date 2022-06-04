@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
@@ -191,9 +192,21 @@ func (ta TaskAggregate) handleUpdateStatusCommand(ctx context.Context, cmd Updat
 }
 
 func (ta TaskAggregate) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	return json.Marshal(struct {
+		Task Task `json:"task"`
+	}{
+		Task: *ta.Task,
+	})
 }
 
 func (ta *TaskAggregate) UnmarshalJSON(data []byte) error {
+	var payload struct {
+		Task Task `json:"Task"`
+	}
+	err := json.Unmarshal(data, &payload)
+	if err != nil {
+		return err
+	}
+	ta.Task = &payload.Task
 	return nil
 }
