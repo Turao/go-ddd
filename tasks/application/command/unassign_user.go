@@ -35,7 +35,7 @@ func (h UnassignUserCommandHandler) Handle(ctx context.Context, req application.
 	assignedUser := *t.AssignedUser
 
 	agg := task.NewTaskAggregate(task.TaskEventFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	root, err := ddd.NewAggregateRoot(agg)
 	if err != nil {
 		return err
 	}

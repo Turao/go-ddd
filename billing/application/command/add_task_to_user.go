@@ -25,7 +25,7 @@ func NewAddTaskToUserCommandHandler(repository account.Repository, es events.Eve
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
 	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	root, err := ddd.NewAggregateRoot(agg, ddd.WithEventStore(h.eventStore))
 	if err != nil {
 		return nil
 	}

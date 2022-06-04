@@ -34,7 +34,7 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 	ua := user.NewUserAggregate(user.UserEventsFactory{})
 	root, err := ddd.NewAggregateRoot(
 		ua,
-		h.eventStore,
+		ddd.WithEventStore(h.eventStore),
 	)
 	if err != nil {
 		return err

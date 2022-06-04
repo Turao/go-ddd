@@ -25,7 +25,7 @@ func NewRemoveTaskFromUserCommandHandler(repository account.Repository, es event
 
 func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req application.RemoveTaskFromUserCommand) error {
 	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	root, err := ddd.NewAggregateRoot(agg, ddd.WithEventStore(h.eventStore))
 	if err != nil {
 		return nil
 	}

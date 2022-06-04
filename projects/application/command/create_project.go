@@ -23,7 +23,7 @@ func NewCreateProjectCommandHandler(repository project.Repository, es events.Eve
 
 func (h *CreateProjectHandler) Handle(ctx context.Context, req application.CreateProjectCommand) error {
 	pa := project.NewProjectAggregate(project.ProjectEventFactory{})
-	root, err := ddd.NewAggregateRoot(pa, h.eventStore)
+	root, err := ddd.NewAggregateRoot(pa, ddd.WithEventStore(h.eventStore))
 	if err != nil {
 		return err
 	}

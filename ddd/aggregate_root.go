@@ -30,12 +30,29 @@ type root struct {
 
 var _ AggregateRoot = (*root)(nil)
 
-func NewAggregateRoot(agg Aggregate, es events.EventStore) (*root, error) {
-	return &root{
+type AggregateRootOption = func(root *root) error
+
+func WithEventStore(es events.EventStore) AggregateRootOption {
+	return func(root *root) error {
+		root.EventStore = es
+		return nil
+	}
+}
+
+func NewAggregateRoot(agg Aggregate, opts ...AggregateRootOption) (*root, error) {
+	root := &root{
 		aggregate:  agg,
 		version:    0,
-		EventStore: es,
-	}, nil
+		EventStore: nil,
+	}
+
+	for _, opt := range opts {
+		if err := opt(root); err != nil {
+			return nil, err
+		}
+	}
+
+	return root, nil
 }
 
 func (root root) ID() string {
@@ -47,18 +64,15 @@ func (root root) Version() int {
 }
 
 func (root *root) HandleEvent(ctx context.Context, evt DomainEvent) error {
-	log.Printf("handling event - %s", evt.Name())
 	err := root.aggregate.HandleEvent(ctx, evt)
 	if err != nil {
 		return err
 	}
 	root.version += 1
-	log.Printf("event handled - %s", evt.Name())
 	return nil
 }
 
 func (root *root) HandleCommand(ctx context.Context, cmd interface{}) error {
-	log.Println("handling command")
 	evts, err := root.aggregate.HandleCommand(ctx, cmd)
 	if err != nil {
 		return err
@@ -68,13 +82,17 @@ func (root *root) HandleCommand(ctx context.Context, cmd interface{}) error {
 	// to be consistent with the event handler behavior
 	root.version += len(evts)
 
+	if root.EventStore == nil {
+		return nil
+	}
+
+	// push events into store
 	for _, evt := range evts {
 		err = root.EventStore.Push(ctx, evt, root.version)
 		if err != nil {
 			return err
 		}
 	}
-	log.Println("command handled")
 	return nil
 }
 
@@ -83,6 +101,10 @@ func (root *root) ReplayEvents() error {
 	// limit how long to wait for the re-creation of the aggregate root
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	if root.EventStore == nil {
+		return nil
+	}
 
 	log.Println("fetching events")
 	evts, err := root.EventStore.Events(ctx)
@@ -103,6 +125,10 @@ func (root *root) ReplayEvents() error {
 
 // CommitEvents flushes all events within the aggregate root's event store
 func (root *root) CommitEvents() error {
+	if root.EventStore == nil {
+		return nil
+	}
+
 	log.Panic("method not implemented") // todo
 	return nil
 }

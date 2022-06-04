@@ -30,7 +30,7 @@ func (h *DeleteProjectHandler) Handle(ctx context.Context, req application.Delet
 	pa := project.NewProjectAggregate(project.ProjectAggregate{})
 	pa.Project = p // todo: load from snapshot instead of overriding directly
 
-	root, err := ddd.NewAggregateRoot(pa, h.eventStore)
+	root, err := ddd.NewAggregateRoot(pa, ddd.WithEventStore(h.eventStore))
 	if err != nil {
 		return err
 	}
