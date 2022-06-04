@@ -1,4 +1,4 @@
-package amqp
+package kafka
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"github.com/turao/go-ddd/api"
 )
 
-type AMQPTaskUnassignedEventPublisher struct {
+type TaskStatusUpdatedEventPublisher struct {
 	publisher message.Publisher
 }
 
-func NewAMQPTaskUnassignedEventPublisher(p message.Publisher) (*AMQPTaskUnassignedEventPublisher, error) {
-	return &AMQPTaskUnassignedEventPublisher{
+func NewTaskStatusUpdatedEventPublisher(p message.Publisher) (*TaskStatusUpdatedEventPublisher, error) {
+	return &TaskStatusUpdatedEventPublisher{
 		publisher: p,
 	}, nil
 }
 
-func (p AMQPTaskUnassignedEventPublisher) Publish(ctx context.Context, event api.TaskUnassignedEvent) error {
+func (p TaskStatusUpdatedEventPublisher) Publish(ctx context.Context, event api.TaskStatusUpdatedEvent) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return err

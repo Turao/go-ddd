@@ -3,10 +3,9 @@ package main
 import (
 	"log"
 
-	watermillAMQP "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
-
 	"github.com/ThreeDotsLabs/watermill"
-	"github.com/turao/go-ddd/api/amqp"
+	watermillKafka "github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
+	"github.com/turao/go-ddd/api/kafka"
 	"github.com/turao/go-ddd/events/in_memory"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/application/command"
@@ -26,25 +25,28 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	queue := watermillAMQP.NewDurableQueueConfig("amqp://localhost:5672")
+	queue := watermillKafka.PublisherConfig{
+		Brokers:   []string{"localhost:29092"},
+		Marshaler: watermillKafka.DefaultMarshaler{},
+	}
 	logger := watermill.NewStdLogger(false, false)
-	publisher, err := watermillAMQP.NewPublisher(queue, logger)
+	publisher, err := watermillKafka.NewPublisher(queue, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer publisher.Close()
 
-	urep, err := amqp.NewAMQPTaskStatusUpdatedEventPublisher(publisher)
+	urep, err := kafka.NewTaskStatusUpdatedEventPublisher(publisher)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	taep, err := amqp.NewAMQPTaskAssignedEventPublisher(publisher)
+	taep, err := kafka.NewTaskAssignedEventPublisher(publisher)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	tuep, err := amqp.NewAMQPTaskUnassignedEventPublisher(publisher)
+	tuep, err := kafka.NewTaskUnassignedEventPublisher(publisher)
 	if err != nil {
 		log.Fatalln(err)
 	}
