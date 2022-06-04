@@ -13,6 +13,8 @@ type domainEvent struct {
 	aggregateID string
 }
 
+var _ DomainEvent = (*domainEvent)(nil)
+
 var (
 	ErrInvalidAggregateID = errors.New("invalid aggregate id")
 )

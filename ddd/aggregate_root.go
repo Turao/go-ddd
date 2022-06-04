@@ -8,19 +8,29 @@ import (
 	"github.com/turao/go-ddd/events"
 )
 
-type AggregateRoot struct {
-	Aggregate
+type AggregateRoot interface {
+	ID() string
+	Version() int
+	HandleEvent(ctx context.Context, evt DomainEvent) error
+	HandleCommand(ctx context.Context, cmd interface{}) error
+	CommitEvents() error
+}
+
+type root struct {
+	aggregate  Aggregate
 	version    int
 	EventStore events.EventStore
 }
 
-func NewAggregateRoot(agg Aggregate, es events.EventStore) (*AggregateRoot, error) {
+var _ AggregateRoot = (*root)(nil)
+
+func NewAggregateRoot(agg Aggregate, es events.EventStore) (*root, error) {
 	// limit how long to wait for the re-creation of the aggregate root
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	root := &AggregateRoot{
-		Aggregate:  agg,
+	root := &root{
+		aggregate:  agg,
 		version:    0,
 		EventStore: es,
 	}
@@ -43,10 +53,18 @@ func NewAggregateRoot(agg Aggregate, es events.EventStore) (*AggregateRoot, erro
 	return root, nil
 }
 
-func (root *AggregateRoot) HandleEvent(ctx context.Context, evt DomainEvent) error {
+func (root root) ID() string {
+	return root.aggregate.ID() // !risk of null pointers
+}
+
+func (root root) Version() int {
+	return root.version
+}
+
+func (root *root) HandleEvent(ctx context.Context, evt DomainEvent) error {
 	log.Printf("handling event - %s", evt.Name())
 	defer log.Printf("event handled - %s", evt.Name())
-	err := root.Aggregate.HandleEvent(ctx, evt)
+	err := root.aggregate.HandleEvent(ctx, evt)
 	if err != nil {
 		return err
 	}
@@ -54,10 +72,10 @@ func (root *AggregateRoot) HandleEvent(ctx context.Context, evt DomainEvent) err
 	return nil
 }
 
-func (root *AggregateRoot) HandleCommand(ctx context.Context, cmd interface{}) error {
+func (root *root) HandleCommand(ctx context.Context, cmd interface{}) error {
 	log.Println("handling command")
 	defer log.Println("command handled")
-	evts, err := root.Aggregate.HandleCommand(ctx, cmd)
+	evts, err := root.aggregate.HandleCommand(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -75,7 +93,7 @@ func (root *AggregateRoot) HandleCommand(ctx context.Context, cmd interface{}) e
 	return nil
 }
 
-func (root *AggregateRoot) CommitEvents() error {
+func (root *root) CommitEvents() error {
 	log.Println("commiting events - todo!") // todo
 	return nil
 }
