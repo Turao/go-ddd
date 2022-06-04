@@ -20,8 +20,10 @@ type TaskUnassignedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
 
+const TaskUnassignedEventName = "task.unassigned"
+
 func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) (*TaskUnassignedEvent, error) {
-	event, err := events.NewEvent("task.unassigned")
+	event, err := events.NewEvent(TaskUnassignedEventName)
 	if err != nil {
 		return nil, err
 	}

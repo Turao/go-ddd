@@ -20,8 +20,10 @@ type TaskStatusUpdatedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
 
+const TaskStatusUpdatedEventName = "task.status.updated"
+
 func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status string) (*TaskStatusUpdatedEvent, error) {
-	event, err := events.NewEvent("task.status.updated")
+	event, err := events.NewEvent(TaskStatusUpdatedEventName)
 	if err != nil {
 		return nil, err
 	}

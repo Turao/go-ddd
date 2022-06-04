@@ -20,8 +20,10 @@ type TaskAssignedEvent struct {
 
 var _ events.IntegrationEvent = (*TaskAssignedEvent)(nil)
 
+const TaskAssignedEventName = "task.assigned"
+
 func NewTaskAssignedEvent(correlationID string, taskID string, userID string) (*TaskAssignedEvent, error) {
-	event, err := events.NewEvent("task.assigned")
+	event, err := events.NewEvent(TaskAssignedEventName)
 	if err != nil {
 		return nil, err
 	}
