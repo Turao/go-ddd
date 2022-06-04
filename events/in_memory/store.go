@@ -7,8 +7,6 @@ import (
 	"github.com/turao/go-ddd/events"
 )
 
-// -- in memory implementation --
-
 type inMemoryStore struct {
 	evts []events.Event
 }
