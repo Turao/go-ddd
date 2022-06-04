@@ -2,28 +2,34 @@ package task
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type TaskAggregate struct {
-	Task    *Task
-	version int
-	events  events.EventStore
+	Task *Task
+	EventFactory
 }
 
-func NewTaskAggregate(task *Task, es events.EventStore) (*TaskAggregate, error) {
+var (
+	ErrUnknownEvent   = errors.New("unknown event")
+	ErrUnknownCommand = errors.New("unknown command")
+)
+
+func NewTaskAggregate(ef EventFactory) *TaskAggregate {
 	return &TaskAggregate{
-		Task:    task,
-		version: 0,
-		events:  es,
-	}, nil
+		Task:         nil,
+		EventFactory: ef,
+	}
 }
 
-func (ta *TaskAggregate) HandleEvent(e ddd.DomainEvent) error {
+func (ta *TaskAggregate) ID() string {
+	return ta.Task.ID
+}
+
+func (ta *TaskAggregate) HandleEvent(ctx context.Context, e ddd.DomainEvent) error {
 	switch event := e.(type) {
 	case TaskCreatedEvent:
 		t, err := NewTask(event.AggregateID(), event.ProjectID, event.Title, event.Description)
@@ -31,166 +37,163 @@ func (ta *TaskAggregate) HandleEvent(e ddd.DomainEvent) error {
 			return err
 		}
 		ta.Task = t
-		ta.version += 1
 		return nil
 	case TaskAssignedEvent:
-		err := ta.Task.AssignTo(event.AssignedTo)
+		err := ta.Task.AssignToUser(event.AssignedTo)
 		if err != nil {
 			return err
 		}
-		ta.version += 1
 		return nil
 	case TaskUnassignedEvent:
 		err := ta.Task.Unassign()
 		if err != nil {
 			return err
 		}
-		ta.version += 1
 		return nil
 	case TitleUpdatedEvent:
 		err := ta.Task.UpdateTitle(event.Title)
 		if err != nil {
 			return err
 		}
-		ta.version += 1
 		return nil
 	case DescriptionUpdatedEvent:
 		err := ta.Task.UpdateDescription(event.Description)
 		if err != nil {
 			return err
 		}
-		ta.version += 1
 		return nil
 	case StatusUpdatedEvent:
 		err := ta.Task.UpdateStatus(event.Status)
 		if err != nil {
 			return err
 		}
-		ta.version += 1
 		return nil
 	default:
-		return fmt.Errorf("unable to handle domain event %s", e)
+		return ErrUnknownEvent
 	}
 }
 
-func (ta *TaskAggregate) CreateTask(projectID ProjectID, title string, description string) (*Task, error) {
-	t, err := NewTask(uuid.NewString(), projectID, title, description)
+func (ta *TaskAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
+	switch c := cmd.(type) {
+	case CreateTaskCommand:
+		return ta.handleCreateTaskCommand(ctx, c)
+	case AssignToUserCommand:
+		return ta.handleAssignToUserCommand(ctx, c)
+	case UnassignCommand:
+		return ta.handleUnassignCommand(ctx, c)
+	case UpdateTitleCommand:
+		return ta.handleUpdateTitleCommand(ctx, c)
+	case UpdateDescriptionCommand:
+		return ta.handleUpdateDescriptionCommand(ctx, c)
+	case UpdateStatusCommand:
+		return ta.handleUpdateStatusCommand(ctx, c)
+	default:
+		return nil, ErrUnknownCommand
+	}
+}
+
+func (ta *TaskAggregate) handleCreateTaskCommand(ctx context.Context, cmd CreateTaskCommand) ([]ddd.DomainEvent, error) {
+	t, err := NewTask(uuid.NewString(), cmd.ProjectID, cmd.Title, cmd.Description)
 	if err != nil {
 		return nil, err
 	}
 
 	ta.Task = t
 
-	evt, err := NewTaskCreatedEvent(t.ID, t.ProjectID, t.Title, t.Description)
+	evt, err := ta.EventFactory.NewTaskCreatedEvent(t.ID, t.ProjectID, t.Title, t.Description)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
+}
+
+func (ta TaskAggregate) handleAssignToUserCommand(ctx context.Context, cmd AssignToUserCommand) ([]ddd.DomainEvent, error) {
+	err := ta.Task.AssignToUser(cmd.UserID)
 	if err != nil {
 		return nil, err
 	}
-	ta.version += 1
 
-	return t, nil
+	evt, err := ta.EventFactory.NewTaskAssignedEvent(ta.Task.ID, cmd.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (ta TaskAggregate) AssignTo(assignedUserID UserID) error {
-	err := ta.Task.AssignTo(assignedUserID)
-	if err != nil {
-		return err
-	}
-
-	evt, err := NewTaskAssignedEvent(ta.Task.ID, assignedUserID)
-	if err != nil {
-		return err
-	}
-
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
-	if err != nil {
-		return err
-	}
-	ta.version += 1
-
-	return nil
-}
-
-func (ta TaskAggregate) Unassign() error {
+func (ta TaskAggregate) handleUnassignCommand(ctx context.Context, cmd UnassignCommand) ([]ddd.DomainEvent, error) {
 	err := ta.Task.Unassign()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewTaskUnassignedEvent(ta.Task.ID)
+	evt, err := ta.EventFactory.NewTaskUnassignedEvent(ta.Task.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
-	if err != nil {
-		return err
-	}
-	ta.version += 1
-
-	return nil
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (ta TaskAggregate) UpdateTitle(title string) error {
-	err := ta.Task.UpdateTitle(title)
+func (ta TaskAggregate) handleUpdateTitleCommand(ctx context.Context, cmd UpdateTitleCommand) ([]ddd.DomainEvent, error) {
+	err := ta.Task.UpdateTitle(cmd.Title)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewTitleUpdatedEvent(ta.Task.ID, title)
+	evt, err := ta.EventFactory.NewTitleUpdatedEvent(ta.Task.ID, cmd.Title)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
-	if err != nil {
-		return err
-	}
-	ta.version += 1
-
-	return nil
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (ta TaskAggregate) UpdateDescription(description string) error {
-	err := ta.Task.UpdateDescription(description)
+func (ta TaskAggregate) handleUpdateDescriptionCommand(ctx context.Context, cmd UpdateDescriptionCommand) ([]ddd.DomainEvent, error) {
+	err := ta.Task.UpdateDescription(cmd.Description)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewDescriptionUpdatedEvent(ta.Task.ID, description)
+	evt, err := ta.EventFactory.NewDescriptionUpdatedEvent(ta.Task.ID, cmd.Description)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
-	if err != nil {
-		return err
-	}
-	ta.version += 1
-
-	return nil
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
 }
 
-func (ta TaskAggregate) UpdateStatus(status string) error {
-	err := ta.Task.UpdateStatus(status)
+func (ta TaskAggregate) handleUpdateStatusCommand(ctx context.Context, cmd UpdateStatusCommand) ([]ddd.DomainEvent, error) {
+	err := ta.Task.UpdateStatus(cmd.Status)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	evt, err := NewStatusUpdatedEvent(ta.Task.ID, status)
+	evt, err := ta.EventFactory.NewStatusUpdatedEvent(ta.Task.ID, cmd.Status)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = ta.events.Push(context.Background(), *evt, ta.version+1)
-	if err != nil {
-		return err
-	}
-	ta.version += 1
+	return []ddd.DomainEvent{
+		*evt,
+	}, nil
+}
 
+func (ta TaskAggregate) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
+
+func (ta *TaskAggregate) UnmarshalJSON(data []byte) error {
 	return nil
 }

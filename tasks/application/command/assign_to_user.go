@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -30,17 +31,22 @@ func (h AssignToUserCommandHandler) Handle(ctx context.Context, req application.
 		return err
 	}
 
-	ta, err := task.NewTaskAggregate(t, h.eventStore)
+	agg := task.NewTaskAggregate(task.TaskEventFactory{})
+	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
 	if err != nil {
 		return err
 	}
 
-	err = ta.AssignTo(req.UserID)
+	agg.Task = t // todo: find a better way to load the entity
+
+	err = root.HandleCommand(ctx, task.AssignToUserCommand{
+		UserID: req.UserID,
+	})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *ta.Task)
+	err = h.repository.Save(ctx, *agg.Task)
 	if err != nil {
 		return err
 	}

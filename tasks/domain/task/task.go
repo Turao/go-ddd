@@ -66,7 +66,7 @@ func NewTask(id TaskID, projectId ProjectID, title string, description string) (
 	}, nil
 }
 
-func (t *Task) AssignTo(assignedUserID UserID) error {
+func (t *Task) AssignToUser(assignedUserID UserID) error {
 	t.AssignedUser = &assignedUserID
 	return nil
 }

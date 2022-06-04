@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -33,17 +34,18 @@ func (h UnassignUserCommandHandler) Handle(ctx context.Context, req application.
 	// get assigned user's id so we can publish the integration event later
 	assignedUser := *t.AssignedUser
 
-	ta, err := task.NewTaskAggregate(t, h.eventStore)
+	agg := task.NewTaskAggregate(task.TaskEventFactory{})
+	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
 	if err != nil {
 		return err
 	}
 
-	err = ta.Unassign()
+	err = root.HandleCommand(ctx, task.UnassignCommand{})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *ta.Task)
+	err = h.repository.Save(ctx, *agg.Task)
 	if err != nil {
 		return err
 	}

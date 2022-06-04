@@ -5,6 +5,17 @@ import (
 	"github.com/turao/go-ddd/events"
 )
 
+type EventFactory interface {
+	NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error)
+	NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error)
+	NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error)
+	NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error)
+	NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error)
+	NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error)
+}
+
+type TaskEventFactory struct{}
+
 type TaskCreatedEvent struct {
 	ddd.DomainEvent `json:"domainEvent"`
 	ProjectID       ProjectID `json:"projectId"`
@@ -12,13 +23,7 @@ type TaskCreatedEvent struct {
 	Description     string    `json:"description"`
 }
 
-// var (
-// ErrInvalidProjectID = errors.New("invalid project id")
-// ErrInvalidTitle       = errors.New("invalid title")
-// ErrInvalidDescription = errors.New("invalid description")
-// )
-
-func NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error) {
+func (f TaskEventFactory) NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error) {
 	event, err := events.NewEvent("task.created")
 	if err != nil {
 		return nil, err
@@ -54,7 +59,7 @@ type TaskAssignedEvent struct {
 	AssignedTo      UserID `json:"assignedTo"`
 }
 
-func NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error) {
+func (f TaskEventFactory) NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error) {
 	event, err := events.NewEvent("task.assigned")
 	if err != nil {
 		return nil, err
@@ -79,7 +84,7 @@ type TaskUnassignedEvent struct {
 	ddd.DomainEvent `json:"domainEvent"`
 }
 
-func NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
+func (f TaskEventFactory) NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
 	event, err := events.NewEvent("task.unassigned")
 	if err != nil {
 		return nil, err
@@ -100,7 +105,7 @@ type TitleUpdatedEvent struct {
 	Title           string `json:"title"`
 }
 
-func NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error) {
+func (f TaskEventFactory) NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error) {
 	event, err := events.NewEvent("task.title.updated")
 	if err != nil {
 		return nil, err
@@ -126,7 +131,7 @@ type DescriptionUpdatedEvent struct {
 	Description     string `json:"description"`
 }
 
-func NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error) {
+func (f TaskEventFactory) NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error) {
 	event, err := events.NewEvent("task.description.updated")
 	if err != nil {
 		return nil, err
@@ -152,7 +157,7 @@ type StatusUpdatedEvent struct {
 	Status          string `json:"status"`
 }
 
-func NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error) {
+func (f TaskEventFactory) NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error) {
 	event, err := events.NewEvent("task.status.updated")
 	if err != nil {
 		return nil, err
