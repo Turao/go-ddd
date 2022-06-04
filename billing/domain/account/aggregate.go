@@ -2,6 +2,7 @@ package account
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -13,6 +14,8 @@ type AccountAggregate struct {
 	Account *Account `json:"account"`
 	EventFactory
 }
+
+var _ ddd.Aggregate = (*AccountAggregate)(nil)
 
 func NewAccountAggregate(ef EventFactory) *AccountAggregate {
 	return &AccountAggregate{
@@ -126,4 +129,24 @@ func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]ddd.Do
 	return []ddd.DomainEvent{
 		*evt,
 	}, nil
+}
+
+func (agg AccountAggregate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Account Account `json:"account"`
+	}{
+		Account: *agg.Account,
+	})
+}
+
+func (agg *AccountAggregate) UnmarshalJSON(data []byte) error {
+	var payload struct {
+		Account Account `json:"account"`
+	}
+	err := json.Unmarshal(data, &payload)
+	if err != nil {
+		return err
+	}
+	agg.Account = &payload.Account
+	return nil
 }
