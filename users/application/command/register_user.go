@@ -31,17 +31,18 @@ func NewRegisterUserHandler(
 
 func (h RegisterUserHandler) Handle(ctx context.Context, req application.RegisterUserCommand) error {
 	// create the aggregate root
-	ua := user.NewUserAggregate(user.UserEventsFactory{})
-	root, err := ddd.NewAggregateRoot(
-		ua,
-		h.eventStore,
-	)
+	// agg, err := user.NewUserAggregate(user.UserEventsFactory{})
+
+	agg, err := user.FromSnapshot(user.UserSnapshot{
+		Snapshot: ddd.Snapshot{ID: "123", Version: 12},
+		User:     nil,
+	}, user.UserEventsFactory{})
 	if err != nil {
 		return err
 	}
 
 	// handle the command
-	err = root.HandleCommand(ctx, user.RegisterUserCommand{
+	err = agg.HandleCommand(ctx, user.RegisterUserCommand{
 		Username: req.Username,
 	})
 	if err != nil {
@@ -49,12 +50,12 @@ func (h RegisterUserHandler) Handle(ctx context.Context, req application.Registe
 	}
 
 	// todo: find a better way to save the aggregate root
-	err = h.repository.Save(ctx, *ua.User)
+	err = h.repository.Save(ctx, *agg.User)
 	if err != nil {
 		return err
 	}
 
-	ie, err := api.NewUserRegisteredEvent(uuid.NewString(), ua.ID())
+	ie, err := api.NewUserRegisteredEvent(uuid.NewString(), agg.ID())
 	if err != nil {
 		return err
 	}
