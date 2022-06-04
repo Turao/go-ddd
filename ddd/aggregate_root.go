@@ -101,8 +101,9 @@ func (root *root) ReplayEvents() error {
 	return nil
 }
 
+// CommitEvents flushes all events within the aggregate root's event store
 func (root *root) CommitEvents() error {
-	log.Println("commiting events - todo!") // todo
+	log.Panic("method not implemented") // todo
 	return nil
 }
 
