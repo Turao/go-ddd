@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -14,6 +15,8 @@ type ProjectAggregate struct {
 
 	EventFactory
 }
+
+var _ ddd.Aggregate = (*ProjectAggregate)(nil)
 
 var (
 	ErrUnknownEvent   = errors.New("unknown event")
@@ -125,4 +128,24 @@ func (pa *ProjectAggregate) DeleteProject() ([]ddd.DomainEvent, error) {
 	return []ddd.DomainEvent{
 		*evt,
 	}, nil
+}
+
+func (pa ProjectAggregate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Project Project `json:"project"`
+	}{
+		Project: *pa.Project,
+	})
+}
+
+func (pa *ProjectAggregate) UnmarshalJSON(data []byte) error {
+	var payload struct {
+		Project Project `json:"project"`
+	}
+	err := json.Unmarshal(data, &payload)
+	if err != nil {
+		return err
+	}
+	pa.Project = &payload.Project
+	return nil
 }
