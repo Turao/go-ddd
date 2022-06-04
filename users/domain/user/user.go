@@ -11,17 +11,17 @@ type User struct {
 }
 
 var (
-	ErrInvalidUserID   = errors.New("invalid user id")
-	ErrInvalidUserName = errors.New("invalid user name")
+	ErrEmptyUserID   = errors.New("empty user id")
+	ErrEmptyUserName = errors.New("invalid user name")
 )
 
 func NewUser(id UserID, name string) (*User, error) {
 	if id == "" {
-		return nil, ErrInvalidUserID
+		return nil, ErrEmptyUserID
 	}
 
 	if name == "" {
-		return nil, ErrInvalidUserName
+		return nil, ErrEmptyUserName
 	}
 
 	return &User{

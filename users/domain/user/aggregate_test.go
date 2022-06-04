@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,9 +23,9 @@ func TestHandleEvent(t *testing.T) {
 			},
 			ExpectedError: nil,
 		},
-		"unable to handle event": {
+		"unknown  event": {
 			Event:         func() ddd.DomainEvent { return nil },
-			ExpectedError: errors.New("unable to handle event"),
+			ExpectedError: ErrUnknownEvent,
 		},
 	}
 	for name, test := range tests {
@@ -47,10 +46,10 @@ func TestHandleCommand(t *testing.T) {
 			ExpectedEvents: []ddd.DomainEvent{},
 			ExpectedError:  nil,
 		},
-		"unable to handle command": {
+		"unknown command": {
 			Command:        nil,
 			ExpectedEvents: nil,
-			ExpectedError:  errors.New("unable to handle command"),
+			ExpectedError:  ErrUnknownCommand,
 		},
 	}
 	for name, test := range tests {
@@ -77,7 +76,7 @@ func TestRegisterUser(t *testing.T) {
 		"empty user name": {
 			Command:        RegisterUserCommand{Username: ""},
 			ExpectedEvents: []ddd.DomainEvent{},
-			ExpectedError:  errors.New("invalid user name"),
+			ExpectedError:  ErrEmptyUserName,
 		},
 	}
 

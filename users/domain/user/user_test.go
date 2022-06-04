@@ -19,8 +19,8 @@ func TestNewUser(t *testing.T) {
 
 	tests := map[string]test{
 		"success":         {InputID: "id", InputName: "name", OutputID: "id", OutputName: "name", Error: nil},
-		"empty user id":   {InputID: "", InputName: "name", OutputID: "", OutputName: "name", Error: ErrInvalidUserID},
-		"empty user name": {InputID: "id", InputName: "", OutputID: "id", OutputName: "", Error: ErrInvalidUserName},
+		"empty user id":   {InputID: "", InputName: "name", OutputID: "", OutputName: "name", Error: ErrEmptyUserID},
+		"empty user name": {InputID: "id", InputName: "", OutputID: "id", OutputName: "", Error: ErrEmptyUserName},
 	}
 
 	for name, test := range tests {

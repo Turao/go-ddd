@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
@@ -13,6 +13,11 @@ type UserAggregate struct {
 
 	EventFactory
 }
+
+var (
+	ErrUnknownEvent   = errors.New("unknown event")
+	ErrUnknownCommand = errors.New("unknown command")
+)
 
 func NewUserAggregate(ef EventFactory) *UserAggregate {
 	return &UserAggregate{
@@ -35,7 +40,7 @@ func (ua *UserAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent)
 		ua.User = u
 		return nil
 	default:
-		return fmt.Errorf("unable to handle domain event")
+		return ErrUnknownEvent
 	}
 
 }
@@ -45,7 +50,7 @@ func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]
 	case RegisterUserCommand:
 		return ua.RegisterUser(c)
 	default:
-		return nil, fmt.Errorf("unable to handle command")
+		return nil, ErrUnknownCommand
 	}
 }
 
