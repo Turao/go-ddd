@@ -2,6 +2,7 @@ package ddd
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 
@@ -86,13 +87,13 @@ func (root *root) HandleCommand(ctx context.Context, cmd interface{}) error {
 		return nil
 	}
 
-	// push events into store
 	for _, evt := range evts {
 		err = root.EventStore.Push(ctx, evt, root.version)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -135,10 +136,40 @@ func (root *root) CommitEvents() error {
 
 // TakeSnapshot serializes the underlying aggregate
 func (root *root) TakeSnapshot() ([]byte, error) {
-	return root.aggregate.MarshalJSON()
+	snapshot := struct {
+		ID        string    `json:"id"`
+		Version   int       `json:"version"`
+		Aggregate Aggregate `json:"aggregate"`
+	}{
+		ID:        root.ID(),
+		Version:   root.Version(),
+		Aggregate: root.aggregate,
+	}
+
+	return json.Marshal(snapshot)
 }
 
 // FromSnapshot deserializes the underlying aggregate
 func (root *root) FromSnapshot(data []byte) error {
-	return root.aggregate.UnmarshalJSON(data)
+	var snapshot struct {
+		ID      string `json:"id"`
+		Version int    `json:"version"`
+		// we cannot unmarshal 'aggregate' into an interface (IDK why yet)
+		// so we have to delay aggregate unmarshalling by retrieving the raw json object instead
+		Aggregate json.RawMessage `json:"aggregate"`
+	}
+	err := json.Unmarshal(data, &snapshot)
+	if err != nil {
+		return err
+	}
+
+	root.version = snapshot.Version
+	// here we call the concrete implementation
+	// which in turn unmarshals the raw message into the correct type
+	err = root.aggregate.UnmarshalJSON(snapshot.Aggregate)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
