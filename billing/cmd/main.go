@@ -10,17 +10,17 @@ import (
 	"github.com/turao/go-ddd/billing/application/query"
 	"github.com/turao/go-ddd/billing/infrastructure/messaging"
 	"github.com/turao/go-ddd/billing/infrastructure/rest"
-	"github.com/turao/go-ddd/ddd/inmemory"
-	"github.com/turao/go-ddd/events/in_memory"
+	aggregateRepository "github.com/turao/go-ddd/ddd/inmemory"
+	eventStore "github.com/turao/go-ddd/events/inmemory"
 )
 
 func main() {
-	repo, err := inmemory.NewRepository()
+	repo, err := aggregateRepository.NewRepository()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	es, err := in_memory.NewInMemoryStore()
+	es, err := eventStore.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}

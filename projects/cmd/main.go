@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/turao/go-ddd/events/in_memory"
+	"github.com/turao/go-ddd/events/inmemory"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/application/command"
 	"github.com/turao/go-ddd/projects/application/query"
@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	eventStore, err := in_memory.NewInMemoryStore()
+	eventStore, err := inmemory.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}

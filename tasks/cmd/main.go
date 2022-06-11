@@ -6,7 +6,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	watermillKafka "github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/turao/go-ddd/api/kafka"
-	"github.com/turao/go-ddd/events/in_memory"
+	"github.com/turao/go-ddd/events/inmemory"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/application/command"
 	"github.com/turao/go-ddd/tasks/application/query"
@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	eventStore, err := in_memory.NewInMemoryStore()
+	eventStore, err := inmemory.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
