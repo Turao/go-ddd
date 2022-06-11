@@ -23,7 +23,7 @@ func NewGetAccountDetailsQueryHandler(es events.EventStore) *GetAccountDetailsQu
 
 func (h GetAccountDetailsQueryHandler) Handle(ctx context.Context, req application.GetAccountDetailsQuery) (*application.GetAccountDetailsResponse, error) {
 	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	root, err := ddd.NewAggregateRoot(agg, ddd.WithEventStore(h.eventStore))
 	if err != nil {
 		return nil, err
 	}
