@@ -6,17 +6,16 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type RemoveTaskFromUserCommandHandler struct {
 	repository ddd.Repository
-	eventStore events.EventStore
+	eventStore ddd.DomainEventStore
 }
 
 var _ application.RemoveTaskFromUserCommandHandler = (*RemoveTaskFromUserCommandHandler)(nil)
 
-func NewRemoveTaskFromUserCommandHandler(repository ddd.Repository, es events.EventStore) *RemoveTaskFromUserCommandHandler {
+func NewRemoveTaskFromUserCommandHandler(repository ddd.Repository, es ddd.DomainEventStore) *RemoveTaskFromUserCommandHandler {
 	return &RemoveTaskFromUserCommandHandler{
 		repository: repository,
 		eventStore: es,

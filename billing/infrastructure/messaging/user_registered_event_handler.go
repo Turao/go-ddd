@@ -21,7 +21,7 @@ func (h UserRegisteredEventHandler) Handle(msg *message.Message) error {
 	}
 
 	err = h.CommandHandler.Handle(context.Background(), application.CreateAccountCommand{
-		AccountID: evt.UserID,
+		UserID: evt.UserID,
 	})
 
 	if err != nil {

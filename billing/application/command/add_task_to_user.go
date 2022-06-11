@@ -6,17 +6,16 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type AddTaskToUserCommandHandler struct {
 	repository ddd.Repository
-	eventStore events.EventStore
+	eventStore ddd.DomainEventStore
 }
 
 var _ application.AddTaskToUserCommandHandler = (*AddTaskToUserCommandHandler)(nil)
 
-func NewAddTaskToUserCommandHandler(repository ddd.Repository, es events.EventStore) *AddTaskToUserCommandHandler {
+func NewAddTaskToUserCommandHandler(repository ddd.Repository, es ddd.DomainEventStore) *AddTaskToUserCommandHandler {
 	return &AddTaskToUserCommandHandler{
 		repository: repository,
 		eventStore: es,

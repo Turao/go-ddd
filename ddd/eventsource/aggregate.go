@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type aggregate struct {
@@ -15,12 +14,12 @@ type aggregate struct {
 	version   int
 
 	uncommittedEvents []ddd.DomainEvent
-	EventStore        events.EventStore
+	EventStore        ddd.DomainEventStore
 }
 
 var _ ddd.Aggregate = (*aggregate)(nil)
 
-func NewAggregate(agg ddd.Aggregate, es events.EventStore) (*aggregate, error) {
+func NewAggregate(agg ddd.Aggregate, es ddd.DomainEventStore) (*aggregate, error) {
 	root := &aggregate{
 		aggregate:         agg,
 		version:           0,
@@ -65,14 +64,19 @@ func (root *aggregate) ReplayEvents() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	log.Println("fetching events")
+	log.Println("fetching all events")
 	evts, err := root.EventStore.Events(ctx)
 	if err != nil {
 		return err
 	}
 
-	log.Println("replaying events")
+	log.Println("replaying aggregate events")
 	for _, evt := range evts {
+		// filter out unrelated events
+		if evt.AggregateID() != root.ID() {
+			continue
+		}
+
 		err := root.aggregate.HandleEvent(ctx, evt.(ddd.DomainEvent)) // todo: can we cast these events?
 		if err != nil {
 			return err

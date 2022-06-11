@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
@@ -20,16 +21,32 @@ var (
 	ErrInvalidTaskID    = errors.New("invalid task id")
 )
 
-func NewInvoice(invoiceID InvoiceID) (*Invoice, error) {
-	if invoiceID == "" {
-		return nil, ErrInvalidInvoiceID
-	}
+type InvoiceOption = func(invoice *Invoice) error
 
-	return &Invoice{
-		ID:             invoiceID,
+func WithInvoiceID(id InvoiceID) InvoiceOption {
+	return func(invoice *Invoice) error {
+		if id == "" {
+			return ErrInvalidInvoiceID
+		}
+		invoice.ID = id
+		return nil
+	}
+}
+
+func NewInvoice(opts ...InvoiceOption) (*Invoice, error) {
+	invoice := &Invoice{
+		ID:             uuid.NewString(),
 		OpenTasks:      make(map[TaskID]bool),
 		CompletedTasks: make(map[TaskID]bool),
-	}, nil
+	}
+
+	for _, opt := range opts {
+		if err := opt(invoice); err != nil {
+			return nil, err
+		}
+	}
+
+	return invoice, nil
 }
 
 func (u *Invoice) AddTask(taskID TaskID) error {

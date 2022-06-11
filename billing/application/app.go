@@ -18,7 +18,7 @@ type Queries struct {
 }
 
 type CreateAccountCommand struct {
-	AccountID string `json:"accoundId"`
+	UserID string `json:"userId"`
 }
 
 type CreateAccountCommandHandler interface {

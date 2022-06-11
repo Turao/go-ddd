@@ -7,17 +7,16 @@ import (
 	"github.com/turao/go-ddd/billing/domain/account"
 	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/ddd/eventsource"
-	"github.com/turao/go-ddd/events"
 )
 
 type CreateAccountCommandHandler struct {
 	repository ddd.Repository
-	eventStore events.EventStore
+	eventStore ddd.DomainEventStore
 }
 
 var _ application.CreateAccountCommandHandler = (*CreateAccountCommandHandler)(nil)
 
-func NewCreateAccountCommandHandler(repository ddd.Repository, es events.EventStore) *CreateAccountCommandHandler {
+func NewCreateAccountCommandHandler(repository ddd.Repository, es ddd.DomainEventStore) *CreateAccountCommandHandler {
 	return &CreateAccountCommandHandler{
 		repository: repository,
 		eventStore: es,
@@ -25,14 +24,18 @@ func NewCreateAccountCommandHandler(repository ddd.Repository, es events.EventSt
 }
 
 func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application.CreateAccountCommand) error {
-	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
+	agg, err := account.NewAggregate(account.AccountEventsFactory{})
+	if err != nil {
+		return err
+	}
+
 	root, err := eventsource.NewAggregate(agg, h.eventStore)
 	if err != nil {
 		return nil
 	}
 
 	_, err = root.HandleCommand(ctx, account.CreateAccountCommand{
-		UserID: req.AccountID,
+		UserID: req.UserID,
 	})
 	if err != nil {
 		return err

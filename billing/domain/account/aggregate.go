@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
 )
 
@@ -21,11 +20,16 @@ var (
 	ErrUnknownCommand = errors.New("unknown command")
 )
 
-func NewAccountAggregate(ef EventFactory) *AccountAggregate {
-	return &AccountAggregate{
-		Account:      nil,
-		EventFactory: ef,
+func NewAggregate(ef EventFactory) (*AccountAggregate, error) {
+	acc, err := NewAccount()
+	if err != nil {
+		return nil, err
 	}
+
+	return &AccountAggregate{
+		Account:      acc,
+		EventFactory: ef,
+	}, nil
 }
 
 func (agg AccountAggregate) ID() string {
@@ -46,7 +50,21 @@ func (agg *AccountAggregate) HandleEvent(ctx context.Context, event ddd.DomainEv
 }
 
 func (agg *AccountAggregate) handleAccountCreatedEvent(evt AccountCreatedEvent) error {
-	a, err := NewAccount(evt.AggregateID(), evt.UserID, evt.InvoiceID)
+	u, err := NewUser(evt.UserID)
+	if err != nil {
+		return err
+	}
+
+	i, err := NewInvoice(WithInvoiceID(evt.InvoiceID))
+	if err != nil {
+		return err
+	}
+
+	a, err := NewAccount(
+		WithAccountID(agg.ID()),
+		WithUser(u),
+		WithInvoice(i),
+	)
 	if err != nil {
 		return err
 	}
@@ -84,13 +102,19 @@ func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{})
 }
 
 func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
-	a, err := NewAccount(cmd.UserID, cmd.UserID, uuid.NewString()) // use UserID as AccountID
+	u, err := NewUser(cmd.UserID)
 	if err != nil {
 		return nil, err
 	}
-	agg.Account = a
 
-	evt, err := agg.EventFactory.NewAccountCreatedEvent(a.ID, a.User.ID, a.Invoice.ID)
+	// populate the account
+	agg.Account.User = u
+
+	evt, err := agg.EventFactory.NewAccountCreatedEvent(
+		agg.Account.ID,
+		agg.Account.User.ID,
+		agg.Account.Invoice.ID,
+	)
 	if err != nil {
 		return nil, err
 	}

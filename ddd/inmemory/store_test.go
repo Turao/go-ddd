@@ -6,20 +6,21 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/turao/go-ddd/events"
+	"github.com/turao/go-ddd/ddd"
 )
 
 type MockEvent struct{}
 
-var _ events.Event = (*MockEvent)(nil)
+var _ ddd.DomainEvent = (*MockEvent)(nil)
 
 func (e MockEvent) ID() string            { return "" }
+func (e MockEvent) AggregateID() string   { return "" }
 func (e MockEvent) Name() string          { return "" }
 func (e MockEvent) OccurredAt() time.Time { return time.Now() }
 
 func TestPush(t *testing.T) {
 	type test struct {
-		Event           events.Event
+		Event           ddd.DomainEvent
 		ExpectedVersion int
 
 		ExpectedSize int

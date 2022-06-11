@@ -11,7 +11,7 @@ import (
 	"github.com/turao/go-ddd/billing/infrastructure/messaging"
 	"github.com/turao/go-ddd/billing/infrastructure/rest"
 	aggregateRepository "github.com/turao/go-ddd/ddd/inmemory"
-	eventStore "github.com/turao/go-ddd/events/inmemory"
+	eventStore "github.com/turao/go-ddd/ddd/inmemory"
 )
 
 func main() {

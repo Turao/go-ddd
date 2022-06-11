@@ -5,17 +5,16 @@ import (
 
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
 )
 
 type GetAccountDetailsQueryHandler struct {
 	repository ddd.Repository
-	eventStore events.EventStore
+	eventStore ddd.DomainEventStore
 }
 
 var _ application.GetAccountDetailsQueryHandler = (*GetAccountDetailsQueryHandler)(nil)
 
-func NewGetAccountDetailsQueryHandler(repository ddd.Repository, es events.EventStore) *GetAccountDetailsQueryHandler {
+func NewGetAccountDetailsQueryHandler(repository ddd.Repository, es ddd.DomainEventStore) *GetAccountDetailsQueryHandler {
 	return &GetAccountDetailsQueryHandler{
 		repository: repository,
 		eventStore: es,
