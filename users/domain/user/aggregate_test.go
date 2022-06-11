@@ -29,8 +29,12 @@ func TestHandleEvent(t *testing.T) {
 		},
 	}
 	for name, test := range tests {
-		agg := NewUserAggregate(UserEventsFactory{})
-		err := agg.HandleEvent(context.Background(), test.Event())
+		agg, err := NewUserAggregate(UserEventsFactory{})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = agg.HandleEvent(context.Background(), test.Event())
 		assert.Equalf(t, test.ExpectedError, err, name)
 	}
 }
@@ -53,7 +57,11 @@ func TestHandleCommand(t *testing.T) {
 		},
 	}
 	for name, test := range tests {
-		agg := NewUserAggregate(UserEventsFactory{})
+		agg, err := NewUserAggregate(UserEventsFactory{})
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		evts, err := agg.HandleCommand(context.Background(), test.Command)
 		assert.Equalf(t, test.ExpectedEvents, evts, name)
 		assert.Equalf(t, test.ExpectedError, err, name)
@@ -82,7 +90,11 @@ func TestRegisterUser(t *testing.T) {
 
 	for name, test := range tests {
 		// todo: mock event factory
-		agg := NewUserAggregate(UserEventsFactory{})
+		agg, err := NewUserAggregate(UserEventsFactory{})
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		evts, err := agg.RegisterUser(test.Command)
 		assert.Equalf(t, test.ExpectedEvents, evts, name)
 		assert.Equalf(t, test.ExpectedError, err, name)

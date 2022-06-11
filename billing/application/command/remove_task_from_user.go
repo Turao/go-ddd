@@ -10,13 +10,13 @@ import (
 )
 
 type RemoveTaskFromUserCommandHandler struct {
-	repository account.Repository
+	repository ddd.Repository
 	eventStore events.EventStore
 }
 
 var _ application.RemoveTaskFromUserCommandHandler = (*RemoveTaskFromUserCommandHandler)(nil)
 
-func NewRemoveTaskFromUserCommandHandler(repository account.Repository, es events.EventStore) *RemoveTaskFromUserCommandHandler {
+func NewRemoveTaskFromUserCommandHandler(repository ddd.Repository, es events.EventStore) *RemoveTaskFromUserCommandHandler {
 	return &RemoveTaskFromUserCommandHandler{
 		repository: repository,
 		eventStore: es,
@@ -24,13 +24,12 @@ func NewRemoveTaskFromUserCommandHandler(repository account.Repository, es event
 }
 
 func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req application.RemoveTaskFromUserCommand) error {
-	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	agg, err := h.repository.FindByID(ctx, req.UserID)
 	if err != nil {
-		return nil
+		return err
 	}
 
-	_, err = root.HandleCommand(ctx, account.RemoveTaskFromUserCommand{
+	_, err = agg.HandleCommand(ctx, account.RemoveTaskFromUserCommand{
 		TaskID: req.TaskID,
 	})
 	if err != nil {

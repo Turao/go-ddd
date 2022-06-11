@@ -22,11 +22,11 @@ var (
 	ErrUnknownCommand = errors.New("unknown command")
 )
 
-func NewUserAggregate(ef EventFactory) *UserAggregate {
+func NewUserAggregate(ef EventFactory) (*UserAggregate, error) {
 	return &UserAggregate{
 		User:         nil,
 		EventFactory: ef,
-	}
+	}, nil
 }
 
 func (ua UserAggregate) ID() string {

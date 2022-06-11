@@ -1,4 +1,4 @@
-package ddd
+package eventsource
 
 import (
 	"context"
@@ -6,44 +6,40 @@ import (
 	"log"
 	"time"
 
+	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 )
 
-type AggregateRoot interface {
-	Aggregate
-	Version() int
-}
-
-type root struct {
-	aggregate Aggregate
+type aggregate struct {
+	aggregate ddd.Aggregate
 	version   int
 
-	uncommittedEvents []DomainEvent
+	uncommittedEvents []ddd.DomainEvent
 	EventStore        events.EventStore
 }
 
-var _ AggregateRoot = (*root)(nil)
+var _ ddd.Aggregate = (*aggregate)(nil)
 
-func NewAggregateRoot(agg Aggregate, es events.EventStore) (*root, error) {
-	root := &root{
+func NewAggregate(agg ddd.Aggregate, es events.EventStore) (*aggregate, error) {
+	root := &aggregate{
 		aggregate:         agg,
 		version:           0,
-		uncommittedEvents: make([]DomainEvent, 0),
+		uncommittedEvents: make([]ddd.DomainEvent, 0),
 		EventStore:        es,
 	}
 
 	return root, nil
 }
 
-func (root root) ID() string {
+func (root aggregate) ID() string {
 	return root.aggregate.ID()
 }
 
-func (root root) Version() int {
+func (root aggregate) Version() int {
 	return root.version
 }
 
-func (root *root) HandleEvent(ctx context.Context, evt DomainEvent) error {
+func (root *aggregate) HandleEvent(ctx context.Context, evt ddd.DomainEvent) error {
 	err := root.aggregate.HandleEvent(ctx, evt)
 	if err != nil {
 		return err
@@ -52,7 +48,7 @@ func (root *root) HandleEvent(ctx context.Context, evt DomainEvent) error {
 	return nil
 }
 
-func (root *root) HandleCommand(ctx context.Context, cmd interface{}) ([]DomainEvent, error) {
+func (root *aggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	evts, err := root.aggregate.HandleCommand(ctx, cmd)
 	if err != nil {
 		return nil, err
@@ -67,7 +63,7 @@ func (root *root) HandleCommand(ctx context.Context, cmd interface{}) ([]DomainE
 }
 
 // ReplayEvents fetches all events from the EventStore and executes them in order
-func (root *root) ReplayEvents() error {
+func (root *aggregate) ReplayEvents() error {
 	// limit how long to wait for the re-creation of the aggregate root
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -80,7 +76,7 @@ func (root *root) ReplayEvents() error {
 
 	log.Println("replaying events")
 	for _, evt := range evts {
-		err := root.aggregate.HandleEvent(ctx, evt.(DomainEvent)) // todo: can we cast these events?
+		err := root.aggregate.HandleEvent(ctx, evt.(ddd.DomainEvent)) // todo: can we cast these events?
 		if err != nil {
 			return err
 		}
@@ -90,7 +86,7 @@ func (root *root) ReplayEvents() error {
 }
 
 // CommitEvents flushes all events within the aggregate root's event store
-func (root *root) CommitEvents() error {
+func (root *aggregate) CommitEvents() error {
 	evts := root.uncommittedEvents
 
 	// aggregate root version should increment for each event that gets committed
@@ -110,11 +106,11 @@ func (root *root) CommitEvents() error {
 	return nil
 }
 
-func (root *root) MarshalJSON() ([]byte, error) {
+func (root *aggregate) MarshalJSON() ([]byte, error) {
 	snapshot := struct {
-		ID        string    `json:"id"`
-		Version   int       `json:"version"`
-		Aggregate Aggregate `json:"aggregate"`
+		ID        string        `json:"id"`
+		Version   int           `json:"version"`
+		Aggregate ddd.Aggregate `json:"aggregate"`
 	}{
 		ID:        root.ID(),
 		Version:   root.Version(),
@@ -124,7 +120,7 @@ func (root *root) MarshalJSON() ([]byte, error) {
 	return json.Marshal(snapshot)
 }
 
-func (root *root) UnmarshalJSON(data []byte) error {
+func (root *aggregate) UnmarshalJSON(data []byte) error {
 	var snapshot struct {
 		ID      string `json:"id"`
 		Version int    `json:"version"`

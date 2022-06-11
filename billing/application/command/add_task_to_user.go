@@ -10,13 +10,13 @@ import (
 )
 
 type AddTaskToUserCommandHandler struct {
-	repository account.Repository
+	repository ddd.Repository
 	eventStore events.EventStore
 }
 
 var _ application.AddTaskToUserCommandHandler = (*AddTaskToUserCommandHandler)(nil)
 
-func NewAddTaskToUserCommandHandler(repository account.Repository, es events.EventStore) *AddTaskToUserCommandHandler {
+func NewAddTaskToUserCommandHandler(repository ddd.Repository, es events.EventStore) *AddTaskToUserCommandHandler {
 	return &AddTaskToUserCommandHandler{
 		repository: repository,
 		eventStore: es,
@@ -24,13 +24,12 @@ func NewAddTaskToUserCommandHandler(repository account.Repository, es events.Eve
 }
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
-	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
+	agg, err := h.repository.FindByID(ctx, req.UserID)
 	if err != nil {
-		return nil
+		return err
 	}
 
-	_, err = root.HandleCommand(ctx, account.AddTaskToUserCommand{
+	_, err = agg.HandleCommand(ctx, account.AddTaskToUserCommand{
 		TaskID: req.TaskID,
 	})
 	if err != nil {

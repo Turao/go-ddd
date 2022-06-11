@@ -8,14 +8,14 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/application/command"
 	"github.com/turao/go-ddd/billing/application/query"
-	"github.com/turao/go-ddd/billing/infrastructure"
 	"github.com/turao/go-ddd/billing/infrastructure/messaging"
 	"github.com/turao/go-ddd/billing/infrastructure/rest"
+	"github.com/turao/go-ddd/ddd/inmemory"
 	"github.com/turao/go-ddd/events/in_memory"
 )
 
 func main() {
-	ur, err := infrastructure.NewAccountRepository()
+	repo, err := inmemory.NewRepository()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -27,12 +27,12 @@ func main() {
 
 	app := &application.Application{
 		Commands: application.Commands{
-			CreateAccountCommand:      command.NewCreateAccountCommandHandler(ur, es),
-			AddTaskToUserCommand:      command.NewAddTaskToUserCommandHandler(ur, es),
-			RemoveTaskFromUserCommand: command.NewRemoveTaskFromUserCommandHandler(ur, es),
+			CreateAccountCommand:      command.NewCreateAccountCommandHandler(repo, es),
+			AddTaskToUserCommand:      command.NewAddTaskToUserCommandHandler(repo, es),
+			RemoveTaskFromUserCommand: command.NewRemoveTaskFromUserCommandHandler(repo, es),
 		},
 		Queries: application.Queries{
-			GetAccountDetails: query.NewGetAccountDetailsQueryHandler(es),
+			GetAccountDetails: query.NewGetAccountDetailsQueryHandler(repo, es),
 		},
 	}
 
