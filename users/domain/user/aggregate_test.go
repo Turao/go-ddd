@@ -95,7 +95,7 @@ func TestRegisterUser(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		evts, err := agg.RegisterUser(test.Command)
+		evts, err := agg.handleRegisterUserCommand(test.Command)
 		assert.Equalf(t, test.ExpectedEvents, evts, name)
 		assert.Equalf(t, test.ExpectedError, err, name)
 	}

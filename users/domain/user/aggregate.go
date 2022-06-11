@@ -36,28 +36,31 @@ func (ua UserAggregate) ID() string {
 func (ua *UserAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent) error {
 	switch e := event.(type) {
 	case UserRegisteredEvent:
-		u, err := NewUser(e.AggregateID(), e.Username)
-		if err != nil {
-			return err
-		}
-		ua.User = u
-		return nil
+		return ua.handleUserRegisteredEvent(e)
 	default:
 		return ErrUnknownEvent
 	}
+}
 
+func (ua *UserAggregate) handleUserRegisteredEvent(evt UserRegisteredEvent) error {
+	u, err := NewUser(evt.AggregateID(), evt.Username)
+	if err != nil {
+		return err
+	}
+	ua.User = u
+	return nil
 }
 
 func (ua *UserAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	switch c := cmd.(type) {
 	case RegisterUserCommand:
-		return ua.RegisterUser(c)
+		return ua.handleRegisterUserCommand(c)
 	default:
 		return nil, ErrUnknownCommand
 	}
 }
 
-func (ua *UserAggregate) RegisterUser(cmd RegisterUserCommand) ([]ddd.DomainEvent, error) {
+func (ua *UserAggregate) handleRegisterUserCommand(cmd RegisterUserCommand) ([]ddd.DomainEvent, error) {
 	u, err := NewUser(uuid.NewString(), cmd.Username)
 	if err != nil {
 		return nil, err
