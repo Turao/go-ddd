@@ -6,7 +6,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	watermillKafka "github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/turao/go-ddd/api/kafka"
-	"github.com/turao/go-ddd/events/inmemory"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/application/command"
 	"github.com/turao/go-ddd/tasks/application/query"
@@ -15,12 +14,6 @@ import (
 )
 
 func main() {
-
-	eventStore, err := inmemory.NewInMemoryStore()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	tr, err := infrastructure.NewTaskRepository()
 	if err != nil {
 		log.Fatalln(err)
@@ -54,12 +47,12 @@ func main() {
 
 	app := &application.Application{
 		Commands: application.Commands{
-			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr, eventStore),
-			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, eventStore, taep),
-			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, eventStore, tuep),
-			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr, eventStore),
-			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr, eventStore),
-			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, eventStore, urep),
+			CreateTaskCommand:        command.NewCreateTaskCommandHandler(tr),
+			AssignToUserCommand:      command.NewAssignToUserCommandHandler(tr, taep),
+			UnassignUserCommand:      command.NewUnassignUserCommandHandler(tr, tuep),
+			UpdateTitleCommand:       command.NewUpdateTitleCommandHandler(tr),
+			UpdateDescriptionCommand: command.NewUpdateDescriptionCommandHandler(tr),
+			UpdateStatusCommand:      command.NewUpdateStatusCommandHandler(tr, urep),
 		},
 		Queries: application.Queries{
 			TasksByProjectQuery:      query.NewTaskByProjectQueryHandler(tr),

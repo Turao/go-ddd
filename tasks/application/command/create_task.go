@@ -3,20 +3,17 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type CreateTaskCommandHandler struct {
 	repository task.Repository
-	eventStore events.EventStore
 }
 
-func NewCreateTaskCommandHandler(repository task.Repository, es events.EventStore) *CreateTaskCommandHandler {
+func NewCreateTaskCommandHandler(repository task.Repository) *CreateTaskCommandHandler {
 	return &CreateTaskCommandHandler{
 		repository: repository,
-		eventStore: es,
 	}
 }
 

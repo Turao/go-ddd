@@ -3,20 +3,17 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type UpdateDescriptionCommandHandler struct {
 	repository task.Repository
-	eventStore events.EventStore
 }
 
-func NewUpdateDescriptionCommandHandler(repository task.Repository, es events.EventStore) *UpdateDescriptionCommandHandler {
+func NewUpdateDescriptionCommandHandler(repository task.Repository) *UpdateDescriptionCommandHandler {
 	return &UpdateDescriptionCommandHandler{
 		repository: repository,
-		eventStore: es,
 	}
 }
 

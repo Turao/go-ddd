@@ -5,21 +5,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type UpdateStatusCommandHandler struct {
 	repository                      task.Repository
-	eventStore                      events.EventStore
 	taskStatusUpdatedEventPublisher api.TaskStatusUpdatedEventPublisher
 }
 
-func NewUpdateStatusCommandHandler(repository task.Repository, es events.EventStore, tsuep api.TaskStatusUpdatedEventPublisher) *UpdateStatusCommandHandler {
+func NewUpdateStatusCommandHandler(repository task.Repository, tsuep api.TaskStatusUpdatedEventPublisher) *UpdateStatusCommandHandler {
 	return &UpdateStatusCommandHandler{
 		repository:                      repository,
-		eventStore:                      es,
 		taskStatusUpdatedEventPublisher: tsuep,
 	}
 }

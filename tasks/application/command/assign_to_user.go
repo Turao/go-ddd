@@ -5,21 +5,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
 )
 
 type AssignToUserCommandHandler struct {
 	repository                 task.Repository
-	eventStore                 events.EventStore
 	taskAssignedEventPublisher api.TaskAssignedEventPublisher
 }
 
-func NewAssignToUserCommandHandler(repository task.Repository, es events.EventStore, taep api.TaskAssignedEventPublisher) *AssignToUserCommandHandler {
+func NewAssignToUserCommandHandler(repository task.Repository, taep api.TaskAssignedEventPublisher) *AssignToUserCommandHandler {
 	return &AssignToUserCommandHandler{
 		repository:                 repository,
-		eventStore:                 es,
 		taskAssignedEventPublisher: taep,
 	}
 }
