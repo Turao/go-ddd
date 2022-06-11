@@ -8,7 +8,7 @@ import (
 )
 
 type AccountRepository struct {
-	accounts map[account.AccountID]*account.Account
+	accounts map[account.AccountID]*account.AccountAggregate
 }
 
 var _ account.Repository = (*AccountRepository)(nil)
@@ -19,28 +19,28 @@ var (
 
 func NewAccountRepository() (*AccountRepository, error) {
 	return &AccountRepository{
-		accounts: make(map[string]*account.Account),
+		accounts: make(map[string]*account.AccountAggregate),
 	}, nil
 }
 
-func (ir AccountRepository) FindByID(ctx context.Context, accountID account.AccountID) (*account.Account, error) {
-	t, found := ir.accounts[accountID]
+func (ir AccountRepository) FindByID(ctx context.Context, accountID account.AccountID) (*account.AccountAggregate, error) {
+	acc, found := ir.accounts[accountID]
 	if !found {
 		return nil, ErrNotFound
 	}
 
-	return t, nil
+	return acc, nil
 }
 
-func (tr AccountRepository) Save(ctx context.Context, p account.Account) error {
-	tr.accounts[p.ID] = &p
+func (tr AccountRepository) Save(ctx context.Context, acc *account.AccountAggregate) error {
+	tr.accounts[acc.ID()] = acc
 	return nil
 }
 
-func (ir AccountRepository) FindAll(ctx context.Context) ([]*account.Account, error) {
-	var us []*account.Account
-	for _, p := range ir.accounts {
-		us = append(us, p)
+func (ir AccountRepository) FindAll(ctx context.Context) ([]*account.AccountAggregate, error) {
+	var accs []*account.AccountAggregate
+	for _, acc := range ir.accounts {
+		accs = append(accs, acc)
 	}
-	return us, nil
+	return accs, nil
 }

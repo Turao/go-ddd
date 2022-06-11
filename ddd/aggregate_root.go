@@ -10,54 +10,33 @@ import (
 )
 
 type AggregateRoot interface {
-	ID() string
+	Aggregate
 	Version() int
-
-	HandleCommand(ctx context.Context, cmd interface{}) error
-
-	HandleEvent(ctx context.Context, evt DomainEvent) error
-	ReplayEvents() error
-	CommitEvents() error
-
-	TakeSnapshot() ([]byte, error)
-	FromSnapshot(data []byte) error
 }
 
 type root struct {
-	aggregate  Aggregate
-	version    int
-	EventStore events.EventStore
+	aggregate Aggregate
+	version   int
+
+	uncommittedEvents []DomainEvent
+	EventStore        events.EventStore
 }
 
 var _ AggregateRoot = (*root)(nil)
 
-type AggregateRootOption = func(root *root) error
-
-func WithEventStore(es events.EventStore) AggregateRootOption {
-	return func(root *root) error {
-		root.EventStore = es
-		return nil
-	}
-}
-
-func NewAggregateRoot(agg Aggregate, opts ...AggregateRootOption) (*root, error) {
+func NewAggregateRoot(agg Aggregate, es events.EventStore) (*root, error) {
 	root := &root{
-		aggregate:  agg,
-		version:    0,
-		EventStore: nil,
-	}
-
-	for _, opt := range opts {
-		if err := opt(root); err != nil {
-			return nil, err
-		}
+		aggregate:         agg,
+		version:           0,
+		uncommittedEvents: make([]DomainEvent, 0),
+		EventStore:        es,
 	}
 
 	return root, nil
 }
 
 func (root root) ID() string {
-	return root.aggregate.ID() // !risk of null pointers
+	return root.aggregate.ID()
 }
 
 func (root root) Version() int {
@@ -73,28 +52,18 @@ func (root *root) HandleEvent(ctx context.Context, evt DomainEvent) error {
 	return nil
 }
 
-func (root *root) HandleCommand(ctx context.Context, cmd interface{}) error {
+func (root *root) HandleCommand(ctx context.Context, cmd interface{}) ([]DomainEvent, error) {
 	evts, err := root.aggregate.HandleCommand(ctx, cmd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// aggregate root version should increment for each event generated
-	// to be consistent with the event handler behavior
-	root.version += len(evts)
-
-	if root.EventStore == nil {
-		return nil
+	err = root.CommitEvents()
+	if err != nil {
+		return nil, err
 	}
 
-	for _, evt := range evts {
-		err = root.EventStore.Push(ctx, evt, root.version)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return evts, nil
 }
 
 // ReplayEvents fetches all events from the EventStore and executes them in order
@@ -102,10 +71,6 @@ func (root *root) ReplayEvents() error {
 	// limit how long to wait for the re-creation of the aggregate root
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	if root.EventStore == nil {
-		return nil
-	}
 
 	log.Println("fetching events")
 	evts, err := root.EventStore.Events(ctx)
@@ -126,16 +91,26 @@ func (root *root) ReplayEvents() error {
 
 // CommitEvents flushes all events within the aggregate root's event store
 func (root *root) CommitEvents() error {
-	if root.EventStore == nil {
-		return nil
+	evts := root.uncommittedEvents
+
+	// aggregate root version should increment for each event that gets committed
+	root.version += len(evts)
+
+	// limit how long to wait for the re-creation of the aggregate root
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	for _, evt := range evts {
+		err := root.EventStore.Push(ctx, evt, root.version)
+		if err != nil {
+			return err
+		}
 	}
 
-	log.Panic("method not implemented") // todo
 	return nil
 }
 
-// TakeSnapshot serializes the underlying aggregate
-func (root *root) TakeSnapshot() ([]byte, error) {
+func (root *root) MarshalJSON() ([]byte, error) {
 	snapshot := struct {
 		ID        string    `json:"id"`
 		Version   int       `json:"version"`
@@ -149,8 +124,7 @@ func (root *root) TakeSnapshot() ([]byte, error) {
 	return json.Marshal(snapshot)
 }
 
-// FromSnapshot deserializes the underlying aggregate
-func (root *root) FromSnapshot(data []byte) error {
+func (root *root) UnmarshalJSON(data []byte) error {
 	var snapshot struct {
 		ID      string `json:"id"`
 		Version int    `json:"version"`

@@ -26,8 +26,8 @@ func (h ListUsersQueryHandler) Handle(ctx context.Context, req application.ListU
 	usDTO := make([]application.User, 0)
 	for _, u := range us {
 		usDTO = append(usDTO, application.User{
-			UserID:   u.ID,
-			Username: u.Name,
+			UserID:   u.User.ID,
+			Username: u.User.Name,
 		})
 	}
 

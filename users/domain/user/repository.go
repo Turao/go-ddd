@@ -3,7 +3,7 @@ package user
 import "context"
 
 type Repository interface {
-	FindByID(ctx context.Context, id UserID) (*User, error)
-	Save(ctx context.Context, user User) error
-	FindAll(ctx context.Context) ([]*User, error)
+	FindByID(ctx context.Context, id UserID) (*UserAggregate, error)
+	Save(ctx context.Context, user *UserAggregate) error
+	FindAll(ctx context.Context) ([]*UserAggregate, error)
 }

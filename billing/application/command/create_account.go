@@ -25,19 +25,19 @@ func NewCreateAccountCommandHandler(repository account.Repository, es events.Eve
 
 func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application.CreateAccountCommand) error {
 	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, ddd.WithEventStore(h.eventStore))
+	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
 	if err != nil {
 		return nil
 	}
 
-	err = root.HandleCommand(ctx, account.CreateAccountCommand{
+	_, err = root.HandleCommand(ctx, account.CreateAccountCommand{
 		UserID: req.AccountID,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Account)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}

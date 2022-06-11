@@ -25,19 +25,19 @@ func NewRemoveTaskFromUserCommandHandler(repository account.Repository, es event
 
 func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req application.RemoveTaskFromUserCommand) error {
 	agg := account.NewAccountAggregate(account.AccountEventsFactory{})
-	root, err := ddd.NewAggregateRoot(agg, ddd.WithEventStore(h.eventStore))
+	root, err := ddd.NewAggregateRoot(agg, h.eventStore)
 	if err != nil {
 		return nil
 	}
 
-	err = root.HandleCommand(ctx, account.RemoveTaskFromUserCommand{
+	_, err = root.HandleCommand(ctx, account.RemoveTaskFromUserCommand{
 		TaskID: req.TaskID,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Account)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}

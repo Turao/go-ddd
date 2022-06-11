@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	FindByID(ctx context.Context, accountID AccountID) (*Account, error)
-	Save(ctx context.Context, account Account) error
-	FindAll(ctx context.Context) ([]*Account, error)
+	FindByID(ctx context.Context, accountID AccountID) (*AccountAggregate, error)
+	Save(ctx context.Context, account *AccountAggregate) error
+	FindAll(ctx context.Context) ([]*AccountAggregate, error)
 }

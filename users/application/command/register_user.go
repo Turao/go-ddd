@@ -30,26 +30,23 @@ func NewRegisterUserHandler(
 }
 
 func (h RegisterUserHandler) Handle(ctx context.Context, req application.RegisterUserCommand) error {
-	// create the aggregate root
 	agg := user.NewUserAggregate(user.UserEventsFactory{})
 	root, err := ddd.NewAggregateRoot(
 		agg,
-		ddd.WithEventStore(h.eventStore),
+		h.eventStore,
 	)
 	if err != nil {
 		return err
 	}
 
-	// handle the command
-	err = root.HandleCommand(ctx, user.RegisterUserCommand{
+	_, err = root.HandleCommand(ctx, user.RegisterUserCommand{
 		Username: req.Username,
 	})
 	if err != nil {
 		return err
 	}
 
-	// todo: find a better way to save the aggregate root
-	err = h.repository.Save(ctx, *agg.User)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}
