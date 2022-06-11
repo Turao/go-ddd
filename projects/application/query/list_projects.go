@@ -18,7 +18,7 @@ func NewListProjectsQueryHandler(repository project.Repository) *ListProjectsQue
 }
 
 func (q ListProjectsQueryHandler) Handle(ctx context.Context, req application.ListProjectsQuery) (*application.ListProjectsResponse, error) {
-	ps, err := q.repository.FindAll(ctx)
+	aggs, err := q.repository.FindAll(ctx)
 	if err != nil {
 		return &application.ListProjectsResponse{
 			Projects: make([]application.Project, 0),
@@ -26,13 +26,13 @@ func (q ListProjectsQueryHandler) Handle(ctx context.Context, req application.Li
 	}
 
 	var psDTOs []application.Project
-	for _, p := range ps {
+	for _, agg := range aggs {
 		psDTOs = append(psDTOs, application.Project{
-			ID:        p.ID,
-			Name:      p.Name,
-			CreatedBy: p.CreatedBy,
-			CreatedAt: p.CreatedAt,
-			Active:    p.Active,
+			ID:        agg.Project.ID,
+			Name:      agg.Project.Name,
+			CreatedBy: agg.Project.CreatedBy,
+			CreatedAt: agg.Project.CreatedAt,
+			Active:    agg.Project.Active,
 		})
 	}
 	return &application.ListProjectsResponse{

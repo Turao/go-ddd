@@ -18,16 +18,16 @@ func NewFindProjectQueryHandler(repository project.Repository) *FindProjectHandl
 }
 
 func (h *FindProjectHandler) Handle(ctx context.Context, req application.FindProjectQuery) (*application.FindProjectResponse, error) {
-	p, err := h.repository.FindProjectByID(ctx, req.ID)
+	agg, err := h.repository.FindProjectByID(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &application.FindProjectResponse{
-		ID:        p.ID,
-		Name:      p.Name,
-		CreatedBy: p.CreatedBy,
-		CreatedAt: p.CreatedAt,
-		Active:    p.Active,
+		ID:        agg.Project.ID,
+		Name:      agg.Project.Name,
+		CreatedBy: agg.Project.CreatedBy,
+		CreatedAt: agg.Project.CreatedAt,
+		Active:    agg.Project.Active,
 	}, nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type ProjectRepository struct {
-	projects map[project.ProjectID]*project.Project
+	projects map[project.ProjectID]*project.ProjectAggregate
 }
 
 var _ project.Repository = (*ProjectRepository)(nil)
@@ -19,11 +19,11 @@ var (
 
 func NewProjectRepository() (*ProjectRepository, error) {
 	return &ProjectRepository{
-		projects: make(map[string]*project.Project),
+		projects: make(map[string]*project.ProjectAggregate),
 	}, nil
 }
 
-func (pr ProjectRepository) FindProjectByID(ctx context.Context, id project.ProjectID) (*project.Project, error) {
+func (pr ProjectRepository) FindProjectByID(ctx context.Context, id project.ProjectID) (*project.ProjectAggregate, error) {
 	p, found := pr.projects[id]
 	if !found {
 		return nil, ErrNotFound
@@ -32,13 +32,13 @@ func (pr ProjectRepository) FindProjectByID(ctx context.Context, id project.Proj
 	return p, nil
 }
 
-func (pr ProjectRepository) Save(ctx context.Context, p project.Project) error {
-	pr.projects[p.ID] = &p
+func (pr ProjectRepository) Save(ctx context.Context, p *project.ProjectAggregate) error {
+	pr.projects[p.ID()] = p
 	return nil
 }
 
-func (pr ProjectRepository) FindAll(ctx context.Context) ([]*project.Project, error) {
-	var ps []*project.Project
+func (pr ProjectRepository) FindAll(ctx context.Context) ([]*project.ProjectAggregate, error) {
+	var ps []*project.ProjectAggregate
 	for _, p := range pr.projects {
 		ps = append(ps, p)
 	}

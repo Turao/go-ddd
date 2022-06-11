@@ -23,11 +23,11 @@ var (
 	ErrUnknownCommand = errors.New("unknown command")
 )
 
-func NewProjectAggregate(ef EventFactory) *ProjectAggregate {
+func NewProjectAggregate(ef EventFactory) (*ProjectAggregate, error) {
 	return &ProjectAggregate{
 		Project:      nil,
 		EventFactory: ef,
-	}
+	}, nil
 }
 
 func (pa ProjectAggregate) ID() string {
