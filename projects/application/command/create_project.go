@@ -3,20 +3,17 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
 type CreateProjectHandler struct {
 	repository project.Repository
-	eventStore events.EventStore
 }
 
-func NewCreateProjectCommandHandler(repository project.Repository, es events.EventStore) *CreateProjectHandler {
+func NewCreateProjectCommandHandler(repository project.Repository) *CreateProjectHandler {
 	return &CreateProjectHandler{
 		repository: repository,
-		eventStore: es,
 	}
 }
 

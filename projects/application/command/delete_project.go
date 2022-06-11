@@ -3,20 +3,17 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/projects/application"
 	"github.com/turao/go-ddd/projects/domain/project"
 )
 
 type DeleteProjectHandler struct {
 	repository project.Repository
-	eventStore events.EventStore
 }
 
-func NewDeleteProjectCommandHandler(repository project.Repository, es events.EventStore) *DeleteProjectHandler {
+func NewDeleteProjectCommandHandler(repository project.Repository) *DeleteProjectHandler {
 	return &DeleteProjectHandler{
 		repository: repository,
-		eventStore: es,
 	}
 }
 
