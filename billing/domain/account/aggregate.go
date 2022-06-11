@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
@@ -16,6 +15,11 @@ type AccountAggregate struct {
 }
 
 var _ ddd.Aggregate = (*AccountAggregate)(nil)
+
+var (
+	ErrUnknownEvent   = errors.New("unknown event")
+	ErrUnknownCommand = errors.New("unknown command")
+)
 
 func NewAccountAggregate(ef EventFactory) *AccountAggregate {
 	return &AccountAggregate{
@@ -31,43 +35,55 @@ func (agg AccountAggregate) ID() string {
 func (agg *AccountAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent) error {
 	switch e := event.(type) {
 	case AccountCreatedEvent:
-		a, err := NewAccount(e.AggregateID(), e.UserID, e.InvoiceID)
-		if err != nil {
-			return err
-		}
-		agg.Account = a
-		return nil
+		return agg.handleAccountCreatedEvent(e)
 	case TaskAddedEvent:
-		err := agg.Account.Invoice.AddTask(e.TaskID)
-		if err != nil {
-			return err
-		}
-		return nil
+		return agg.handleTaskAddedEvent(e)
 	case TaskRemovedEvent:
-		err := agg.Account.Invoice.RemoveTask(e.TaskID)
-		if err != nil {
-			return err
-		}
-		return nil
+		return agg.handleTaskRemovedEvent(e)
 	default:
-		return fmt.Errorf("unable to handle domain event %s", e)
+		return ErrUnknownEvent
 	}
+}
+
+func (agg *AccountAggregate) handleAccountCreatedEvent(evt AccountCreatedEvent) error {
+	a, err := NewAccount(evt.AggregateID(), evt.UserID, evt.InvoiceID)
+	if err != nil {
+		return err
+	}
+	agg.Account = a
+	return nil
+}
+
+func (agg *AccountAggregate) handleTaskAddedEvent(evt TaskAddedEvent) error {
+	err := agg.Account.Invoice.AddTask(evt.TaskID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (agg *AccountAggregate) handleTaskRemovedEvent(evt TaskRemovedEvent) error {
+	err := agg.Account.Invoice.RemoveTask(evt.TaskID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	switch c := cmd.(type) {
 	case CreateAccountCommand:
-		return agg.CreateAccount(c)
+		return agg.handleCreateAccountCommand(c)
 	case AddTaskToUserCommand:
-		return agg.AddTask(c)
+		return agg.handleAddTaskCommand(c)
 	case RemoveTaskFromUserCommand:
-		return agg.RemoveTask(c)
+		return agg.handleRemoveTaskCommand(c)
 	default:
-		return nil, fmt.Errorf("unable to handle command %s", cmd)
+		return nil, ErrUnknownCommand
 	}
 }
 
-func (agg *AccountAggregate) CreateAccount(cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
 	a, err := NewAccount(cmd.UserID, cmd.UserID, uuid.NewString()) // use UserID as AccountID
 	if err != nil {
 		return nil, err
@@ -91,7 +107,7 @@ func (agg *AccountAggregate) assertAccountExists() error {
 	return nil
 }
 
-func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskToUserCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}
@@ -111,7 +127,7 @@ func (agg *AccountAggregate) AddTask(cmd AddTaskToUserCommand) ([]ddd.DomainEven
 	}, nil
 }
 
-func (agg *AccountAggregate) RemoveTask(cmd RemoveTaskFromUserCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskFromUserCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}
