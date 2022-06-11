@@ -11,6 +11,7 @@ import (
 	"github.com/turao/go-ddd/projects/application/command"
 	"github.com/turao/go-ddd/projects/application/query"
 	"github.com/turao/go-ddd/projects/infrastructure"
+	"github.com/turao/go-ddd/projects/infrastructure/rest"
 )
 
 func main() {
@@ -134,7 +135,7 @@ func main() {
 	// }
 	// log.Println(string(d))
 
-	server, err := infrastructure.NewServer(&infrastructure.Application{
+	server, err := rest.NewServer(&rest.Application{
 		Delegate: app,
 	})
 	if err != nil {
