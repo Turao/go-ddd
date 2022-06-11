@@ -8,7 +8,7 @@ import (
 )
 
 type TaskRepository struct {
-	tasks map[task.TaskID]*task.Task
+	aggregates map[task.TaskID]*task.TaskAggregate
 }
 
 var _ task.Repository = (*TaskRepository)(nil)
@@ -19,37 +19,37 @@ var (
 
 func NewTaskRepository() (*TaskRepository, error) {
 	return &TaskRepository{
-		tasks: make(map[string]*task.Task),
+		aggregates: make(map[string]*task.TaskAggregate),
 	}, nil
 }
 
-func (tr TaskRepository) FindByID(ctx context.Context, taskID task.TaskID) (*task.Task, error) {
-	t, found := tr.tasks[taskID]
+func (tr TaskRepository) FindByID(ctx context.Context, taskID task.TaskID) (*task.TaskAggregate, error) {
+	t, found := tr.aggregates[taskID]
 	if !found {
 		return nil, ErrNotFound
 	}
 	return t, nil
 }
 
-func (tr TaskRepository) FindByProjectID(ctx context.Context, projectID task.ProjectID) ([]*task.Task, error) {
-	ts := make([]*task.Task, 0)
+func (tr TaskRepository) FindByProjectID(ctx context.Context, projectID task.ProjectID) ([]*task.TaskAggregate, error) {
+	ts := make([]*task.TaskAggregate, 0)
 
-	for _, t := range tr.tasks {
-		if t.ProjectID == projectID {
-			ts = append(ts, t)
+	for _, agg := range tr.aggregates {
+		if agg.Task.ProjectID == projectID {
+			ts = append(ts, agg)
 		}
 	}
 
 	return ts, nil
 }
 
-func (tr TaskRepository) FindByAssignedUserID(ctx context.Context, assignedUserID task.UserID) ([]*task.Task, error) {
-	ts := make([]*task.Task, 0)
+func (tr TaskRepository) FindByAssignedUserID(ctx context.Context, assignedUserID task.UserID) ([]*task.TaskAggregate, error) {
+	ts := make([]*task.TaskAggregate, 0)
 
-	for _, t := range tr.tasks {
-		if t.AssignedUser != nil {
-			if *t.AssignedUser == assignedUserID {
-				ts = append(ts, t)
+	for _, agg := range tr.aggregates {
+		if agg.Task.AssignedUser != nil {
+			if *agg.Task.AssignedUser == assignedUserID {
+				ts = append(ts, agg)
 			}
 		}
 	}
@@ -57,15 +57,7 @@ func (tr TaskRepository) FindByAssignedUserID(ctx context.Context, assignedUserI
 	return ts, nil
 }
 
-func (tr TaskRepository) Save(ctx context.Context, p task.Task) error {
-	tr.tasks[p.ID] = &p
+func (tr TaskRepository) Save(ctx context.Context, agg *task.TaskAggregate) error {
+	tr.aggregates[agg.ID()] = agg
 	return nil
 }
-
-// func (tr TaskRepository) FindAll(ctx context.Context) ([]*task.Task, error) {
-// 	var ps []*task.Task
-// 	for _, p := range pr.tasks {
-// 		ps = append(ps, p)
-// 	}
-// 	return ps, nil
-// }

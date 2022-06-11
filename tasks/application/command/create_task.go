@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -22,13 +21,12 @@ func NewCreateTaskCommandHandler(repository task.Repository, es events.EventStor
 }
 
 func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.CreateTaskCommand) error {
-	agg := task.NewTaskAggregate(task.TaskEventFactory{})
-	root, err := ddd.NewAggregateRoot(agg)
+	agg, err := task.NewTaskAggregate(task.TaskEventFactory{})
 	if err != nil {
 		return err
 	}
 
-	err = root.HandleCommand(ctx, task.CreateTaskCommand{
+	_, err = agg.HandleCommand(ctx, task.CreateTaskCommand{
 		ProjectID:   req.ProjectID,
 		Title:       req.Title,
 		Description: req.Description,
@@ -37,7 +35,7 @@ func (h *CreateTaskCommandHandler) Handle(ctx context.Context, req application.C
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Task)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}

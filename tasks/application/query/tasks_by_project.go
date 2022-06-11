@@ -21,27 +21,27 @@ func (h TasksByProjectQueryHandler) Handle(
 	ctx context.Context,
 	req application.TasksByProjectQuery,
 ) (*application.TasksByProjectResponse, error) {
-	ts, err := h.repository.FindByProjectID(ctx, req.ProjectID)
+	tasks, err := h.repository.FindByProjectID(ctx, req.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 
-	tsDTO := make([]application.Task, 0)
-	for _, t := range ts {
+	tasksDTO := make([]application.Task, 0)
+	for _, task := range tasks {
 		assignedTo := ""
-		if t.AssignedUser != nil {
-			assignedTo = *t.AssignedUser
+		if task.Task.AssignedUser != nil {
+			assignedTo = *task.Task.AssignedUser
 		}
 
-		tsDTO = append(tsDTO, application.Task{
-			TaskID:     t.ID,
+		tasksDTO = append(tasksDTO, application.Task{
+			TaskID:     task.Task.ID,
 			AssignedTo: assignedTo,
-			Status:     t.Status,
+			Status:     task.Task.Status,
 		})
 	}
 
 	return &application.TasksByProjectResponse{
 		ProjectID: req.ProjectID,
-		Tasks:     tsDTO,
+		Tasks:     tasksDTO,
 	}, nil
 }

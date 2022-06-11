@@ -18,27 +18,27 @@ func NewTasksByAssignedUserQueryHandler(repository task.Repository) *TasksByAssi
 }
 
 func (h TasksByAssignedUserQueryHandler) Handle(ctx context.Context, req application.TasksByAssignedUserQuery) (*application.TasksByAssignedUserResponse, error) {
-	ts, err := h.repository.FindByAssignedUserID(ctx, req.UserID)
+	tasks, err := h.repository.FindByAssignedUserID(ctx, req.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	tsDTO := make([]application.Task, 0)
-	for _, t := range ts {
+	tasksDTO := make([]application.Task, 0)
+	for _, task := range tasks {
 		assignedUser := ""
-		if t.AssignedUser != nil {
-			assignedUser = *t.AssignedUser
+		if task.Task.AssignedUser != nil {
+			assignedUser = *task.Task.AssignedUser
 		}
 
-		tsDTO = append(tsDTO, application.Task{
-			TaskID:     t.ID,
+		tasksDTO = append(tasksDTO, application.Task{
+			TaskID:     task.Task.ID,
 			AssignedTo: assignedUser,
-			Status:     t.Status,
+			Status:     task.Task.Status,
 		})
 	}
 
 	return &application.TasksByAssignedUserResponse{
 		UserID: req.UserID,
-		Tasks:  tsDTO,
+		Tasks:  tasksDTO,
 	}, nil
 }

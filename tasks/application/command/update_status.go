@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
-	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -26,30 +25,24 @@ func NewUpdateStatusCommandHandler(repository task.Repository, es events.EventSt
 }
 
 func (h UpdateStatusCommandHandler) Handle(ctx context.Context, req application.UpdateStatusCommand) error {
-	t, err := h.repository.FindByID(ctx, req.TaskID)
+	agg, err := h.repository.FindByID(ctx, req.TaskID)
 	if err != nil {
 		return err
 	}
 
-	agg := task.NewTaskAggregate(task.TaskEventFactory{})
-	root, err := ddd.NewAggregateRoot(agg)
-	if err != nil {
-		return err
-	}
-
-	err = root.HandleCommand(ctx, task.UpdateStatusCommand{
+	_, err = agg.HandleCommand(ctx, task.UpdateStatusCommand{
 		Status: req.Status,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Task)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}
 
-	ie, err := api.NewTaskStatusUpdatedEvent(uuid.NewString(), t.ID, t.Status)
+	ie, err := api.NewTaskStatusUpdatedEvent(uuid.NewString(), agg.ID(), agg.Task.Status)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 
-	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -22,27 +21,19 @@ func NewUpdateDescriptionCommandHandler(repository task.Repository, es events.Ev
 }
 
 func (h UpdateDescriptionCommandHandler) Handle(ctx context.Context, req application.UpdateDescriptionCommand) error {
-	t, err := h.repository.FindByID(ctx, req.TaskID)
+	agg, err := h.repository.FindByID(ctx, req.TaskID)
 	if err != nil {
 		return err
 	}
 
-	agg := task.NewTaskAggregate(task.TaskEventFactory{})
-	root, err := ddd.NewAggregateRoot(agg)
-	if err != nil {
-		return err
-	}
-
-	agg.Task = t // todo: fix
-
-	err = root.HandleCommand(ctx, task.UpdateDescriptionCommand{
+	_, err = agg.HandleCommand(ctx, task.UpdateDescriptionCommand{
 		Description: req.Description,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Task)
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}

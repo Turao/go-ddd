@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
-	"github.com/turao/go-ddd/ddd"
 	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/tasks/application"
 	"github.com/turao/go-ddd/tasks/domain/task"
@@ -26,31 +25,22 @@ func NewUnassignUserCommandHandler(repository task.Repository, es events.EventSt
 }
 
 func (h UnassignUserCommandHandler) Handle(ctx context.Context, req application.UnassignUserCommand) error {
-	t, err := h.repository.FindByID(ctx, req.TaskID)
+	agg, err := h.repository.FindByID(ctx, req.TaskID)
 	if err != nil {
 		return err
 	}
 
-	// get assigned user's id so we can publish the integration event later
-	assignedUser := *t.AssignedUser
-
-	agg := task.NewTaskAggregate(task.TaskEventFactory{})
-	root, err := ddd.NewAggregateRoot(agg)
+	_, err = agg.HandleCommand(ctx, task.UnassignCommand{})
 	if err != nil {
 		return err
 	}
 
-	err = root.HandleCommand(ctx, task.UnassignCommand{})
+	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err
 	}
 
-	err = h.repository.Save(ctx, *agg.Task)
-	if err != nil {
-		return err
-	}
-
-	ie, err := api.NewTaskUnassignedEvent(uuid.NewString(), req.TaskID, assignedUser)
+	ie, err := api.NewTaskUnassignedEvent(uuid.NewString(), req.TaskID, *agg.Task.AssignedUser)
 	if err != nil {
 		return err
 	}

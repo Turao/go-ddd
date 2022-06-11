@@ -19,11 +19,11 @@ var (
 	ErrUnknownCommand = errors.New("unknown command")
 )
 
-func NewTaskAggregate(ef EventFactory) *TaskAggregate {
+func NewTaskAggregate(ef EventFactory) (*TaskAggregate, error) {
 	return &TaskAggregate{
 		Task:         nil,
 		EventFactory: ef,
-	}
+	}, nil
 }
 
 func (ta *TaskAggregate) ID() string {
