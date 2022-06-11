@@ -54,11 +54,8 @@ func (root *aggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]dd
 		return nil, err
 	}
 
-	err = root.CommitEvents()
-	if err != nil {
-		return nil, err
-	}
-
+	// store events in memory until they get committed
+	root.uncommittedEvents = evts
 	return evts, nil
 }
 
