@@ -6,7 +6,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	watermillKafka "github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/turao/go-ddd/api/kafka"
-	"github.com/turao/go-ddd/events/inmemory"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/application/command"
 	"github.com/turao/go-ddd/users/application/query"
@@ -16,11 +15,6 @@ import (
 
 func main() {
 	ur, err := infrastructure.NewUserRepository()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	es, err := inmemory.NewInMemoryStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -43,7 +37,7 @@ func main() {
 
 	app := &application.Application{
 		Commands: application.Commands{
-			RegisterUserCommand: command.NewRegisterUserHandler(ur, es, urep),
+			RegisterUserCommand: command.NewRegisterUserHandler(ur, urep),
 		},
 		Queries: application.Queries{
 			ListUsersQuery: query.NewListUsersQueryHandler(ur),

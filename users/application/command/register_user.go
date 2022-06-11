@@ -5,25 +5,21 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/turao/go-ddd/api"
-	"github.com/turao/go-ddd/events"
 	"github.com/turao/go-ddd/users/application"
 	"github.com/turao/go-ddd/users/domain/user"
 )
 
 type RegisterUserHandler struct {
 	repository                   user.Repository
-	eventStore                   events.EventStore
 	userRegisteredEventPublisher api.UserRegisteredEventPublisher
 }
 
 func NewRegisterUserHandler(
 	repository user.Repository,
-	es events.EventStore,
 	urep api.UserRegisteredEventPublisher,
 ) *RegisterUserHandler {
 	return &RegisterUserHandler{
 		repository:                   repository,
-		eventStore:                   es,
 		userRegisteredEventPublisher: urep,
 	}
 }
