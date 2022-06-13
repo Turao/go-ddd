@@ -34,6 +34,16 @@ func MessageLogger(h message.HandlerFunc) message.HandlerFunc {
 	}
 }
 
+func ErrorLogger(h message.HandlerFunc) message.HandlerFunc {
+	return func(msg *message.Message) ([]*message.Message, error) {
+		msgs, err := h(msg)
+		if err != nil {
+			log.Println("[ERROR]:", err.Error())
+		}
+		return msgs, err
+	}
+}
+
 func (r *Router) Init() error {
 	logger := watermill.NewStdLogger(true, false)
 	router, err := message.NewRouter(message.RouterConfig{}, logger)
@@ -101,6 +111,7 @@ func (r *Router) Init() error {
 		middleware.Recoverer,
 		poisonMiddleware,
 		MessageLogger,
+		ErrorLogger,
 	)
 
 	r.router = router

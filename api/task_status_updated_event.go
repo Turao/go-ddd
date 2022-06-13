@@ -12,13 +12,13 @@ type TaskStatusUpdatedEventPublisher interface {
 }
 
 type TaskStatusUpdatedEvent struct {
-	events.IntegrationEvent
+	*events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	Status string `json:"status"`
 }
 
-var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
+// var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
 
 const TaskStatusUpdatedEventName = "task.status.updated"
 

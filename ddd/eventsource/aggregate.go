@@ -65,18 +65,13 @@ func (root *aggregate) ReplayEvents() error {
 	defer cancel()
 
 	log.Println("fetching all events")
-	evts, err := root.EventStore.Events(ctx)
+	evts, err := root.EventStore.Events(ctx, root.aggregate.ID())
 	if err != nil {
 		return err
 	}
 
 	log.Println("replaying aggregate events")
 	for _, evt := range evts {
-		// filter out unrelated events
-		if evt.AggregateID() != root.ID() {
-			continue
-		}
-
 		err := root.aggregate.HandleEvent(ctx, evt.(ddd.DomainEvent)) // todo: can we cast these events?
 		if err != nil {
 			return err

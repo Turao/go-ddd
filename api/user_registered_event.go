@@ -12,12 +12,12 @@ type UserRegisteredEventPublisher interface {
 }
 
 type UserRegisteredEvent struct {
-	events.IntegrationEvent
+	*events.IntegrationEvent
 
 	UserID string `json:"userId"`
 }
 
-var _ events.IntegrationEvent = (*UserRegisteredEvent)(nil)
+// var _ events.IntegrationEvent = (*UserRegisteredEvent)(nil)
 
 const UserRegisteredEventName = "user.registered"
 

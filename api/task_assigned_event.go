@@ -12,13 +12,13 @@ type TaskAssignedEventPublisher interface {
 }
 
 type TaskAssignedEvent struct {
-	events.IntegrationEvent
+	*events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	UserID string `json:"userId"`
 }
 
-var _ events.IntegrationEvent = (*TaskAssignedEvent)(nil)
+// var _ events.IntegrationEvent = (*TaskAssignedEvent)(nil)
 
 const TaskAssignedEventName = "task.assigned"
 

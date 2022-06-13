@@ -12,13 +12,13 @@ type TaskUnassignedEventPublisher interface {
 }
 
 type TaskUnassignedEvent struct {
-	events.IntegrationEvent
+	*events.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	UserID string `json:"userId"`
 }
 
-var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
+// var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
 
 const TaskUnassignedEventName = "task.unassigned"
 
