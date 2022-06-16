@@ -41,6 +41,11 @@ func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application
 		return err
 	}
 
+	err = root.CommitEvents()
+	if err != nil {
+		return err
+	}
+
 	err = h.repository.Save(ctx, agg)
 	if err != nil {
 		return err

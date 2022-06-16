@@ -34,7 +34,7 @@ func (ef ProjectEventFactory) NewProjectCreatedEvent(
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (ef ProjectEventFactory) NewProjectUpdatedEvent(id ProjectID, projectName s
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (ef ProjectEventFactory) NewProjectDeletedEvent(id ProjectID) (*ProjectDele
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}

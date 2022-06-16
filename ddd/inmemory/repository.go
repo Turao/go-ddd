@@ -18,7 +18,9 @@ var (
 )
 
 func NewRepository() (*repository, error) {
-	return &repository{}, nil
+	return &repository{
+		aggregates: make(map[string]ddd.Aggregate, 0),
+	}, nil
 }
 
 func (repo repository) FindByID(ctx context.Context, id string) (ddd.Aggregate, error) {
@@ -30,7 +32,7 @@ func (repo repository) FindByID(ctx context.Context, id string) (ddd.Aggregate, 
 	return agg, nil
 }
 
-func (repo repository) Save(ctx context.Context, agg ddd.Aggregate) error {
+func (repo *repository) Save(ctx context.Context, agg ddd.Aggregate) error {
 	repo.aggregates[agg.ID()] = agg
 	return nil
 }

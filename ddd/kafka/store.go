@@ -45,7 +45,7 @@ func (s store) Push(ctx context.Context, evt ddd.DomainEvent) error {
 	}
 
 	return s.publisher.Publish(
-		evt.AggregateID(),
+		evt.AggregateName(),
 		message.NewMessage(uuid.NewString(), data),
 	)
 }

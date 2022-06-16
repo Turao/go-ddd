@@ -10,6 +10,8 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
+const ProjectAggregateName = "project"
+
 type ProjectAggregate struct {
 	Project *Project `json:"project"`
 

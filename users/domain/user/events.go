@@ -25,7 +25,7 @@ func (f UserEventsFactory) NewUserRegisteredEvent(id string, name string) (*User
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, UserAggregateName)
 	if err != nil {
 		return nil, err
 	}

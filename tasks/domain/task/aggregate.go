@@ -9,6 +9,8 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
+const TaskAggregateName = "task"
+
 type TaskAggregate struct {
 	Task *Task
 	EventFactory

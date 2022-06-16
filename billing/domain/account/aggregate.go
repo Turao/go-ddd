@@ -8,6 +8,8 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
+const AccountAggregateName = "account"
+
 type AccountAggregate struct {
 	Account *Account `json:"account"`
 	EventFactory
@@ -106,9 +108,13 @@ func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand
 	if err != nil {
 		return nil, err
 	}
-
-	// populate the account
 	agg.Account.User = u
+
+	i, err := NewInvoice()
+	if err != nil {
+		return nil, err
+	}
+	agg.Account.Invoice = i
 
 	evt, err := agg.EventFactory.NewAccountCreatedEvent(
 		agg.Account.ID,

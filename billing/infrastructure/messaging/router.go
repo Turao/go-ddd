@@ -108,10 +108,10 @@ func (r *Router) Init() error {
 		middleware.Retry{
 			MaxRetries: 1,
 		}.Middleware,
-		middleware.Recoverer,
+		// middleware.Recoverer,
 		poisonMiddleware,
 		MessageLogger,
-		ErrorLogger,
+		// ErrorLogger,
 	)
 
 	r.router = router

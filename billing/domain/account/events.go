@@ -30,7 +30,7 @@ func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID I
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}

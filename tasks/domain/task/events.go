@@ -29,7 +29,7 @@ func (f TaskEventFactory) NewTaskCreatedEvent(id TaskID, projectID ProjectID, ti
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (f TaskEventFactory) NewTaskAssignedEvent(id TaskID, assignedUserID UserID)
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (f TaskEventFactory) NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent,
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (f TaskEventFactory) NewTitleUpdatedEvent(id TaskID, title string) (*TitleU
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (f TaskEventFactory) NewDescriptionUpdatedEvent(id TaskID, description stri
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (f TaskEventFactory) NewStatusUpdatedEvent(id TaskID, status string) (*Stat
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, TaskAggregateName)
 	if err != nil {
 		return nil, err
 	}
