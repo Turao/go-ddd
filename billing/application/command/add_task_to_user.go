@@ -24,7 +24,7 @@ func NewAddTaskToUserCommandHandler(repository ddd.Repository, es ddd.DomainEven
 }
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
-	agg, err := account.NewAggregate(account.AccountEventsFactory{})
+	agg, err := h.repository.FindByID(ctx, req.UserID)
 	if err != nil {
 		return err
 	}
@@ -34,14 +34,14 @@ func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application
 		return err
 	}
 
-	err = root.ReplayEvents()
+	_, err = root.HandleCommand(ctx, account.AddTaskCommand{
+		TaskID: req.TaskID,
+	})
 	if err != nil {
 		return err
 	}
 
-	_, err = agg.HandleCommand(ctx, account.AddTaskCommand{
-		TaskID: req.TaskID,
-	})
+	err = root.CommitEvents()
 	if err != nil {
 		return err
 	}
