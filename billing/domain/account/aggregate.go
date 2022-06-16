@@ -94,9 +94,9 @@ func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{})
 	switch c := cmd.(type) {
 	case CreateAccountCommand:
 		return agg.handleCreateAccountCommand(c)
-	case AddTaskToUserCommand:
+	case AddTaskCommand:
 		return agg.handleAddTaskCommand(c)
-	case RemoveTaskFromUserCommand:
+	case RemoveTaskCommand:
 		return agg.handleRemoveTaskCommand(c)
 	default:
 		return nil, ErrUnknownCommand
@@ -137,7 +137,7 @@ func (agg *AccountAggregate) assertAccountExists() error {
 	return nil
 }
 
-func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskToUserCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskToUserCommand) ([]d
 	}, nil
 }
 
-func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskFromUserCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskCommand) ([]ddd.DomainEvent, error) {
 	if err := agg.assertAccountExists(); err != nil {
 		return nil, err
 	}

@@ -6,10 +6,10 @@ type CreateAccountCommand struct {
 	UserID user.UserID
 }
 
-type AddTaskToUserCommand struct {
+type AddTaskCommand struct {
 	TaskID TaskID
 }
 
-type RemoveTaskFromUserCommand struct {
+type RemoveTaskCommand struct {
 	TaskID TaskID
 }
