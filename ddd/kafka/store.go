@@ -38,7 +38,7 @@ func NewStore() (*store, error) {
 	}, nil
 }
 
-func (s store) Push(ctx context.Context, evt ddd.DomainEvent, expectedVersion int) error {
+func (s store) Push(ctx context.Context, evt ddd.DomainEvent) error {
 	data, err := json.Marshal(evt)
 	if err != nil {
 		return err

@@ -4,10 +4,8 @@ import (
 	"time"
 )
 
-type EventID = string
-
 type Event interface {
-	ID() EventID
+	ID() string
 	Name() string
 	OccurredAt() time.Time
 }

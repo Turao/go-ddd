@@ -93,7 +93,7 @@ func (root *aggregate) CommitEvents() error {
 	defer cancel()
 
 	for _, evt := range evts {
-		err := root.EventStore.Push(ctx, evt, root.version)
+		err := root.EventStore.Push(ctx, evt)
 		if err != nil {
 			return err
 		}
