@@ -24,7 +24,7 @@ func NewCreateAccountCommandHandler(repository ddd.Repository, es ddd.DomainEven
 }
 
 func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application.CreateAccountCommand) error {
-	agg, err := account.NewAggregate(account.AccountEventsFactory{})
+	agg, err := account.NewAggregate(account.AccountEventsFactory{}, account.WithAggregateID(req.UserID))
 	if err != nil {
 		return err
 	}
@@ -37,6 +37,11 @@ func (h CreateAccountCommandHandler) Handle(ctx context.Context, req application
 	_, err = root.HandleCommand(ctx, account.CreateAccountCommand{
 		UserID: req.UserID,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = root.CommitEvents()
 	if err != nil {
 		return err
 	}

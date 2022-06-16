@@ -3,6 +3,7 @@ package messaging
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/turao/go-ddd/api"
@@ -25,6 +26,7 @@ func (h UserRegisteredEventHandler) Handle(msg *message.Message) error {
 	})
 
 	if err != nil {
+		log.Fatalln(err)
 		return err
 	}
 

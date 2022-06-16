@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type EventFactory interface {
@@ -29,12 +29,12 @@ func (ef ProjectEventFactory) NewProjectCreatedEvent(
 	createdBy UserID,
 	createdAt time.Time,
 ) (*ProjectCreatedEvent, error) {
-	event, err := events.NewEvent("project.created")
+	event, err := v1.NewEvent("project.created")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +61,12 @@ type ProjectUpdatedEvent struct {
 }
 
 func (ef ProjectEventFactory) NewProjectUpdatedEvent(id ProjectID, projectName string) (*ProjectUpdatedEvent, error) {
-	event, err := events.NewEvent("project.updated")
+	event, err := v1.NewEvent("project.updated")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +86,12 @@ type ProjectDeletedEvent struct {
 }
 
 func (ef ProjectEventFactory) NewProjectDeletedEvent(id ProjectID) (*ProjectDeletedEvent, error) {
-	event, err := events.NewEvent("project.deleted")
+	event, err := v1.NewEvent("project.deleted")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, id)
+	domainEvent, err := ddd.NewDomainEvent(event, id, ProjectAggregateName)
 	if err != nil {
 		return nil, err
 	}

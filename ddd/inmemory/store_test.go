@@ -20,27 +20,24 @@ func (e MockEvent) OccurredAt() time.Time { return time.Now() }
 
 func TestPush(t *testing.T) {
 	type test struct {
-		Event           ddd.DomainEvent
-		ExpectedVersion int
-
-		ExpectedSize int
-		Error        error
+		Event         ddd.DomainEvent
+		ExpectedSize  int
+		ExpectedError error
 	}
 
 	tests := map[string]test{
-		"basic success":          {Event: &MockEvent{}, ExpectedVersion: 1, ExpectedSize: 1, Error: nil},
-		"wrong expected version": {Event: &MockEvent{}, ExpectedVersion: 2, ExpectedSize: 0, Error: ErrExpectedVersionNotSatisfied},
+		"basic success": {Event: &MockEvent{}, ExpectedSize: 1, ExpectedError: nil},
 	}
 
 	for name, test := range tests {
-		es, err := NewInMemoryStore()
+		es, err := NewStore()
 		if err != nil {
 			panic(err)
 		}
 
-		err = es.Push(context.Background(), test.Event, test.ExpectedVersion)
+		err = es.Push(context.Background(), test.Event)
 		if err != nil {
-			assert.Equalf(t, err, test.Error, name)
+			assert.Equalf(t, err, test.ExpectedError, name)
 			continue
 		}
 

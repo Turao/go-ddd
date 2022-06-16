@@ -8,23 +8,23 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
-type inMemoryStore struct {
+type store struct {
 	evts map[string][]ddd.DomainEvent
 }
 
-var _ ddd.DomainEventStore = (*inMemoryStore)(nil)
+var _ ddd.DomainEventStore = (*store)(nil)
 
 var (
 	ErrExpectedVersionNotSatisfied = errors.New("expected version does not match event store state")
 )
 
-func NewInMemoryStore() (*inMemoryStore, error) {
-	return &inMemoryStore{
+func NewStore() (*store, error) {
+	return &store{
 		evts: make(map[string][]ddd.DomainEvent, 0),
 	}, nil
 }
 
-func (ims *inMemoryStore) Push(ctx context.Context, evt ddd.DomainEvent, expectedVersion int) error {
+func (ims *store) Push(ctx context.Context, evt ddd.DomainEvent) error {
 	// get aggregate events
 	aggregateID := evt.AggregateID()
 	evts, found := ims.evts[aggregateID]
@@ -33,19 +33,13 @@ func (ims *inMemoryStore) Push(ctx context.Context, evt ddd.DomainEvent, expecte
 		ims.evts[aggregateID] = evts
 	}
 
-	// validate expected version
-	version := len(evts) + 1
-	if version != expectedVersion {
-		return ErrExpectedVersionNotSatisfied
-	}
-
 	// push event into event stream
 	evts = append(evts, evt)
 	ims.evts[aggregateID] = evts
 	return nil
 }
 
-func (ims inMemoryStore) Events(ctx context.Context, aggregateID string) ([]ddd.DomainEvent, error) {
+func (ims store) Events(ctx context.Context, aggregateID string) ([]ddd.DomainEvent, error) {
 	evts, found := ims.evts[aggregateID]
 	if !found {
 		evts = make([]ddd.DomainEvent, 0)
@@ -55,7 +49,7 @@ func (ims inMemoryStore) Events(ctx context.Context, aggregateID string) ([]ddd.
 	return evts, nil
 }
 
-func (ims inMemoryStore) MarshalJSON() ([]byte, error) {
+func (ims store) MarshalJSON() ([]byte, error) {
 	events := struct {
 		Events map[string][]ddd.DomainEvent `json:"events"`
 	}{

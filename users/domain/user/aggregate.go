@@ -9,6 +9,8 @@ import (
 	"github.com/turao/go-ddd/ddd"
 )
 
+const UserAggregateName = "user"
+
 type UserAggregate struct {
 	User *User
 

@@ -2,13 +2,13 @@ package account
 
 import (
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type EventFactory interface {
-	NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
-	NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error)
-	NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error)
+	NewAccountCreatedEvent(accountID string, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
+	NewTaskAddedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error)
+	NewTaskRemovedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error)
 }
 
 type AccountEventsFactory struct{}
@@ -24,13 +24,13 @@ type AccountCreatedEvent struct {
 // 	ErrInvalidTaskID   = errors.New("invalid task id")
 // )
 
-func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
-	event, err := events.NewEvent("account.created")
+func (f AccountEventsFactory) NewAccountCreatedEvent(accountID string, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
+	event, err := v1.NewEvent("account.created")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +56,13 @@ type TaskAddedEvent struct {
 	TaskID          TaskID    `json:"taskId"`
 }
 
-func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
-	event, err := events.NewEvent("account.invoice.task.added")
+func (f AccountEventsFactory) NewTaskAddedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
+	event, err := v1.NewEvent("account.invoice.task.added")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}
@@ -88,13 +88,13 @@ type TaskRemovedEvent struct {
 	TaskID          TaskID    `json:"taskId"`
 }
 
-func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
-	event, err := events.NewEvent("account.invoice.task.removed")
+func (f AccountEventsFactory) NewTaskRemovedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
+	event, err := v1.NewEvent("account.invoice.task.removed")
 	if err != nil {
 		return nil, err
 	}
 
-	domainEvent, err := ddd.NewDomainEvent(event, accountID)
+	domainEvent, err := ddd.NewDomainEvent(event, accountID, AccountAggregateName)
 	if err != nil {
 		return nil, err
 	}

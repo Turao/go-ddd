@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type TaskStatusUpdatedEventPublisher interface {
@@ -12,23 +13,23 @@ type TaskStatusUpdatedEventPublisher interface {
 }
 
 type TaskStatusUpdatedEvent struct {
-	*events.IntegrationEvent
+	*v1.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	Status string `json:"status"`
 }
 
-// var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
+var _ events.IntegrationEvent = (*TaskStatusUpdatedEvent)(nil)
 
 const TaskStatusUpdatedEventName = "task.status.updated"
 
 func NewTaskStatusUpdatedEvent(correlationID string, taskID string, status string) (*TaskStatusUpdatedEvent, error) {
-	event, err := events.NewEvent(TaskStatusUpdatedEventName)
+	event, err := v1.NewEvent(TaskStatusUpdatedEventName)
 	if err != nil {
 		return nil, err
 	}
 
-	ie, err := events.NewIntegrationEvent(event, correlationID)
+	ie, err := v1.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}

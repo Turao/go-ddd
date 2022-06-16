@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"log"
 
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
@@ -25,13 +24,7 @@ func NewAddTaskToUserCommandHandler(repository ddd.Repository, es ddd.DomainEven
 }
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
-	defer func() {
-		data, _ := h.eventStore.MarshalJSON()
-		log.Println("after creating")
-		log.Println(string(data))
-	}()
-
-	agg, err := account.NewAggregate(account.AccountEventsFactory{})
+	agg, err := h.repository.FindByID(ctx, req.UserID)
 	if err != nil {
 		return err
 	}
@@ -41,14 +34,14 @@ func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application
 		return err
 	}
 
-	err = root.ReplayEvents()
+	_, err = root.HandleCommand(ctx, account.AddTaskCommand{
+		TaskID: req.TaskID,
+	})
 	if err != nil {
 		return err
 	}
 
-	_, err = agg.HandleCommand(ctx, account.AddTaskToUserCommand{
-		TaskID: req.TaskID,
-	})
+	err = root.CommitEvents()
 	if err != nil {
 		return err
 	}
