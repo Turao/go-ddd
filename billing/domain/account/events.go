@@ -6,9 +6,9 @@ import (
 )
 
 type EventFactory interface {
-	NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
-	NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error)
-	NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error)
+	NewAccountCreatedEvent(accountID string, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error)
+	NewTaskAddedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error)
+	NewTaskRemovedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error)
 }
 
 type AccountEventsFactory struct{}
@@ -24,7 +24,7 @@ type AccountCreatedEvent struct {
 // 	ErrInvalidTaskID   = errors.New("invalid task id")
 // )
 
-func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
+func (f AccountEventsFactory) NewAccountCreatedEvent(accountID string, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
 	event, err := v1.NewEvent("account.created")
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ type TaskAddedEvent struct {
 	TaskID          TaskID    `json:"taskId"`
 }
 
-func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
+func (f AccountEventsFactory) NewTaskAddedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
 	event, err := v1.NewEvent("account.invoice.task.added")
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ type TaskRemovedEvent struct {
 	TaskID          TaskID    `json:"taskId"`
 }
 
-func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
+func (f AccountEventsFactory) NewTaskRemovedEvent(accountID string, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
 	event, err := v1.NewEvent("account.invoice.task.removed")
 	if err != nil {
 		return nil, err

@@ -28,7 +28,7 @@ func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req applic
 		return err
 	}
 
-	_, err = agg.HandleCommand(ctx, account.RemoveTaskFromUserCommand{
+	_, err = agg.HandleCommand(ctx, account.RemoveTaskCommand{
 		TaskID: req.TaskID,
 	})
 	if err != nil {

@@ -5,13 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/turao/go-ddd/ddd"
 )
 
 const AccountAggregateName = "account"
 
 type AccountAggregate struct {
-	Account *Account `json:"account"`
+	id string
+
+	User    *User    `json:"user"`
+	Invoice *Invoice `json:"invoice"`
+
 	EventFactory
 }
 
@@ -22,20 +27,37 @@ var (
 	ErrUnknownCommand = errors.New("unknown command")
 )
 
-func NewAggregate(ef EventFactory) (*AccountAggregate, error) {
-	acc, err := NewAccount()
-	if err != nil {
-		return nil, err
+type AccountAggregateOption = func(agg *AccountAggregate) error
+
+func WithAggregateID(id string) AccountAggregateOption {
+	return func(agg *AccountAggregate) error {
+		if id == "" {
+			return errors.New("account aggregate id is empty")
+		}
+		agg.id = id
+		return nil
+	}
+}
+
+func NewAggregate(ef EventFactory, opts ...AccountAggregateOption) (*AccountAggregate, error) {
+	agg := &AccountAggregate{
+		id:           uuid.NewString(),
+		User:         nil,
+		Invoice:      nil,
+		EventFactory: ef,
 	}
 
-	return &AccountAggregate{
-		Account:      acc,
-		EventFactory: ef,
-	}, nil
+	for _, opt := range opts {
+		if err := opt(agg); err != nil {
+			return nil, err
+		}
+	}
+
+	return agg, nil
 }
 
 func (agg AccountAggregate) ID() string {
-	return agg.Account.ID
+	return agg.id
 }
 
 func (agg *AccountAggregate) HandleEvent(ctx context.Context, event ddd.DomainEvent) error {
@@ -56,26 +78,19 @@ func (agg *AccountAggregate) handleAccountCreatedEvent(evt AccountCreatedEvent) 
 	if err != nil {
 		return err
 	}
+	agg.User = u
 
 	i, err := NewInvoice(WithInvoiceID(evt.InvoiceID))
 	if err != nil {
 		return err
 	}
+	agg.Invoice = i
 
-	a, err := NewAccount(
-		WithAccountID(agg.ID()),
-		WithUser(u),
-		WithInvoice(i),
-	)
-	if err != nil {
-		return err
-	}
-	agg.Account = a
 	return nil
 }
 
 func (agg *AccountAggregate) handleTaskAddedEvent(evt TaskAddedEvent) error {
-	err := agg.Account.Invoice.AddTask(evt.TaskID)
+	err := agg.Invoice.AddTask(evt.TaskID)
 	if err != nil {
 		return err
 	}
@@ -83,7 +98,7 @@ func (agg *AccountAggregate) handleTaskAddedEvent(evt TaskAddedEvent) error {
 }
 
 func (agg *AccountAggregate) handleTaskRemovedEvent(evt TaskRemovedEvent) error {
-	err := agg.Account.Invoice.RemoveTask(evt.TaskID)
+	err := agg.Invoice.RemoveTask(evt.TaskID)
 	if err != nil {
 		return err
 	}
@@ -108,18 +123,18 @@ func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand
 	if err != nil {
 		return nil, err
 	}
-	agg.Account.User = u
+	agg.User = u
 
 	i, err := NewInvoice()
 	if err != nil {
 		return nil, err
 	}
-	agg.Account.Invoice = i
+	agg.Invoice = i
 
 	evt, err := agg.EventFactory.NewAccountCreatedEvent(
-		agg.Account.ID,
-		agg.Account.User.ID,
-		agg.Account.Invoice.ID,
+		agg.id,
+		agg.User.ID,
+		agg.Invoice.ID,
 	)
 	if err != nil {
 		return nil, err
@@ -130,24 +145,13 @@ func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand
 	}, nil
 }
 
-func (agg *AccountAggregate) assertAccountExists() error {
-	if agg.Account == nil {
-		return errors.New("account has not been created yet")
-	}
-	return nil
-}
-
 func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskCommand) ([]ddd.DomainEvent, error) {
-	if err := agg.assertAccountExists(); err != nil {
-		return nil, err
-	}
-
-	err := agg.Account.Invoice.AddTask(cmd.TaskID)
+	err := agg.Invoice.AddTask(cmd.TaskID)
 	if err != nil {
 		return nil, err
 	}
 
-	evt, err := agg.EventFactory.NewTaskAddedEvent(agg.Account.ID, agg.Account.Invoice.ID, cmd.TaskID)
+	evt, err := agg.EventFactory.NewTaskAddedEvent(agg.id, agg.Invoice.ID, cmd.TaskID)
 	if err != nil {
 		return nil, err
 	}
@@ -158,16 +162,12 @@ func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskCommand) ([]ddd.Dom
 }
 
 func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskCommand) ([]ddd.DomainEvent, error) {
-	if err := agg.assertAccountExists(); err != nil {
-		return nil, err
-	}
-
-	err := agg.Account.Invoice.RemoveTask(cmd.TaskID)
+	err := agg.Invoice.RemoveTask(cmd.TaskID)
 	if err != nil {
 		return nil, err
 	}
 
-	evt, err := agg.EventFactory.NewTaskRemovedEvent(agg.Account.ID, agg.Account.Invoice.ID, cmd.TaskID)
+	evt, err := agg.EventFactory.NewTaskRemovedEvent(agg.id, agg.Invoice.ID, cmd.TaskID)
 	if err != nil {
 		return nil, err
 	}
@@ -179,20 +179,29 @@ func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskCommand) ([]d
 
 func (agg AccountAggregate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Account Account `json:"account"`
+		ID      string   `json:"id"`
+		User    *User    `json:"user"`
+		Invoice *Invoice `json:"invoice"`
 	}{
-		Account: *agg.Account,
+		ID:      agg.id,
+		User:    agg.User,
+		Invoice: agg.Invoice,
 	})
 }
 
 func (agg *AccountAggregate) UnmarshalJSON(data []byte) error {
 	var payload struct {
-		Account Account `json:"account"`
+		ID      string   `json:"id"`
+		User    *User    `json:"user"`
+		Invoice *Invoice `json:"invoice"`
 	}
 	err := json.Unmarshal(data, &payload)
 	if err != nil {
 		return err
 	}
-	agg.Account = &payload.Account
+
+	agg.id = payload.ID
+	agg.User = payload.User
+	agg.Invoice = payload.Invoice
 	return nil
 }

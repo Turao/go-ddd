@@ -39,7 +39,7 @@ func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application
 		return err
 	}
 
-	_, err = agg.HandleCommand(ctx, account.AddTaskToUserCommand{
+	_, err = agg.HandleCommand(ctx, account.AddTaskCommand{
 		TaskID: req.TaskID,
 	})
 	if err != nil {
