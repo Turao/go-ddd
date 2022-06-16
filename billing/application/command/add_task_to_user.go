@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"log"
 
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
@@ -25,12 +24,6 @@ func NewAddTaskToUserCommandHandler(repository ddd.Repository, es ddd.DomainEven
 }
 
 func (h AddTaskToUserCommandHandler) Handle(ctx context.Context, req application.AddTaskToUserCommand) error {
-	defer func() {
-		data, _ := h.eventStore.MarshalJSON()
-		log.Println("after creating")
-		log.Println(string(data))
-	}()
-
 	agg, err := account.NewAggregate(account.AccountEventsFactory{})
 	if err != nil {
 		return err

@@ -2,7 +2,7 @@ package account
 
 import (
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type EventFactory interface {
@@ -25,7 +25,7 @@ type AccountCreatedEvent struct {
 // )
 
 func (f AccountEventsFactory) NewAccountCreatedEvent(accountID AccountID, userID UserID, invoiceID InvoiceID) (*AccountCreatedEvent, error) {
-	event, err := events.NewEvent("account.created")
+	event, err := v1.NewEvent("account.created")
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ type TaskAddedEvent struct {
 }
 
 func (f AccountEventsFactory) NewTaskAddedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskAddedEvent, error) {
-	event, err := events.NewEvent("account.invoice.task.added")
+	event, err := v1.NewEvent("account.invoice.task.added")
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ type TaskRemovedEvent struct {
 }
 
 func (f AccountEventsFactory) NewTaskRemovedEvent(accountID AccountID, invoiceID InvoiceID, taskID TaskID) (*TaskRemovedEvent, error) {
-	event, err := events.NewEvent("account.invoice.task.removed")
+	event, err := v1.NewEvent("account.invoice.task.removed")
 	if err != nil {
 		return nil, err
 	}

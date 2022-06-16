@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type TaskUnassignedEventPublisher interface {
@@ -12,23 +13,23 @@ type TaskUnassignedEventPublisher interface {
 }
 
 type TaskUnassignedEvent struct {
-	*events.IntegrationEvent
+	*v1.IntegrationEvent
 
 	TaskID string `json:"taskId"`
 	UserID string `json:"userId"`
 }
 
-// var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
+var _ events.IntegrationEvent = (*TaskUnassignedEvent)(nil)
 
 const TaskUnassignedEventName = "task.unassigned"
 
 func NewTaskUnassignedEvent(correlationID string, taskID string, userID string) (*TaskUnassignedEvent, error) {
-	event, err := events.NewEvent(TaskUnassignedEventName)
+	event, err := v1.NewEvent(TaskUnassignedEventName)
 	if err != nil {
 		return nil, err
 	}
 
-	ie, err := events.NewIntegrationEvent(event, correlationID)
+	ie, err := v1.NewIntegrationEvent(event, correlationID)
 	if err != nil {
 		return nil, err
 	}

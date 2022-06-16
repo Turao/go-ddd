@@ -2,7 +2,7 @@ package task
 
 import (
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type EventFactory interface {
@@ -24,7 +24,7 @@ type TaskCreatedEvent struct {
 }
 
 func (f TaskEventFactory) NewTaskCreatedEvent(id TaskID, projectID ProjectID, title string, description string) (*TaskCreatedEvent, error) {
-	event, err := events.NewEvent("task.created")
+	event, err := v1.NewEvent("task.created")
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ type TaskAssignedEvent struct {
 }
 
 func (f TaskEventFactory) NewTaskAssignedEvent(id TaskID, assignedUserID UserID) (*TaskAssignedEvent, error) {
-	event, err := events.NewEvent("task.assigned")
+	event, err := v1.NewEvent("task.assigned")
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ type TaskUnassignedEvent struct {
 }
 
 func (f TaskEventFactory) NewTaskUnassignedEvent(id TaskID) (*TaskAssignedEvent, error) {
-	event, err := events.NewEvent("task.unassigned")
+	event, err := v1.NewEvent("task.unassigned")
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ type TitleUpdatedEvent struct {
 }
 
 func (f TaskEventFactory) NewTitleUpdatedEvent(id TaskID, title string) (*TitleUpdatedEvent, error) {
-	event, err := events.NewEvent("task.title.updated")
+	event, err := v1.NewEvent("task.title.updated")
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ type DescriptionUpdatedEvent struct {
 }
 
 func (f TaskEventFactory) NewDescriptionUpdatedEvent(id TaskID, description string) (*DescriptionUpdatedEvent, error) {
-	event, err := events.NewEvent("task.description.updated")
+	event, err := v1.NewEvent("task.description.updated")
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ type StatusUpdatedEvent struct {
 }
 
 func (f TaskEventFactory) NewStatusUpdatedEvent(id TaskID, status string) (*StatusUpdatedEvent, error) {
-	event, err := events.NewEvent("task.status.updated")
+	event, err := v1.NewEvent("task.status.updated")
 	if err != nil {
 		return nil, err
 	}

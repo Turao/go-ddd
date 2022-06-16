@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/turao/go-ddd/ddd"
-	"github.com/turao/go-ddd/events"
+	v1 "github.com/turao/go-ddd/events/v1"
 )
 
 type EventFactory interface {
@@ -20,7 +20,7 @@ type UserRegisteredEvent struct {
 }
 
 func (f UserEventsFactory) NewUserRegisteredEvent(id string, name string) (*UserRegisteredEvent, error) {
-	event, err := events.NewEvent("user.registered")
+	event, err := v1.NewEvent("user.registered")
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/turao/go-ddd/billing/infrastructure/messaging"
 	"github.com/turao/go-ddd/billing/infrastructure/rest"
 	aggregateRepository "github.com/turao/go-ddd/ddd/inmemory"
-	eventStore "github.com/turao/go-ddd/ddd/inmemory"
+	eventStore "github.com/turao/go-ddd/ddd/kafka"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	es, err := eventStore.NewInMemoryStore()
+	es, err := eventStore.NewStore()
 	if err != nil {
 		log.Fatalln(err)
 	}
