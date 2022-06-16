@@ -1,15 +1,6 @@
 package ddd
 
-import (
-	"context"
-
-	"github.com/turao/go-ddd/events"
-)
-
-type DomainEvent interface {
-	events.Event
-	AggregateID() string
-}
+import "context"
 
 type DomainEventStore interface {
 	Push(ctx context.Context, evt DomainEvent) error
