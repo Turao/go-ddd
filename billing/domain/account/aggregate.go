@@ -11,8 +11,10 @@ import (
 
 const AccountAggregateName = "account"
 
+type AccountID = string
+
 type AccountAggregate struct {
-	id string
+	id AccountID
 
 	User    *User    `json:"user"`
 	Invoice *Invoice `json:"invoice"`
@@ -108,17 +110,17 @@ func (agg *AccountAggregate) handleTaskRemovedEvent(evt TaskRemovedEvent) error 
 func (agg *AccountAggregate) HandleCommand(ctx context.Context, cmd interface{}) ([]ddd.DomainEvent, error) {
 	switch c := cmd.(type) {
 	case CreateAccountCommand:
-		return agg.handleCreateAccountCommand(c)
+		return agg.handleCreateAccountCommand(ctx, c)
 	case AddTaskCommand:
-		return agg.handleAddTaskCommand(c)
+		return agg.handleAddTaskCommand(ctx, c)
 	case RemoveTaskCommand:
-		return agg.handleRemoveTaskCommand(c)
+		return agg.handleRemoveTaskCommand(ctx, c)
 	default:
 		return nil, ErrUnknownCommand
 	}
 }
 
-func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleCreateAccountCommand(ctx context.Context, cmd CreateAccountCommand) ([]ddd.DomainEvent, error) {
 	u, err := NewUser(cmd.UserID)
 	if err != nil {
 		return nil, err
@@ -145,7 +147,7 @@ func (agg *AccountAggregate) handleCreateAccountCommand(cmd CreateAccountCommand
 	}, nil
 }
 
-func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleAddTaskCommand(ctx context.Context, cmd AddTaskCommand) ([]ddd.DomainEvent, error) {
 	err := agg.Invoice.AddTask(cmd.TaskID)
 	if err != nil {
 		return nil, err
@@ -161,7 +163,7 @@ func (agg *AccountAggregate) handleAddTaskCommand(cmd AddTaskCommand) ([]ddd.Dom
 	}, nil
 }
 
-func (agg *AccountAggregate) handleRemoveTaskCommand(cmd RemoveTaskCommand) ([]ddd.DomainEvent, error) {
+func (agg *AccountAggregate) handleRemoveTaskCommand(ctx context.Context, cmd RemoveTaskCommand) ([]ddd.DomainEvent, error) {
 	err := agg.Invoice.RemoveTask(cmd.TaskID)
 	if err != nil {
 		return nil, err

@@ -32,7 +32,7 @@ func (ir AccountRepository) FindByID(ctx context.Context, accountID account.Acco
 	return acc, nil
 }
 
-func (tr AccountRepository) Save(ctx context.Context, acc *account.AccountAggregate) error {
+func (tr *AccountRepository) Save(ctx context.Context, acc *account.AccountAggregate) error {
 	tr.accounts[acc.ID()] = acc
 	return nil
 }

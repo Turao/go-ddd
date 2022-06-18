@@ -6,6 +6,7 @@ import (
 	"github.com/turao/go-ddd/billing/application"
 	"github.com/turao/go-ddd/billing/domain/account"
 	"github.com/turao/go-ddd/ddd"
+	"github.com/turao/go-ddd/ddd/eventsource"
 )
 
 type RemoveTaskFromUserCommandHandler struct {
@@ -23,7 +24,17 @@ func NewRemoveTaskFromUserCommandHandler(repository ddd.Repository, es ddd.Domai
 }
 
 func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req application.RemoveTaskFromUserCommand) error {
-	agg, err := h.repository.FindByID(ctx, req.UserID)
+	agg, err := account.NewAggregate(account.AccountEventsFactory{}, account.WithAggregateID(req.UserID))
+	if err != nil {
+		return err
+	}
+
+	root, err := eventsource.NewAggregate(agg, h.eventStore)
+	if err != nil {
+		return nil
+	}
+
+	err = root.ReplayEvents()
 	if err != nil {
 		return err
 	}
@@ -31,6 +42,11 @@ func (h RemoveTaskFromUserCommandHandler) Handle(ctx context.Context, req applic
 	_, err = agg.HandleCommand(ctx, account.RemoveTaskCommand{
 		TaskID: req.TaskID,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = root.CommitEvents()
 	if err != nil {
 		return err
 	}

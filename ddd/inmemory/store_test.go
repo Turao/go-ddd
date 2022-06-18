@@ -15,6 +15,7 @@ var _ ddd.DomainEvent = (*MockEvent)(nil)
 
 func (e MockEvent) ID() string            { return "" }
 func (e MockEvent) AggregateID() string   { return "" }
+func (e MockEvent) AggregateName() string { return "" }
 func (e MockEvent) Name() string          { return "" }
 func (e MockEvent) OccurredAt() time.Time { return time.Now() }
 
